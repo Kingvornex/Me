@@ -6,32 +6,56 @@
   <title>Kingvornex | GitHub Developer</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Arial, sans-serif;
       background-color: #0d1117;
       color: #c9d1d9;
       margin: 0;
       padding: 0;
+      line-height: 1.6;
     }
     header {
       text-align: center;
-      padding: 40px 20px;
-      background-color: #161b22;
+      padding: 50px 20px;
+      background: linear-gradient(180deg, #161b22, #0d1117);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
     }
     header img {
-      width: 120px;
+      width: 130px;
+      height: 130px;
+      object-fit: cover;
       border-radius: 50%;
-      border: 2px solid #30363d;
+      border: 3px solid #30363d;
+      transition: transform 0.3s ease;
+    }
+    header img:hover {
+      transform: scale(1.08);
     }
     h1 {
       margin: 15px 0 5px;
-      font-size: 28px;
+      font-size: 32px;
+      font-weight: 600;
     }
     p.bio {
       color: #8b949e;
       font-size: 16px;
+      margin-bottom: 10px;
+    }
+    .link-btn {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 18px;
+      background-color: #238636;
+      color: white;
+      font-weight: 500;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: background 0.3s;
+    }
+    .link-btn:hover {
+      background-color: #2ea043;
     }
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: 40px auto;
       padding: 0 20px;
     }
@@ -40,9 +64,10 @@
     }
     .section h2 {
       border-bottom: 1px solid #30363d;
-      padding-bottom: 5px;
-      margin-bottom: 15px;
+      padding-bottom: 6px;
+      margin-bottom: 18px;
       font-size: 22px;
+      font-weight: 600;
     }
     a {
       color: #58a6ff;
@@ -58,9 +83,18 @@
     ul.repos li {
       background-color: #161b22;
       padding: 15px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       border: 1px solid #30363d;
       border-radius: 8px;
+      transition: transform 0.2s ease, border-color 0.3s ease;
+    }
+    ul.repos li:hover {
+      transform: translateY(-3px);
+      border-color: #58a6ff;
+    }
+    ul.skills {
+      list-style: square;
+      padding-left: 20px;
     }
     footer {
       text-align: center;
@@ -68,16 +102,17 @@
       background-color: #161b22;
       font-size: 14px;
       color: #8b949e;
+      border-top: 1px solid #30363d;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <img src="https://avatars.githubusercontent.com/u/108731053?v=4" alt="Kingvornex Avatar">
+    <img src="https://avatars.githubusercontent.com/u/161863111?v=4" alt="Kingvornex Avatar">
     <h1>Kingvornex</h1>
     <p class="bio">Open.MP Contributor • Scripting SA-MP Systems • Focused on Filterscripts and Game Features</p>
-    <p><a href="https://github.com/Kingvornex" target="_blank">Visit GitHub Profile →</a></p>
+    <a class="link-btn" href="https://github.com/Kingvornex" target="_blank">Visit GitHub Profile →</a>
   </header>
 
   <div class="container">
@@ -110,7 +145,7 @@
 
     <div class="section">
       <h2>Skills</h2>
-      <ul>
+      <ul class="skills">
         <li>PAWN (SA-MP scripting)</li>
         <li>Open.MP API</li>
         <li>Game mechanics and filterscript design</li>
