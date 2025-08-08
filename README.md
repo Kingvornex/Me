@@ -34,7 +34,7 @@ kingvornex-profile/
 
 ## 📸 Preview
 
-![Preview Screenshot](https://avatars.githubusercontent.com/u/108731053?v=4)
+![Preview Screenshot](https://avatars.githubusercontent.com/u/161863111?v=4)
 
 ## 📄 License
 
