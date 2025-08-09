@@ -1,0 +1,2205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a2a6c">
+    <title>Crazy Interactive Blog</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            min-height: 100vh;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #fff;
+            position: relative;
+            touch-action: manipulation;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .three-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+            padding-bottom: 70px; /* Space for mobile navigation */
+        }
+
+        .app-header {
+            padding: 15px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .crazy-title {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+            letter-spacing: 2px;
+        }
+
+        .title-letter {
+            display: inline-block;
+            animation: bounce 1s infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+
+        .nav-menu {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            margin: 3px;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .app-main {
+            flex: 1;
+            padding: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .app-footer {
+            padding: 15px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-top: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Mobile Navigation */
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 1000;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .mobile-nav-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            font-size: 0.8rem;
+            padding: 5px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-nav-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-nav-button i {
+            font-size: 1.5rem;
+            margin-bottom: 3px;
+        }
+
+        /* Blog Styles */
+        .blog-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .blog-container {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+        }
+
+        .blog-post {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            backdrop-filter: blur(5px);
+            transition: transform 0.3s ease;
+        }
+
+        .blog-post:hover {
+            transform: translateY(-5px);
+        }
+
+        .blog-post h3 {
+            margin-bottom: 8px;
+            color: #FFD700;
+            font-size: 1.2rem;
+        }
+
+        .blog-post .date {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 8px;
+        }
+
+        .blog-post .content {
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        /* Assistant Styles */
+        .assistant-container {
+            position: fixed;
+            bottom: 80px;
+            right: 15px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .assistant-character {
+            width: 60px;
+            height: 90px;
+            position: relative;
+            cursor: pointer;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .assistant-body {
+            position: absolute;
+            bottom: 0;
+            width: 45px;
+            height: 52px;
+            border-radius: 22px 22px 0 0;
+            left: 7px;
+            background: #FFD700;
+        }
+
+        .assistant-head {
+            position: absolute;
+            top: 0;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            left: 11px;
+            background: #FFD700;
+        }
+
+        .assistant-eyes {
+            position: absolute;
+            top: 11px;
+            left: 8px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .eye {
+            width: 9px;
+            height: 9px;
+            background: white;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pupil {
+            width: 4px;
+            height: 4px;
+            background: #333;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.1s ease;
+        }
+
+        .mouth {
+            position: absolute;
+            bottom: 9px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 15px;
+            height: 6px;
+            border-radius: 0 0 8px 8px;
+            background: #333;
+        }
+
+        .speaking-indicator {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 16px;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .speaking-indicator::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #FF6347;
+            border-radius: 50%;
+        }
+
+        .speech-bubble {
+            background: white;
+            color: #333;
+            padding: 10px 15px;
+            border-radius: 15px;
+            margin-bottom: 8px;
+            max-width: 200px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            position: relative;
+            font-size: 13px;
+            line-height: 1.3;
+        }
+
+        .speech-bubble-tail {
+            position: absolute;
+            bottom: -6px;
+            right: 15px;
+            width: 12px;
+            height: 12px;
+            background: white;
+            transform: rotate(45deg);
+            box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: -1;
+        }
+
+        /* Game Modal Styles */
+        .game-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 10px;
+        }
+
+        .game-container {
+            background: rgba(30, 30, 50, 0.9);
+            border-radius: 15px;
+            padding: 15px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 95%;
+            max-height: 90vh;
+            overflow: auto;
+            width: 100%;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .close-button:hover {
+            transform: rotate(90deg);
+        }
+
+        /* Snake Game Styles */
+        .snake-game {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .game-board {
+            border: 2px solid #4CAF50;
+            margin: 15px 0;
+            display: grid;
+            grid-template-columns: repeat(20, 15px);
+            grid-template-rows: repeat(20, 15px);
+        }
+
+        .cell {
+            width: 15px;
+            height: 15px;
+            background-color: #E0E0E0;
+        }
+
+        .head {
+            background-color: #4CAF50 !important;
+        }
+
+        .body {
+            background-color: #8BC34A !important;
+        }
+
+        .food {
+            background-color: #F44336 !important;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 15px;
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .start-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .start-button:hover {
+            background: #45a049;
+        }
+
+        /* Memory Game Styles */
+        .memory-game {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .memory-board {
+            display: grid;
+            grid-template-columns: repeat(4, 60px);
+            grid-gap: 8px;
+            margin: 15px 0;
+        }
+
+        .memory-card {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            user-select: none;
+        }
+
+        .memory-card:hover {
+            transform: scale(1.05);
+        }
+
+        .memory-card.flipped {
+            background: rgba(255, 255, 255, 0.8);
+            color: #333;
+        }
+
+        .memory-card.matched {
+            background: rgba(76, 175, 80, 0.8);
+            color: white;
+        }
+
+        /* Typing Game Styles */
+        .typing-game {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            max-width: 800px;
+        }
+
+        .typing-text {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            width: 100%;
+        }
+
+        .typing-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .typing-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .typing-stats {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .typing-result {
+            font-size: 1.1rem;
+            margin-top: 15px;
+        }
+
+        /* Pong Game Styles */
+        .pong-game {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .pong-canvas {
+            border: 2px solid #4CAF50;
+            margin: 15px 0;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .pong-controls {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 400px;
+            margin-top: 15px;
+        }
+
+        .pong-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .pong-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Whack-a-Mole Game Styles */
+        .whack-game {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .whack-board {
+            display: grid;
+            grid-template-columns: repeat(3, 80px);
+            grid-template-rows: repeat(3, 80px);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .whack-hole {
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .whack-mole {
+            width: 60px;
+            height: 60px;
+            background: #8B4513;
+            border-radius: 50%;
+            position: absolute;
+            bottom: -60px;
+            left: 10px;
+            transition: bottom 0.3s ease;
+        }
+
+        .whack-mole.active {
+            bottom: 10px;
+        }
+
+        .whack-mole::before {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: black;
+            border-radius: 50%;
+            top: 15px;
+            left: 15px;
+        }
+
+        .whack-mole::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: black;
+            border-radius: 50%;
+            top: 15px;
+            right: 15px;
+        }
+
+        /* Easter Egg Styles */
+        .easter-egg-trigger {
+            position: relative;
+        }
+
+        .hidden-area {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            bottom: 10px;
+            right: 10px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .easter-egg-message {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 100;
+            animation: popIn 0.5s ease;
+            max-width: 80%;
+        }
+
+        @keyframes popIn {
+            0% { transform: translateX(-50%) scale(0); }
+            80% { transform: translateX(-50%) scale(1.1); }
+            100% { transform: translateX(-50%) scale(1); }
+        }
+
+        /* Particle Effects */
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: radial-gradient(circle, #fff, transparent);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* Secret Page Styles */
+        .secret-page {
+            padding: 30px 15px;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .secret-page h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #FFD700;
+        }
+
+        .secret-page p {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        /* Vibration Button */
+        .vibrate-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .vibrate-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Shake Animation */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        /* Touch Ripple Effect */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(0);
+            animation: ripple 0.6s ease-out;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* Notification Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 30px;
+            z-index: 2000;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            max-width: 80%;
+            text-align: center;
+        }
+
+        .toast.show {
+            display: block;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translate(-50%, -100px);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1 class="crazy-title">
+                <span class="title-letter" style="animation-delay: 0.1s">C</span>
+                <span class="title-letter" style="animation-delay: 0.2s">R</span>
+                <span class="title-letter" style="animation-delay: 0.3s">A</span>
+                <span class="title-letter" style="animation-delay: 0.4s">Z</span>
+                <span class="title-letter" style="animation-delay: 0.5s">Y</span>
+                <span class="title-letter" style="animation-delay: 0.6s"> </span>
+                <span class="title-letter" style="animation-delay: 0.7s">B</span>
+                <span class="title-letter" style="animation-delay: 0.8s">L</span>
+                <span class="title-letter" style="animation-delay: 0.9s">O</span>
+                <span class="title-letter" style="animation-delay: 1.0s">G</span>
+            </h1>
+            
+            <nav class="nav-menu">
+                <button class="nav-button" onclick="openGame('snake')">🐍 Snake</button>
+                <button class="nav-button" onclick="openGame('memory')">🧠 Memory</button>
+                <button class="nav-button" onclick="openGame('typing')">⌨️ Typing</button>
+                <button class="nav-button" onclick="openGame('pong')">🏓 Pong</button>
+                <button class="nav-button" onclick="openGame('whack')">🔨 Whack</button>
+                <button class="nav-button vibrate-button" onclick="vibrateDevice()">📳 Vibrate</button>
+            </nav>
+        </header>
+
+        <main class="app-main">
+            <div id="blog-content" class="blog-container">
+                <!-- Blog posts will be loaded here -->
+            </div>
+            
+            <div id="secret-page" class="secret-page" style="display: none;">
+                <h1>🎉 Secret Page! 🎉</h1>
+                <p>Congratulations! You found the secret page by typing the Konami code!</p>
+                <p>You're truly an explorer of the digital realm.</p>
+                <p>As a reward, here's a secret message: "The answer to life, the universe, and everything is 42."</p>
+                <button class="start-button" onclick="closeSecretPage()">Back to Blog</button>
+            </div>
+        </main>
+
+        <footer class="app-footer">
+            <div class="easter-egg-trigger">
+                <div class="hidden-area" onclick="handleEasterEggClick()"></div>
+            </div>
+            <p>© 2023 Crazy Blog | Tap 5 times in the same spot for a surprise!</p>
+        </footer>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <a href="#" class="mobile-nav-button" onclick="scrollToTop()">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="#" class="mobile-nav-button" onclick="openGame('snake')">
+            <i class="fas fa-gamepad"></i>
+            <span>Games</span>
+        </a>
+        <a href="#" class="mobile-nav-button" onclick="assistantClick()">
+            <i class="fas fa-robot"></i>
+            <span>Assistant</span>
+        </a>
+        <a href="#" class="mobile-nav-button" onclick="shareApp()">
+            <i class="fas fa-share-alt"></i>
+            <span>Share</span>
+        </a>
+    </nav>
+
+    <!-- Assistant -->
+    <div class="assistant-container">
+        <div id="speech-bubble" class="speech-bubble" style="display: none;">
+            <span id="speech-text"></span>
+            <div class="speech-bubble-tail"></div>
+        </div>
+        
+        <div class="assistant-character" onclick="assistantClick()">
+            <div class="assistant-body"></div>
+            <div class="assistant-head">
+                <div class="assistant-eyes">
+                    <div class="eye">
+                        <div class="pupil" id="pupil1"></div>
+                    </div>
+                    <div class="eye">
+                        <div class="pupil" id="pupil2"></div>
+                    </div>
+                </div>
+                <div class="mouth"></div>
+            </div>
+            <div id="speaking-indicator" class="speaking-indicator" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Game Modals -->
+    <div id="snake-modal" class="game-modal">
+        <div class="game-container">
+            <button class="close-button" onclick="closeGame('snake')">✖</button>
+            <div class="snake-game">
+                <h2>Snake Game</h2>
+                <div class="game-info">
+                    <p>Score: <span id="snake-score">0</span></p>
+                    <p>Speed: <span id="snake-speed">1</span></p>
+                </div>
+                <div id="snake-board" class="game-board"></div>
+                <div id="snake-game-over" class="game-over" style="display: none;">
+                    <h3>Game Over!</h3>
+                    <p>Your score: <span id="snake-final-score">0</span></p>
+                    <button class="start-button" onclick="initSnakeGame()">Play Again</button>
+                </div>
+                <button id="snake-start-button" class="start-button" onclick="initSnakeGame()">Start Game</button>
+                <div class="game-controls">
+                    <p>Use arrow keys or swipe to control the snake</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="memory-modal" class="game-modal">
+        <div class="game-container">
+            <button class="close-button" onclick="closeGame('memory')">✖</button>
+            <div class="memory-game">
+                <h2>Memory Game</h2>
+                <div class="game-info">
+                    <p>Moves: <span id="memory-moves">0</span></p>
+                    <p>Matches: <span id="memory-matches">0</span>/8</p>
+                </div>
+                <div id="memory-board" class="memory-board"></div>
+                <button class="start-button" onclick="initMemoryGame()">New Game</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="typing-modal" class="game-modal">
+        <div class="game-container">
+            <button class="close-button" onclick="closeGame('typing')">✖</button>
+            <div class="typing-game">
+                <h2>Typing Challenge</h2>
+                <div id="typing-text" class="typing-text"></div>
+                <input id="typing-input" class="typing-input" type="text" placeholder="Start typing here..." disabled>
+                <div class="typing-stats">
+                    <p>Time: <span id="typing-time">0</span>s</p>
+                    <p>WPM: <span id="typing-wpm">0</span></p>
+                    <p>Accuracy: <span id="typing-accuracy">100</span>%</p>
+                </div>
+                <div id="typing-result" class="typing-result"></div>
+                <button id="typing-start-button" class="start-button" onclick="initTypingGame()">Start Challenge</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="pong-modal" class="game-modal">
+        <div class="game-container">
+            <button class="close-button" onclick="closeGame('pong')">✖</button>
+            <div class="pong-game">
+                <h2>Pong Game</h2>
+                <div class="game-info">
+                    <p>Player: <span id="pong-player-score">0</span></p>
+                    <p>Computer: <span id="pong-computer-score">0</span></p>
+                </div>
+                <canvas id="pong-canvas" class="pong-canvas" width="300" height="200"></canvas>
+                <div class="pong-controls">
+                    <button class="pong-button" onclick="movePaddle('up')">Up</button>
+                    <button class="pong-button" onclick="movePaddle('down')">Down</button>
+                </div>
+                <button id="pong-start-button" class="start-button" onclick="initPongGame()">Start Game</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="whack-modal" class="game-modal">
+        <div class="game-container">
+            <button class="close-button" onclick="closeGame('whack')">✖</button>
+            <div class="whack-game">
+                <h2>Whack-a-Mole</h2>
+                <div class="game-info">
+                    <p>Score: <span id="whack-score">0</span></p>
+                    <p>Time: <span id="whack-time">30</span>s</p>
+                </div>
+                <div id="whack-board" class="whack-board"></div>
+                <button id="whack-start-button" class="start-button" onclick="initWhackGame()">Start Game</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js Background -->
+    <div id="three-background" class="three-background"></div>
+
+    <!-- Particles Container -->
+    <div id="particles-container" class="particles-container"></div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Initialize variables
+        let konamiCode = [];
+        let clickCount = 0;
+        let snakeGame = null;
+        let memoryGame = null;
+        let typingGame = null;
+        let pongGame = null;
+        let whackGame = null;
+        let assistantMood = 'happy';
+        let isSpeaking = false;
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        // Blog posts data
+        const blogPosts = [
+            {
+                title: "Welcome to My Crazy Blog!",
+                date: "June 15, 2023",
+                content: "This is not your ordinary blog. It's filled with hidden surprises, mini-games, and interactive elements. Explore and discover all the secrets!"
+            },
+            {
+                title: "The Art of Easter Eggs",
+                date: "June 20, 2023",
+                content: "Easter eggs are hidden features or messages in software. They're like little secrets waiting to be discovered. Can you find all the ones on this blog?"
+            },
+            {
+                title: "Why Mini-Games Make Everything Better",
+                date: "June 25, 2023",
+                content: "Mini-games add an element of fun and interactivity to any experience. They break the monotony and engage users in a unique way."
+            },
+            {
+                title: "The Magic of ASMR",
+                date: "July 1, 2023",
+                content: "ASMR (Autonomous Sensory Meridian Response) is a relaxing, often sedative sensation that begins on the scalp and moves down the back of the neck and upper spine."
+            },
+            {
+                title: "My Top 5 Hidden Features",
+                date: "July 5, 2023",
+                content: "1. Konami code, 2. 5-click easter egg, 3. Secret page, 4. Interactive assistant, 5. Hidden mini-games. Can you find them all?"
+            },
+            {
+                title: "Mobile Optimization",
+                date: "July 10, 2023",
+                content: "This blog is now optimized for mobile devices with touch controls, vibration feedback, and a responsive design that works great on phones and tablets."
+            }
+        ];
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBlogPosts();
+            initThreeBackground();
+            initAssistant();
+            initKonamiCode();
+            initTouchControls();
+            initServiceWorker();
+            
+            // Welcome message after a delay
+            setTimeout(() => {
+                assistantSpeak("Welcome to my crazy blog! I'm your assistant. Tap me for help!");
+            }, 2000);
+        });
+
+        // Load blog posts
+        function loadBlogPosts() {
+            const blogContainer = document.getElementById('blog-content');
+            blogContainer.innerHTML = '';
+            
+            blogPosts.forEach(post => {
+                const postElement = document.createElement('div');
+                postElement.className = 'blog-post';
+                postElement.innerHTML = `
+                    <h3>${post.title}</h3>
+                    <div class="date">${post.date}</div>
+                    <div class="content">${post.content}</div>
+                `;
+                blogContainer.appendChild(postElement);
+            });
+        }
+
+        // Initialize Three.js background
+        function initThreeBackground() {
+            const container = document.getElementById('three-background');
+            
+            // Create scene
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0);
+            container.appendChild(renderer.domElement);
+
+            // Create floating objects
+            const objects = [];
+            const geometries = [
+                new THREE.BoxGeometry(1, 1, 1),
+                new THREE.SphereGeometry(0.7, 16, 16),
+                new THREE.ConeGeometry(0.7, 1.5, 32),
+                new THREE.TorusGeometry(0.7, 0.2, 16, 100)
+            ];
+
+            const colors = [0xff6b6b, 0x4ecdc4, 0xffe66d, 0x6a0572, 0x1a535c];
+
+            for (let i = 0; i < 20; i++) {
+                const geometry = geometries[Math.floor(Math.random() * geometries.length)];
+                const material = new THREE.MeshBasicMaterial({ 
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    wireframe: true
+                });
+                
+                const object = new THREE.Mesh(geometry, material);
+                object.position.x = (Math.random() - 0.5) * 20;
+                object.position.y = (Math.random() - 0.5) * 20;
+                object.position.z = (Math.random() - 0.5) * 20;
+                
+                object.rotation.x = Math.random() * Math.PI;
+                object.rotation.y = Math.random() * Math.PI;
+                
+                scene.add(object);
+                objects.push(object);
+            }
+
+            camera.position.z = 5;
+
+            // Animation
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                objects.forEach(object => {
+                    object.rotation.x += 0.005;
+                    object.rotation.y += 0.005;
+                    
+                    // Floating movement
+                    object.position.y += Math.sin(Date.now() * 0.001 + object.position.x) * 0.005;
+                });
+                
+                renderer.render(scene, camera);
+            }
+
+            animate();
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        // Initialize assistant
+        function initAssistant() {
+            // Track mouse movement for eye direction
+            document.addEventListener('mousemove', function(e) {
+                const assistant = document.querySelector('.assistant-character');
+                if (!assistant) return;
+                
+                const rect = assistant.getBoundingClientRect();
+                const assistantCenterX = rect.left + rect.width / 2;
+                const assistantCenterY = rect.top + rect.height / 2;
+                
+                const angle = Math.atan2(e.clientY - assistantCenterY, e.clientX - assistantCenterX);
+                const distance = Math.min(8, Math.hypot(e.clientX - assistantCenterX, e.clientY - assistantCenterY) / 20);
+                
+                const pupil1 = document.getElementById('pupil1');
+                const pupil2 = document.getElementById('pupil2');
+                
+                if (pupil1 && pupil2) {
+                    const x = Math.cos(angle) * distance;
+                    const y = Math.sin(angle) * distance;
+                    pupil1.style.transform = `translate(${x}px, ${y}px)`;
+                    pupil2.style.transform = `translate(${x}px, ${y}px)`;
+                }
+            });
+        }
+
+        // Assistant click handler
+        function assistantClick() {
+            const messages = [
+                { text: "Need help? Try tapping around or typing the Konami code!", mood: 'curious' },
+                { text: "Did you know there are hidden games? Check the navigation!", mood: 'excited' },
+                { text: "Feeling sleepy? I can help you relax with my calming voice.", mood: 'sleepy' },
+                { text: "This blog is full of surprises! Keep exploring!", mood: 'happy' },
+                { text: "Try the vibrate button for haptic feedback!", mood: 'excited' }
+            ];
+            
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            assistantSpeak(randomMessage.text, randomMessage.mood);
+            
+            // Vibrate on Android if supported
+            if ('vibrate' in navigator) {
+                navigator.vibrate(50);
+            }
+        }
+
+        // Assistant speak function
+        function assistantSpeak(text, mood = 'happy') {
+            // Update mood
+            assistantMood = mood;
+            updateAssistantMood();
+            
+            // Show speech bubble
+            const speechBubble = document.getElementById('speech-bubble');
+            const speechText = document.getElementById('speech-text');
+            
+            speechText.textContent = text;
+            speechBubble.style.display = 'block';
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                speechBubble.style.display = 'none';
+            }, 5000);
+            
+            // Use Web Speech API if available
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // ASMR-like voice settings
+                utterance.rate = 0.85; // Slower speech
+                utterance.pitch = 1.05; // Slightly higher pitch
+                utterance.volume = 0.8; // Softer volume
+                
+                // Show speaking indicator
+                const speakingIndicator = document.getElementById('speaking-indicator');
+                speakingIndicator.style.display = 'flex';
+                isSpeaking = true;
+                
+                utterance.onend = function() {
+                    speakingIndicator.style.display = 'none';
+                    isSpeaking = false;
+                };
+                
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Update assistant appearance based on mood
+        function updateAssistantMood() {
+            const assistantHead = document.querySelector('.assistant-head');
+            const assistantBody = document.querySelector('.assistant-body');
+            const mouth = document.querySelector('.mouth');
+            
+            // Reset classes
+            assistantHead.className = 'assistant-head';
+            assistantBody.className = 'assistant-body';
+            mouth.className = 'mouth';
+            
+            // Apply mood-specific styles
+            switch(assistantMood) {
+                case 'happy':
+                    assistantHead.style.background = '#FFD700';
+                    assistantBody.style.background = '#FFD700';
+                    mouth.style.borderRadius = '0 0 10px 10px';
+                    mouth.style.height = '6px';
+                    break;
+                case 'curious':
+                    assistantHead.style.background = '#87CEEB';
+                    assistantBody.style.background = '#87CEEB';
+                    mouth.style.borderRadius = '0';
+                    mouth.style.height = '3px';
+                    mouth.style.width = '12px';
+                    break;
+                case 'excited':
+                    assistantHead.style.background = '#FF6347';
+                    assistantBody.style.background = '#FF6347';
+                    mouth.style.borderRadius = '0 0 12px 12px';
+                    mouth.style.height = '10px';
+                    mouth.style.width = '20px';
+                    break;
+                case 'sleepy':
+                    assistantHead.style.background = '#9370DB';
+                    assistantBody.style.background = '#9370DB';
+                    mouth.style.borderRadius = '0';
+                    mouth.style.height = '2px';
+                    mouth.style.width = '12px';
+                    break;
+            }
+        }
+
+        // Initialize Konami code detection
+        function initKonamiCode() {
+            document.addEventListener('keydown', function(e) {
+                konamiCode.push(e.key);
+                if (konamiCode.length > 10) konamiCode.shift();
+                
+                // Check for Konami code: ↑↑↓↓←→←→BA
+                const konami = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 
+                               'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 
+                               'b', 'a'];
+                
+                if (konamiCode.join(',') === konami.join(',')) {
+                    showSecretPage();
+                    triggerParticles();
+                    assistantSpeak("Wow! You found the Konami code! You're amazing!", 'excited');
+                    
+                    // Vibrate on Android if supported
+                    if ('vibrate' in navigator) {
+                        navigator.vibrate([200, 100, 200]);
+                    }
+                }
+            });
+        }
+
+        // Show secret page
+        function showSecretPage() {
+            document.getElementById('blog-content').style.display = 'none';
+            document.getElementById('secret-page').style.display = 'block';
+        }
+
+        // Close secret page
+        function closeSecretPage() {
+            document.getElementById('blog-content').style.display = 'grid';
+            document.getElementById('secret-page').style.display = 'none';
+        }
+
+        // Easter egg click handler
+        function handleEasterEggClick() {
+            clickCount++;
+            
+            if (clickCount === 5) {
+                const message = document.createElement('div');
+                message.className = 'easter-egg-message';
+                message.innerHTML = `
+                    🎉 You found an easter egg! 🎉
+                    <p>Try typing the Konami code (↑↑↓↓←→←→BA) for another surprise!</p>
+                `;
+                document.body.appendChild(message);
+                
+                setTimeout(() => {
+                    document.body.removeChild(message);
+                    clickCount = 0;
+                }, 3000);
+                
+                triggerParticles();
+                assistantSpeak("You found the hidden easter egg! Great job!", 'excited');
+                
+                // Vibrate on Android if supported
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([100, 50, 100]);
+                }
+            }
+        }
+
+        // Trigger particle effects
+        function triggerParticles() {
+            const container = document.getElementById('particles-container');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < 100; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * window.innerWidth + 'px';
+                particle.style.top = Math.random() * window.innerHeight + 'px';
+                
+                container.appendChild(particle);
+                
+                // Animate particle
+                setTimeout(() => {
+                    particle.style.transform = `scale(${Math.random() * 3 + 1})`;
+                    particle.style.opacity = '0';
+                }, 10);
+                
+                // Remove particle after animation
+                setTimeout(() => {
+                    if (container.contains(particle)) {
+                        container.removeChild(particle);
+                    }
+                }, 2000);
+            }
+        }
+
+        // Vibrate device
+        function vibrateDevice() {
+            if ('vibrate' in navigator) {
+                // Vibrate pattern: short, short, short, long
+                navigator.vibrate([50, 50, 50, 100]);
+                showToast("Vibration activated!");
+            } else {
+                showToast("Vibration not supported on this device");
+            }
+        }
+
+        // Show toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Scroll to top
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Share app
+        function shareApp() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Crazy Interactive Blog',
+                    text: 'Check out this amazing interactive blog with games and easter eggs!',
+                    url: window.location.href
+                })
+                .then(() => {
+                    showToast("Thanks for sharing!");
+                })
+                .catch((error) => {
+                    showToast("Error sharing: " + error);
+                });
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                const dummy = document.createElement('input');
+                document.body.appendChild(dummy);
+                dummy.value = window.location.href;
+                dummy.select();
+                document.execCommand('copy');
+                document.body.removeChild(dummy);
+                showToast("Link copied to clipboard!");
+            }
+        }
+
+        // Initialize touch controls
+        function initTouchControls() {
+            // Add ripple effect to buttons
+            const buttons = document.querySelectorAll('button, .nav-button, .mobile-nav-button');
+            
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple');
+                    
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.width = ripple.style.height = size + 'px';
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+            
+            // Touch gestures for snake game
+            document.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+                touchStartY = e.changedTouches[0].screenY;
+            });
+            
+            document.addEventListener('touchend', function(e) {
+                if (!snakeGame || !snakeGame.gameActive) return;
+                
+                const touchEndX = e.changedTouches[0].screenX;
+                const touchEndY = e.changedTouches[0].screenY;
+                
+                const dx = touchEndX - touchStartX;
+                const dy = touchEndY - touchStartY;
+                
+                // Determine swipe direction
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    // Horizontal swipe
+                    if (dx > 0 && snakeGame.direction !== 'LEFT') {
+                        snakeGame.direction = 'RIGHT';
+                    } else if (dx < 0 && snakeGame.direction !== 'RIGHT') {
+                        snakeGame.direction = 'LEFT';
+                    }
+                } else {
+                    // Vertical swipe
+                    if (dy > 0 && snakeGame.direction !== 'UP') {
+                        snakeGame.direction = 'DOWN';
+                    } else if (dy < 0 && snakeGame.direction !== 'DOWN') {
+                        snakeGame.direction = 'UP';
+                    }
+                }
+            });
+        }
+
+        // Initialize service worker for PWA
+        function initServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    }, function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+                });
+            }
+        }
+
+        // Game functions
+        function openGame(gameType) {
+            document.getElementById(`${gameType}-modal`).style.display = 'flex';
+            
+            if (gameType === 'snake') {
+                initSnakeGame();
+            } else if (gameType === 'memory') {
+                initMemoryGame();
+            } else if (gameType === 'typing') {
+                initTypingGame();
+            } else if (gameType === 'pong') {
+                initPongGame();
+            } else if (gameType === 'whack') {
+                initWhackGame();
+            }
+        }
+
+        function closeGame(gameType) {
+            document.getElementById(`${gameType}-modal`).style.display = 'none';
+            
+            if (gameType === 'snake' && snakeGame) {
+                clearInterval(snakeGame.interval);
+            } else if (gameType === 'typing' && typingGame) {
+                clearInterval(typingGame.timer);
+            } else if (gameType === 'pong' && pongGame) {
+                cancelAnimationFrame(pongGame.animationId);
+            } else if (gameType === 'whack' && whackGame) {
+                clearInterval(whackGame.timer);
+            }
+        }
+
+        // Snake Game
+        function initSnakeGame() {
+            const board = document.getElementById('snake-board');
+            const scoreElement = document.getElementById('snake-score');
+            const speedElement = document.getElementById('snake-speed');
+            const gameOverElement = document.getElementById('snake-game-over');
+            const finalScoreElement = document.getElementById('snake-final-score');
+            const startButton = document.getElementById('snake-start-button');
+            
+            // Clear previous game
+            board.innerHTML = '';
+            gameOverElement.style.display = 'none';
+            startButton.style.display = 'none';
+            
+            // Game variables
+            const gridSize = 20;
+            const cellSize = 15;
+            let snake = [{x: 10, y: 10}];
+            let food = {x: 5, y: 5};
+            let direction = 'RIGHT';
+            let score = 0;
+            let speed = 150;
+            let gameActive = true;
+            
+            // Create board cells
+            for (let i = 0; i < gridSize * gridSize; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                board.appendChild(cell);
+            }
+            
+            // Generate random food position
+            function generateFood() {
+                food = {
+                    x: Math.floor(Math.random() * gridSize),
+                    y: Math.floor(Math.random() * gridSize)
+                };
+                
+                // Make sure food doesn't appear on snake
+                const isOnSnake = snake.some(segment => 
+                    segment.x === food.x && segment.y === food.y
+                );
+                
+                if (isOnSnake) {
+                    generateFood();
+                }
+            }
+            
+            // Draw game
+            function draw() {
+                // Clear board
+                const cells = board.querySelectorAll('.cell');
+                cells.forEach(cell => {
+                    cell.className = 'cell';
+                });
+                
+                // Draw snake
+                snake.forEach((segment, index) => {
+                    const cellIndex = segment.y * gridSize + segment.x;
+                    if (cells[cellIndex]) {
+                        cells[cellIndex].classList.add(index === 0 ? 'head' : 'body');
+                    }
+                });
+                
+                // Draw food
+                const foodIndex = food.y * gridSize + food.x;
+                if (cells[foodIndex]) {
+                    cells[foodIndex].classList.add('food');
+                }
+            }
+            
+            // Move snake
+            function moveSnake() {
+                if (!gameActive) return;
+                
+                const head = {...snake[0]};
+                
+                // Move head based on direction
+                switch (direction) {
+                    case 'UP': head.y -= 1; break;
+                    case 'DOWN': head.y += 1; break;
+                    case 'LEFT': head.x -= 1; break;
+                    case 'RIGHT': head.x += 1; break;
+                }
+                
+                // Check collision with walls
+                if (head.x < 0 || head.x >= gridSize || head.y < 0 || head.y >= gridSize) {
+                    endGame();
+                    return;
+                }
+                
+                // Check collision with self
+                if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                    endGame();
+                    return;
+                }
+                
+                snake.unshift(head);
+                
+                // Check if food is eaten
+                if (head.x === food.x && head.y === food.y) {
+                    score += 10;
+                    scoreElement.textContent = score;
+                    generateFood();
+                    
+                    // Increase speed every 50 points
+                    if (score > 0 && score % 50 === 0) {
+                        speed = Math.max(speed - 10, 50);
+                        speedElement.textContent = Math.round((150 - speed) / 10) + 1;
+                        
+                        // Restart interval with new speed
+                        clearInterval(snakeGame.interval);
+                        snakeGame.interval = setInterval(moveSnake, speed);
+                    }
+                } else {
+                    snake.pop();
+                }
+                
+                draw();
+            }
+            
+            // End game
+            function endGame() {
+                gameActive = false;
+                clearInterval(snakeGame.interval);
+                finalScoreElement.textContent = score;
+                gameOverElement.style.display = 'block';
+                
+                // Vibrate on Android if supported
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([200, 100, 200]);
+                }
+            }
+            
+            // Handle keyboard input
+            document.addEventListener('keydown', function handleKeyDown(e) {
+                if (!gameActive) {
+                    document.removeEventListener('keydown', handleKeyDown);
+                    return;
+                }
+                
+                switch (e.key) {
+                    case 'ArrowUp':
+                        if (direction !== 'DOWN') direction = 'UP';
+                        break;
+                    case 'ArrowDown':
+                        if (direction !== 'UP') direction = 'DOWN';
+                        break;
+                    case 'ArrowLeft':
+                        if (direction !== 'RIGHT') direction = 'LEFT';
+                        break;
+                    case 'ArrowRight':
+                        if (direction !== 'LEFT') direction = 'RIGHT';
+                        break;
+                }
+            });
+            
+            // Initialize game
+            generateFood();
+            draw();
+            snakeGame = {
+                direction: direction,
+                gameActive: gameActive,
+                interval: setInterval(moveSnake, speed)
+            };
+        }
+
+        // Memory Game
+        function initMemoryGame() {
+            const board = document.getElementById('memory-board');
+            const movesElement = document.getElementById('memory-moves');
+            const matchesElement = document.getElementById('memory-matches');
+            
+            // Clear previous game
+            board.innerHTML = '';
+            
+            // Game variables
+            const emojis = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼'];
+            const cards = [...emojis, ...emojis];
+            let flippedCards = [];
+            let matchedPairs = 0;
+            let moves = 0;
+            
+            // Shuffle cards
+            for (let i = cards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cards[i], cards[j]] = [cards[j], cards[i]];
+            }
+            
+            // Create card elements
+            cards.forEach((emoji, index) => {
+                const card = document.createElement('div');
+                card.className = 'memory-card';
+                card.dataset.emoji = emoji;
+                card.dataset.index = index;
+                
+                card.addEventListener('click', function() {
+                    // Ignore if already flipped or matched
+                    if (card.classList.contains('flipped') || 
+                        card.classList.contains('matched') || 
+                        flippedCards.length >= 2) {
+                        return;
+                    }
+                    
+                    // Flip card
+                    card.classList.add('flipped');
+                    card.textContent = emoji;
+                    flippedCards.push(card);
+                    
+                    // Vibrate on Android if supported
+                    if ('vibrate' in navigator) {
+                        navigator.vibrate(30);
+                    }
+                    
+                    // Check for match when two cards are flipped
+                    if (flippedCards.length === 2) {
+                        moves++;
+                        movesElement.textContent = moves;
+                        
+                        if (flippedCards[0].dataset.emoji === flippedCards[1].dataset.emoji) {
+                            // Match found
+                            flippedCards.forEach(card => {
+                                card.classList.add('matched');
+                            });
+                            matchedPairs++;
+                            matchesElement.textContent = matchedPairs;
+                            flippedCards = [];
+                            
+                            // Vibrate on Android if supported
+                            if ('vibrate' in navigator) {
+                                navigator.vibrate([50, 30, 50]);
+                            }
+                            
+                            // Check for game completion
+                            if (matchedPairs === emojis.length) {
+                                setTimeout(() => {
+                                    assistantSpeak(`Congratulations! You completed the memory game in ${moves} moves!`, 'excited');
+                                    
+                                    // Vibrate on Android if supported
+                                    if ('vibrate' in navigator) {
+                                        navigator.vibrate([100, 50, 100, 50, 100]);
+                                    }
+                                }, 500);
+                            }
+                        } else {
+                            // No match, flip back after delay
+                            setTimeout(() => {
+                                flippedCards.forEach(card => {
+                                    card.classList.remove('flipped');
+                                    card.textContent = '';
+                                });
+                                flippedCards = [];
+                            }, 1000);
+                        }
+                    }
+                });
+                
+                board.appendChild(card);
+            });
+        }
+
+        // Typing Game
+        function initTypingGame() {
+            const textElement = document.getElementById('typing-text');
+            const inputElement = document.getElementById('typing-input');
+            const timeElement = document.getElementById('typing-time');
+            const wpmElement = document.getElementById('typing-wpm');
+            const accuracyElement = document.getElementById('typing-accuracy');
+            const resultElement = document.getElementById('typing-result');
+            const startButton = document.getElementById('typing-start-button');
+            
+            // Sample texts
+            const texts = [
+                "The quick brown fox jumps over the lazy dog.",
+                "Programming is the process of creating a set of instructions that tell a computer how to perform a task.",
+                "The only way to learn a new programming language is by writing programs in it.",
+                "Code is like humor. When you have to explain it, it's bad.",
+                "First, solve the problem. Then, write the code."
+            ];
+            
+            // Game variables
+            let text = texts[Math.floor(Math.random() * texts.length)];
+            let startTime = null;
+            let timerInterval = null;
+            let errors = 0;
+            
+            // Reset game
+            textElement.textContent = text;
+            inputElement.value = '';
+            inputElement.disabled = true;
+            timeElement.textContent = '0';
+            wpmElement.textContent = '0';
+            accuracyElement.textContent = '100';
+            resultElement.textContent = '';
+            startButton.style.display = 'inline-block';
+            
+            // Start game
+            startButton.addEventListener('click', function() {
+                inputElement.disabled = false;
+                inputElement.focus();
+                startButton.style.display = 'none';
+                startTime = Date.now();
+                errors = 0;
+                
+                // Start timer
+                timerInterval = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    timeElement.textContent = elapsed;
+                    
+                    // Calculate WPM and accuracy
+                    const words = inputElement.value.trim().split(/\s+/).length;
+                    const wpm = Math.round(words / (elapsed / 60));
+                    wpmElement.textContent = wpm;
+                }, 1000);
+                
+                typingGame = {
+                    timer: timerInterval
+                };
+            });
+            
+            // Handle input
+            inputElement.addEventListener('input', function() {
+                const inputValue = inputElement.value;
+                
+                // Check for errors
+                errors = 0;
+                for (let i = 0; i < inputValue.length; i++) {
+                    if (inputValue[i] !== text[i]) {
+                        errors++;
+                    }
+                }
+                
+                // Calculate accuracy
+                const accuracy = inputValue.length > 0 
+                    ? Math.round(((inputValue.length - errors) / inputValue.length) * 100) 
+                    : 100;
+                accuracyElement.textContent = accuracy;
+                
+                // Check if completed
+                if (inputValue === text) {
+                    clearInterval(timerInterval);
+                    inputElement.disabled = true;
+                    
+                    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    const words = text.trim().split(/\s+/).length;
+                    const wpm = Math.round(words / (elapsed / 60));
+                    
+                    resultElement.innerHTML = `
+                        <p>Completed in ${elapsed} seconds!</p>
+                        <p>WPM: ${wpm}</p>
+                        <p>Accuracy: ${accuracy}%</p>
+                    `;
+                    
+                    assistantSpeak(`Great job! You typed at ${wpm} words per minute with ${accuracy}% accuracy!`, 'happy');
+                    
+                    // Vibrate on Android if supported
+                    if ('vibrate' in navigator) {
+                        navigator.vibrate([100, 50, 100, 50, 100]);
+                    }
+                }
+            });
+        }
+
+        // Pong Game
+        function initPongGame() {
+            const canvas = document.getElementById('pong-canvas');
+            const ctx = canvas.getContext('2d');
+            const playerScoreElement = document.getElementById('pong-player-score');
+            const computerScoreElement = document.getElementById('pong-computer-score');
+            const startButton = document.getElementById('pong-start-button');
+            
+            // Clear previous game
+            startButton.style.display = 'none';
+            
+            // Game variables
+            let playerScore = 0;
+            let computerScore = 0;
+            let gameRunning = false;
+            
+            // Paddle properties
+            const paddleWidth = 10;
+            const paddleHeight = 50;
+            const playerPaddle = {
+                x: 10,
+                y: canvas.height / 2 - paddleHeight / 2,
+                width: paddleWidth,
+                height: paddleHeight,
+                dy: 0
+            };
+            
+            const computerPaddle = {
+                x: canvas.width - paddleWidth - 10,
+                y: canvas.height / 2 - paddleHeight / 2,
+                width: paddleWidth,
+                height: paddleHeight,
+                dy: 0
+            };
+            
+            // Ball properties
+            const ball = {
+                x: canvas.width / 2,
+                y: canvas.height / 2,
+                radius: 8,
+                dx: 4,
+                dy: 4
+            };
+            
+            // Draw functions
+            function drawRect(x, y, width, height, color) {
+                ctx.fillStyle = color;
+                ctx.fillRect(x, y, width, height);
+            }
+            
+            function drawCircle(x, y, radius, color) {
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            function drawNet() {
+                for (let i = 0; i < canvas.height; i += 15) {
+                    drawRect(canvas.width / 2 - 1, i, 2, 10, '#fff');
+                }
+            }
+            
+            // Move player paddle
+            function movePaddle(direction) {
+                if (!gameRunning) return;
+                
+                if (direction === 'up' && playerPaddle.y > 0) {
+                    playerPaddle.y -= 20;
+                } else if (direction === 'down' && playerPaddle.y < canvas.height - playerPaddle.height) {
+                    playerPaddle.y += 20;
+                }
+            }
+            
+            // Move computer paddle (simple AI)
+            function moveComputerPaddle() {
+                const paddleCenter = computerPaddle.y + computerPaddle.height / 2;
+                
+                if (paddleCenter < ball.y - 15) {
+                    computerPaddle.y += 3;
+                } else if (paddleCenter > ball.y + 15) {
+                    computerPaddle.y -= 3;
+                }
+            }
+            
+            // Check collision
+            function collision(ball, paddle) {
+                return ball.x - ball.radius < paddle.x + paddle.width &&
+                       ball.x + ball.radius > paddle.x &&
+                       ball.y - ball.radius < paddle.y + paddle.height &&
+                       ball.y + ball.radius > paddle.y;
+            }
+            
+            // Reset ball
+            function resetBall() {
+                ball.x = canvas.width / 2;
+                ball.y = canvas.height / 2;
+                ball.dx = -ball.dx;
+                ball.dy = Math.random() > 0.5 ? 4 : -4;
+            }
+            
+            // Update game
+            function update() {
+                if (!gameRunning) return;
+                
+                // Move ball
+                ball.x += ball.dx;
+                ball.y += ball.dy;
+                
+                // Ball collision with top and bottom walls
+                if (ball.y - ball.radius < 0 || ball.y + ball.radius > canvas.height) {
+                    ball.dy = -ball.dy;
+                }
+                
+                // Ball collision with paddles
+                if (collision(ball, playerPaddle)) {
+                    ball.dx = Math.abs(ball.dx);
+                    ball.dy += (ball.y - (playerPaddle.y + playerPaddle.height / 2)) * 0.1;
+                }
+                
+                if (collision(ball, computerPaddle)) {
+                    ball.dx = -Math.abs(ball.dx);
+                    ball.dy += (ball.y - (computerPaddle.y + computerPaddle.height / 2)) * 0.1;
+                }
+                
+                // Score points
+                if (ball.x - ball.radius < 0) {
+                    computerScore++;
+                    computerScoreElement.textContent = computerScore;
+                    resetBall();
+                    
+                    // Vibrate on Android if supported
+                    if ('vibrate' in navigator) {
+                        navigator.vibrate(100);
+                    }
+                }
+                
+                if (ball.x + ball.radius > canvas.width) {
+                    playerScore++;
+                    playerScoreElement.textContent = playerScore;
+                    resetBall();
+                    
+                    // Vibrate on Android if supported
+                    if ('vibrate' in navigator) {
+                        navigator.vibrate(100);
+                    }
+                }
+                
+                // Check for game end
+                if (playerScore >= 5 || computerScore >= 5) {
+                    gameRunning = false;
+                    
+                    const winner = playerScore >= 5 ? 'You' : 'Computer';
+                    assistantSpeak(`Game over! ${winner} won with a score of ${Math.max(playerScore, computerScore)}!`, 'excited');
+                    
+                    // Vibrate on Android if supported
+                    if ('vibrate' in navigator) {
+                        navigator.vibrate([200, 100, 200]);
+                    }
+                    
+                    startButton.style.display = 'inline-block';
+                    startButton.textContent = 'Play Again';
+                }
+                
+                // Move computer paddle
+                moveComputerPaddle();
+            }
+            
+            // Draw everything
+            function draw() {
+                // Clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw net
+                drawNet();
+                
+                // Draw paddles
+                drawRect(playerPaddle.x, playerPaddle.y, playerPaddle.width, playerPaddle.height, '#fff');
+                drawRect(computerPaddle.x, computerPaddle.y, computerPaddle.width, computerPaddle.height, '#fff');
+                
+                // Draw ball
+                drawCircle(ball.x, ball.y, ball.radius, '#fff');
+            }
+            
+            // Game loop
+            function gameLoop() {
+                update();
+                draw();
+                
+                if (gameRunning) {
+                    pongGame.animationId = requestAnimationFrame(gameLoop);
+                }
+            }
+            
+            // Start game
+            playerScore = 0;
+            computerScore = 0;
+            playerScoreElement.textContent = playerScore;
+            computerScoreElement.textContent = computerScore;
+            gameRunning = true;
+            
+            pongGame = {
+                animationId: requestAnimationFrame(gameLoop)
+            };
+            
+            // Expose movePaddle function to global scope
+            window.movePaddle = movePaddle;
+        }
+
+        // Whack-a-Mole Game
+        function initWhackGame() {
+            const board = document.getElementById('whack-board');
+            const scoreElement = document.getElementById('whack-score');
+            const timeElement = document.getElementById('whack-time');
+            const startButton = document.getElementById('whack-start-button');
+            
+            // Clear previous game
+            board.innerHTML = '';
+            startButton.style.display = 'none';
+            
+            // Game variables
+            let score = 0;
+            let timeLeft = 30;
+            let gameActive = false;
+            let moleTimer = null;
+            let countdownTimer = null;
+            
+            // Create holes and moles
+            for (let i = 0; i < 9; i++) {
+                const hole = document.createElement('div');
+                hole.className = 'whack-hole';
+                
+                const mole = document.createElement('div');
+                mole.className = 'whack-mole';
+                mole.dataset.index = i;
+                
+                mole.addEventListener('click', function() {
+                    if (!gameActive || !this.classList.contains('active')) return;
+                    
+                    this.classList.remove('active');
+                    score++;
+                    scoreElement.textContent = score;
+                    
+                    // Vibrate on Android if supported
+                    if ('vibrate' in navigator) {
+                        navigator.vibrate(50);
+                    }
+                });
+                
+                hole.appendChild(mole);
+                board.appendChild(hole);
+            }
+            
+            // Show random mole
+            function showRandomMole() {
+                if (!gameActive) return;
+                
+                const moles = document.querySelectorAll('.whack-mole');
+                const inactiveMoles = Array.from(moles).filter(mole => !mole.classList.contains('active'));
+                
+                if (inactiveMoles.length === 0) return;
+                
+                const randomMole = inactiveMoles[Math.floor(Math.random() * inactiveMoles.length)];
+                randomMole.classList.add('active');
+                
+                // Hide mole after random time
+                setTimeout(() => {
+                    randomMole.classList.remove('active');
+                }, Math.random() * 1000 + 500);
+            }
+            
+            // Start game
+            gameActive = true;
+            score = 0;
+            timeLeft = 30;
+            scoreElement.textContent = score;
+            timeElement.textContent = timeLeft;
+            
+            // Show moles at random intervals
+            moleTimer = setInterval(() => {
+                showRandomMole();
+            }, Math.random() * 1000 + 500);
+            
+            // Countdown timer
+            countdownTimer = setInterval(() => {
+                timeLeft--;
+                timeElement.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+            
+            whackGame = {
+                timer: moleTimer,
+                countdownTimer: countdownTimer
+            };
+            
+            function endGame() {
+                gameActive = false;
+                clearInterval(moleTimer);
+                clearInterval(countdownTimer);
+                
+                // Hide all moles
+                const moles = document.querySelectorAll('.whack-mole');
+                moles.forEach(mole => {
+                    mole.classList.remove('active');
+                });
+                
+                assistantSpeak(`Time's up! You scored ${score} points!`, 'excited');
+                
+                // Vibrate on Android if supported
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([200, 100, 200]);
+                }
+                
+                startButton.style.display = 'inline-block';
+                startButton.textContent = 'Play Again';
+            }
+        }
+    </script>
+</body>
+</html>
