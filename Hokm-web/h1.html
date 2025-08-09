@@ -1,0 +1,339 @@
+<!doctype html>
+
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>حکم — بازی وب (آفلاین و آنلاین)</title>
+  <style>
+    /* ساده و قابل توسعه: از Tailwind یا فریم‌ورک دلخواه در نسخه نهایی استفاده کنید */
+    :root{--bg:#0b1020;--card:#fff;--accent:#f39c12}
+    body{background:linear-gradient(180deg,#071126 0%,#0b1530 100%);font-family:Tahoma,Arial;margin:0;color:#eef;padding:12px}
+    .app{max-width:1100px;margin:10px auto;background:rgba(255,255,255,0.03);padding:12px;border-radius:10px}
+    header{display:flex;align-items:center;justify-content:space-between}
+    h1{margin:0;font-size:20px}
+    .controls{display:flex;gap:8px;align-items:center}
+    button,select{background:var(--accent);border:none;color:#111;padding:8px;border-radius:8px;cursor:pointer}
+    button.secondary{background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.12)}
+    .table{height:420px;display:grid;grid-template-areas:'north north north' 'west center east' 'south south south';grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}
+    .seat{background:rgba(255,255,255,0.02);padding:8px;border-radius:8px;min-height:120px}
+    .north{grid-area:north;text-align:center}
+    .west{grid-area:west}
+    .east{grid-area:east}
+    .south{grid-area:south}
+    .center{grid-area:center;display:flex;align-items:center;justify-content:center}
+    .hand{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+    .card{width:56px;height:80px;border-radius:6px;background:var(--card);display:flex;align-items:center;justify-content:center;font-weight:700}
+    .hidden{background:linear-gradient(90deg,#333,#222);color:transparent}
+    .log{max-height:160px;overflow:auto;background:rgba(0,0,0,0.25);padding:8px;border-radius:8px;margin-top:8px}
+    .big{font-size:18px}
+    .status{margin-left:10px;color:#ddd}
+    label{color:#ddd;font-size:13px}
+    .online-panel{display:flex;gap:8px;align-items:center}
+    footer{font-size:12px;color:#bbb;margin-top:12px}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>حکم — بازی وب (آفلاین با CPU و آنلاین 4 نفره)</h1>
+      <div class="controls">
+        <select id="mode">
+          <option value="local">آفلاین — مقابل CPU</option>
+          <option value="online">آنلاین — 4 نفره</option>
+        </select>
+        <select id="difficulty">
+          <option value="easy">آسان</option>
+          <option value="normal" selected>معمولی</option>
+          <option value="hard">سخت</option>
+        </select>
+        <button id="start">شروع بازی</button>
+      </div>
+    </header><section class="table" aria-live="polite">
+  <div class="seat north">北<br/><div id="p1" class="log"></div></div>
+  <div class="seat west"><div id="p2" class="log"></div></div>
+  <div class="seat east"><div id="p3" class="log"></div></div>
+  <div class="seat south">
+    <div class="big">دست شما</div>
+    <div id="player-hand" class="hand"></div>
+    <div class="log" id="game-log"></div>
+  </div>
+  <div class="center">
+    <div>
+      <div>ترکیب وسط</div>
+      <div id="table-cards" class="hand"></div>
+      <div style="margin-top:8px"><label>حکم کن</label> <span id="trump" class="status">نامشخص</span></div>
+    </div>
+  </div>
+</section>
+
+<section style="margin-top:10px;display:flex;justify-content:space-between;align-items:center">
+  <div class="online-panel" id="online-controls" style="display:none">
+    <input id="room" placeholder="شناسه اتاق (مثال: hokm123)" />
+    <button id="createRoom">ایجاد/پیوستن</button>
+    <div id="peer-count" class="status">افراد: 1</div>
+  </div>
+  <div>
+    <button class="secondary" id="hint">نمایش راهنمای ساده</button>
+  </div>
+</section>
+
+<footer>
+  توجه: حالت آنلاین نیاز به یک سرویس سیگنالینگ (WebSocket) دارد. در داخل فایل نمونه، کد سرور Node.js برای سیگنالینگ گنجانده شده است.
+</footer>
+
+  </div>  <script>
+  // --- مدل کارت و ابزارها ---
+  const SUITS = ['دل','خشت','پیک','گشنیز']; // نمایش فارسی
+  const RANKS = ['۷','۸','۹','۱۰','J','Q','K','A'];
+
+  function makeDeck(){
+    const deck = [];
+    for(const s of SUITS){
+      for(const r of RANKS){
+        deck.push({suit:s,rank:r,uid:s+'-'+r});
+      }
+    }
+    return shuffle(deck);
+  }
+  function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+  // --- وضعیت بازی ---
+  let state = {};
+
+  function resetState(){
+    state = {
+      deck:makeDeck(),
+      hands:[[],[],[],[]],
+      turn:0, // index of current player (0 = south / human when local)
+      trump:null,
+      trick:[], // cards played in trick: {player,card}
+      scores:[0,0,0,0],
+      mode:'local'
+    };
+  }
+
+  // --- UI helpers ---
+  const playerHandEl = document.getElementById('player-hand');
+  const tableCardsEl = document.getElementById('table-cards');
+  const logEl = document.getElementById('game-log');
+  const trumpEl = document.getElementById('trump');
+  const p1 = document.getElementById('p1');
+  const p2 = document.getElementById('p2');
+  const p3 = document.getElementById('p3');
+
+  function uiLog(t){
+    const el = document.createElement('div'); el.textContent = t; logEl.prepend(el);
+  }
+  function updateSeatLogs(){
+    p1.textContent = `دست: ${state.hands[0].length}`
+    p2.textContent = `دست: ${state.hands[1].length}`
+    p3.textContent = `دست: ${state.hands[2].length}`
+  }
+
+  function renderHands(){
+    playerHandEl.innerHTML='';
+    for(const card of state.hands[3]){
+      const c = document.createElement('div'); c.className='card'; c.textContent = card.rank + '\n' + card.suit; c.onclick = ()=>playerPlay(card.uid);
+      playerHandEl.appendChild(c);
+    }
+    tableCardsEl.innerHTML='';
+    for(const t of state.trick){const c=document.createElement('div');c.className='card';c.textContent=t.card.rank+'\n'+t.card.suit;tableCardsEl.appendChild(c)}
+    trumpEl.textContent = state.trump ? state.trump : 'نامشخص';
+    updateSeatLogs();
+  }
+
+  // --- توزیع کارت و شروع ---
+  function deal(){
+    // ساده: 8 کارت به هر بازیکن (نسخه کامل حکم 52 کارت و 13 کارت است؛ این نمونه برای مفهوم‌آموزی 32 کارته است)
+    for(let i=0;i<4;i++) state.hands[i]=[];
+    for(let i=0;i<32;i++){state.hands[i%4].push(state.deck[i]);}
+    state.deck = state.deck.slice(32);
+  }
+
+  // --- قوانین خیلی ساده‌شده برای دمو ---
+  function cardValue(card){
+    // ترتیب ساده: 7..A
+    return RANKS.indexOf(card.rank);
+  }
+  function compareCards(a,b,leadSuit,trump){
+    if(a.suit===b.suit) return cardValue(a) - cardValue(b);
+    if(a.suit===trump) return 1; if(b.suit===trump) return -1;
+    if(a.suit===leadSuit) return 1; if(b.suit===leadSuit) return -1;
+    return 0;
+  }
+
+  function nextTurn(){ state.turn = (state.turn+1)%4 }
+
+  // --- بازی آفلاین: منطق CPU ساده ---
+  function cpuPlay(playerIdx){
+    const hand = state.hands[playerIdx];
+    if(hand.length===0) return;
+    // اگر نخستین بازیکن در تریک است، کارت با بیشترین ارزش را بنداز
+    let chosen;
+    if(state.trick.length===0){
+      chosen = hand.reduce((a,b)=> cardValue(a)>cardValue(b)?a:b);
+    } else {
+      const lead = state.trick[0].card.suit;
+      // اگر کارت با خال لید داریم، یکی از آنها را بزن، وگرنه اگر حکم داریم و نداریم
+      const same = hand.filter(c=>c.suit===lead);
+      if(same.length) chosen = same.reduce((a,b)=>cardValue(a)>cardValue(b)?a:b);
+      else{
+        const trumpCards = hand.filter(c=>c.suit===state.trump);
+        if(trumpCards.length) chosen = trumpCards[0];
+        else chosen = hand[0];
+      }
+    }
+    playCard(playerIdx,chosen.uid);
+  }
+
+  // --- اجرای بازی و جمع‌آوری تریک ---
+  function playCard(playerIdx, cardUid){
+    const hand = state.hands[playerIdx];
+    const idx = hand.findIndex(c=>c.uid===cardUid);
+    if(idx<0) return;
+    const card = hand.splice(idx,1)[0];
+    state.trick.push({player:playerIdx,card});
+    uiLog(`بازیکن ${playerIdx+1} کارت ${card.rank} ${card.suit} را بازی کرد`);
+    renderHands();
+    if(state.trick.length===4){
+      // تعیین برنده تریک
+      const leadSuit = state.trick[0].card.suit;
+      let winner = state.trick[0];
+      for(const t of state.trick.slice(1)){
+        const cmp = compareCards(t.card,winner.card,leadSuit,state.trump);
+        if(cmp>0) winner = t;
+      }
+      uiLog(`برنده تریک: بازیکن ${winner.player+1}`);
+      state.scores[winner.player]++;
+      state.trick=[];
+      state.turn = winner.player; // برنده شروع می‌کند
+      renderHands();
+      // اگر یکی از دست‌ها تمام شده باشد، اعلام نتیجه
+      if(state.hands.some(h=>h.length===0)){
+        const team1 = state.scores[0]+state.scores[2];
+        const team2 = state.scores[1]+state.scores[3];
+        uiLog(`پایان دست — امتیاز: تیم الف ${team1} - تیم ب ${team2}`);
+      } else {
+        // ادامه بازی: اگر نوبت CPU باشد، اجرا کن
+        if(state.mode==='local'){
+          while(state.turn!==3) { // 3 = human (south)
+            cpuPlay(state.turn);
+            state.turn = (state.turn+1)%4;
+          }
+        }
+      }
+    } else {
+      state.turn = (state.turn+1)%4;
+      if(state.mode==='local' && state.turn!==3){ // CPU turn
+        setTimeout(()=>cpuPlay(state.turn), 500);
+      }
+    }
+  }
+
+  function playerPlay(uid){
+    if(state.mode!=='local') return;
+    if(state.turn!==3) { uiLog('الان نوبت شما نیست'); return; }
+    playCard(3,uid);
+  }
+
+  // --- شروع بازی محلی ---
+  document.getElementById('start').addEventListener('click',()=>{
+    const mode = document.getElementById('mode').value; state.mode = mode;
+    resetState(); deal();
+    // تعیین حکم ساده: اجازه بده بازیکن جنوب انتخاب کند (برای نسخه آفلاین)؛ این نمونه حکم تصادفی انتخاب می‌کند
+    state.trump = SUITS[Math.floor(Math.random()*SUITS.length)];
+    uiLog('حکم انتخاب شد: '+state.trump);
+    renderHands();
+    // شروع نوبت از بازیکن صفر
+    state.turn = 0;
+    if(mode==='local'){
+      // اگر نوبت CPU است، آنها بازی می‌کنند تا برسد به شما
+      while(state.turn!==3){ cpuPlay(state.turn); state.turn=(state.turn+1)%4; }
+      renderHands();
+    } else {
+      // حالت آنلاین: نمایش کنترل‌های آنلاین
+      document.getElementById('online-controls').style.display='flex';
+    }
+  });
+
+  // --- راهنمای سریع ---
+  document.getElementById('hint').addEventListener('click',()=>{
+    alert('قوانین نسخه‌ی نمونه: هر بازیکن 8 کارت، هر تریک 4 کارت. برنده تریک بالاترین کارت از خال لید یا حکم خواهد بود. این پروژه برای توسعه‌ی بیشتر و پیاده‌سازی کامل حکم (چرخهٔ مبازرات، نوبت حکم، تاس، و...) طراحی شده است.');
+  });
+
+  // --- بخش آنلاین (WebRTC datachannel) ---
+  // برای عملکرد آنلاین به یک سرور سیگنالینگ WebSocket نیاز دارید. در ادامه یک نمونهٔ سادهٔ Node.js برای سیگنالینگ گنجانده شده که می‌توانید روی یک VPS اجرا کنید.
+
+  /*
+  نمونه‌ی سرور سیگنالینگ (Node.js)
+
+  // server.js
+  const WebSocket = require('ws');
+  const wss = new WebSocket.Server({port: 3000});
+  const rooms = {}; // roomId -> [sockets]
+  wss.on('connection', ws=>{
+    ws.on('message', msg=>{
+      let m = JSON.parse(msg);
+      const {type,room} = m;
+      if(type==='join'){
+        ws.room = room; rooms[room]=rooms[room]||[]; rooms[room].push(ws);
+        // notify others
+        rooms[room].forEach(s=>{ if(s!==ws) s.send(JSON.stringify({type:'peer-joined'}))});
+      } else {
+        // فوروارد پیام به سایر اعضای اتاق
+        const list = rooms[room]||[]; list.forEach(s=>{ if(s!==ws) s.send(msg); });
+      }
+    });
+    ws.on('close', ()=>{
+      if(ws.room && rooms[ws.room]) rooms[ws.room]=rooms[ws.room].filter(s=>s!==ws);
+    });
+  });
+
+  اجرا: node server.js
+  */
+
+  // کد مشتری WebRTC (بسیار ساده، برای توسعه بیشتر)
+  let pc=null, dc=null, ws=null;
+  document.getElementById('createRoom').addEventListener('click', async ()=>{
+    const room = document.getElementById('room').value || 'default';
+    // اتصال به سرور سیگنالینگ — نشانی را تغییر دهید
+    const SIGNAL_URL = prompt('آدرس WebSocket سیگنالینگ را وارد کنید (مثال ws://your-server:3000)','ws://localhost:3000');
+    if(!SIGNAL_URL) return;
+    ws = new WebSocket(SIGNAL_URL);
+    ws.onopen = ()=>{ ws.send(JSON.stringify({type:'join',room})) };
+    ws.onmessage = async (ev)=>{
+      const data = JSON.parse(ev.data);
+      if(data.type==='offer'){
+        await ensurePeer(); await pc.setRemoteDescription(data.offer);
+        const ans = await pc.createAnswer(); await pc.setLocalDescription(ans);
+        ws.send(JSON.stringify({type:'answer',room,answer:ans}));
+      } else if(data.type==='answer'){
+        await pc.setRemoteDescription(data.answer);
+      } else if(data.type==='candidate'){
+        try{ await pc.addIceCandidate(data.candidate) }catch(e){}
+      }
+    }
+
+    // اگر اولین نفر هستید: ایجاد offer و ارسال
+    await ensurePeer();
+    const offer = await pc.createOffer(); await pc.setLocalDescription(offer);
+    ws.onopen = ()=>{ ws.send(JSON.stringify({type:'join',room})); ws.send(JSON.stringify({type:'offer',room,offer})) };
+  });
+
+  async function ensurePeer(){
+    if(pc) return;
+    pc = new RTCPeerConnection();
+    dc = pc.createDataChannel('hokm');
+    dc.onopen = ()=>{ uiLog('کانال دیتا باز شد'); }
+    dc.onmessage = e=>{
+      const m = JSON.parse(e.data); uiLog('دریافت پیام از هم‌بازی: '+JSON.stringify(m));
+      // در اینجا پیام‌های بازی (همگام‌سازی دست‌ها، بازی کارتها و...) را پیاده‌سازی کنید
+    }
+    pc.ondatachannel = ev=>{ dc = ev.channel; dc.onmessage = e=>console.log('msg',e.data) };
+    pc.onicecandidate = e=>{ if(e.candidate && ws) ws.send(JSON.stringify({type:'candidate',room:document.getElementById('room').value,candidate:e.candidate})) };
+  }
+
+  // پایان فایل
+  </script></body>
+</html>

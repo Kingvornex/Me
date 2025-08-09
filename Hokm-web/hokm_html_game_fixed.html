@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>حکم — بازی مرورگر ✅</title>
+<style>
+  :root{--bg:#0b1020;--card:#fff;--accent:#00c48c}
+  body{margin:0;font-family:Tahoma,Helvetica,Arial;background:linear-gradient(180deg,#071021,#0b1020);color:#e6eef6}
+  .app{padding:14px;max-width:980px;margin:8px auto}
+  header{display:flex;align-items:center;justify-content:space-between}
+  h1{margin:0;font-size:20px}
+  .controls{display:flex;gap:8px}
+  button{background:var(--accent);border:0;padding:8px 12px;border-radius:6px;color:#022;cursor:pointer}
+  .table{margin-top:14px;background:rgba(255,255,255,0.03);padding:12px;border-radius:8px}
+  .hand{display:flex;gap:8px;flex-wrap:wrap}
+  .card{min-width:60px;padding:8px;border-radius:6px;background:var(--card);color:#022;text-align:center;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,0.35)}
+  .small{font-size:12px}
+  .info{margin-top:10px}
+  .players{display:flex;gap:10px;justify-content:space-between;margin-top:12px}
+  .player{flex:1;background:rgba(255,255,255,0.02);padding:8px;border-radius:6px;text-align:center}
+  .center{display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .trick{display:flex;gap:10px;margin-top:12px;justify-content:center}
+  .log{max-height:200px;overflow:auto;margin-top:10px;background:rgba(255,255,255,0.02);padding:8px;border-radius:6px;font-size:13px}
+  footer{margin-top:12px;font-size:13px;color:#9fb}
+  .bad{background:#ff6b6b;color:#fff;padding:6px;border-radius:5px}
+  .ok{background:#4df0b4;color:#022;padding:6px;border-radius:5px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>🎮 حکم — بازی مرورگر</h1>
+    <div class="controls">
+      <button id="newRound">🔄 دست جدید</button>
+      <button id="chooseTrump">🃏 انتخاب حکم</button>
+      <button id="autoPlay">▶️ پخش خودکار</button>
+      <button id="runTests">🧪 تست‌ها</button>
+    </div>
+  </header>
+
+  <div class="table">
+    <div class="info">حکم: <span id="trump">—</span> | لید: <span id="lead">—</span></div>
+
+    <div class="players">
+      <div class="player" id="p2">بازیکن راست<br><span class="small" id="p2-count">13 کارت</span></div>
+      <div class="player center">
+        میز
+        <div class="trick" id="trickArea"></div>
+      </div>
+      <div class="player" id="p4">بازیکن چپ<br><span class="small" id="p4-count">13 کارت</span></div>
+    </div>
+
+    <hr style="opacity:.06;margin:12px 0">
+
+    <div>
+      <div>دست شما:</div>
+      <div class="hand" id="playerHand"></div>
+    </div>
+
+    <div class="log" id="log"></div>
+  </div>
+
+  <footer>قوانین پایه: ۴ بازیکن، هر کدام ۱۳ کارت. برای شروع روی "دست جدید" کلیک کنید. 🏆</footer>
+</div>
+
+<script>
+const SUITS = [
+  {id:'HEARTS', name:'خشت'},
+  {id:'DIAMONDS', name:'گیشنیز'},
+  {id:'CLUBS', name:'پیک'},
+  {id:'SPADES', name:'دل'}
+];
+let deck = []
+let hands = {me:[], p2:[], p3:[], p4:[]}
+let trump = null
+let leadSuit = null
+let trick = []
+let logEl, handEl, trumpEl, leadEl, trickArea
+const PLAY_ORDER = ['me','p2','p3','p4']
+
+function isValidCard(c){
+  return c && typeof c === 'object' && typeof c.rank === 'number' && typeof c.suit === 'string' && SUITS.some(s=>s.id===c.suit)
+}
+
+function suitNameFromId(id){
+  const s = SUITS.find(x=>x.id===id)
+  return s ? s.name : 'نامشخص'
+}
+
+function cardText(c){
+  if(!isValidCard(c)) return 'کارت نامشخص'
+  const r = c.rank===14?'A':(c.rank===13?'K':(c.rank===12?'Q':(c.rank===11?'J':c.rank)))
+  return `${r} ${suitNameFromId(c.suit)}`
+}
+
+function safeGetFirstValidCard(cards){
+  return (cards || []).find(isValidCard) || null
+}
+
+function makeDeck(){
+  deck = []
+  for(const s of SUITS){
+    for(let r=2;r<=14;r++) deck.push({rank:r,suit:s.id})
+  }
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}}
+
+function deal(){
+  makeDeck(); shuffle(deck)
+  hands = {me:[], p2:[], p3:[], p4:[]}
+  for(let i=0;i<13;i++){
+    hands.me.push(deck.length?deck.pop():null)
+    hands.p2.push(deck.length?deck.pop():null)
+    hands.p3.push(deck.length?deck.pop():null)
+    hands.p4.push(deck.length?deck.pop():null)
+  }
+  sortHands()
+  trump = null; leadSuit = null; trick = []
+  render();
+  log('🔄 دست جدید توزیع شد', 'ok')
+}
+
+function sortHands(){
+  const suitIndex = id => SUITS.findIndex(s=>s.id===id)
+  const cmp = (a,b)=>{
+    if(!isValidCard(a) && !isValidCard(b)) return 0
+    if(!isValidCard(a)) return 1
+    if(!isValidCard(b)) return -1
+    const sa = suitIndex(a.suit), sb = suitIndex(b.suit)
+    return sa - sb || a.rank - b.rank
+  }
+  for(const k of Object.keys(hands)) hands[k].sort(cmp)
+}
+
+function render(){
+  handEl.innerHTML=''
+  for(const c of hands.me){
+    const d=document.createElement('div'); d.className='card'; d.textContent=cardText(c)
+    if(isValidCard(c)) d.onclick=()=>playerPlayCard(c)
+    else d.classList.add('bad')
+    handEl.appendChild(d)
+  }
+  trumpEl.textContent = trump? suitNameFromId(trump) : '—'
+  leadEl.textContent = leadSuit? suitNameFromId(leadSuit) : '—'
+  document.getElementById('p2-count').textContent = (hands.p2.filter(Boolean).length) + ' کارت'
+  document.getElementById('p4-count').textContent = (hands.p4.filter(Boolean).length) + ' کارت'
+  renderTrick()
+}
+
+function renderTrick(){
+  trickArea.innerHTML=''
+  for(const p of trick){
+    const el=document.createElement('div'); el.className='card'; el.style.minWidth='80px'; el.textContent = `${p.who}: ${cardText(p.card)}`
+    trickArea.appendChild(el)
+  }
+}
+
+function log(s, cls){
+  const line = document.createElement('div'); line.textContent = s; if(cls) line.className=cls; logEl.prepend(line)
+}
+
+function nextPlayerKey(key){
+  const idx = PLAY_ORDER.indexOf(key)
+  if(idx===-1) return null
+  return PLAY_ORDER[(idx+1)%PLAY_ORDER.length]
+}
+
+function playerPlayCard(card){
+  if(!isValidCard(card)){
+    log('⚠️ خطا: کارت نامعتبر', 'bad'); return
+  }
+  const idx = hands.me.indexOf(card)
+  if(idx<0){ log('⚠️ خطا: کارت در دست شما یافت نشد', 'bad'); return }
+  hands.me.splice(idx,1)
+  playCard('شما', card, 'me')
+  render()
+  const next = nextPlayerKey('me')
+  if(next && next!=='me') setTimeout(()=>aiTurn(next),400)
+}
+
+function aiTurn(playerKey){
+  if(!playerKey || !hands[playerKey]) return
+  if(hands[playerKey].filter(Boolean).length===0) return
+  let choice = null
+  if(leadSuit){
+    const same = hands[playerKey].filter(isValidCard).filter(c=>c.suit===leadSuit)
+    if(same.length) choice = same.reduce((a,b)=> a.rank>b.rank?a:b)
+  }
+  if(!choice){
+    const cand = hands[playerKey].filter(isValidCard)
+    if(cand.length) choice = cand.reduce((a,b)=> a.rank<b.rank?a:b)
+  }
+  if(!choice){ log(`⚠️ خطا: ${playerKey} کارت معتبری ندارد`, 'bad'); return }
+  const i = hands[playerKey].indexOf(choice)
+  if(i>=0) hands[playerKey].splice(i,1)
+  const whoLabel = playerKey==='p2'?'بازیکن راست': playerKey==='p3'?'پشت سر':'بازیکن چپ'
+  playCard(whoLabel, choice, playerKey)
+  render()
+  if(trick.length<4){
+    const next = nextPlayerKey(playerKey)
+    if(next && next!=='me') setTimeout(()=>aiTurn(next),400)
+  }
+  if(trick.length===4) setTimeout(()=>finishTrick(),300)
+}
+
+function playCard(who, card, whoKey){
+  if(!isValidCard(card)) { log(`⚠️ خطا: تلاش برای بازی کارت نامعتبر توسط ${who}`, 'bad'); return }
+  if(trick.length===0) leadSuit = card.suit
+  trick.push({who,card,whoKey})
+  renderTrick();
+  log(`${who} کارت ${cardText(card)} زد`)
+}
+
+function finishTrick(){
+  if(trick.length===0){ log('⚠️ خطا: تِریک خالی است', 'bad'); return }
+  if(!leadSuit){
+    const first = safeGetFirstValidCard(trick.map(t=>t.card))
+    leadSuit = first ? first.suit : null
+  }
+  if(!leadSuit){ trick = []; renderTrick(); render(); log('لید نامشخص — تریکه نادیده گرفته شد', 'bad'); return }
+  let best = null
+  for(const t of trick){
+    if(!isValidCard(t.card)) continue
+    if(!best) { best = t; continue }
+    const c = t.card; const b = best.card
+    if(trump){
+      if(c.suit===trump && b.suit!==trump) { best = t; continue }
+      if(c.suit===trump && b.suit===trump){ if(c.rank>b.rank) best=t; continue }
+    }
+    if(c.suit===leadSuit && b.suit===leadSuit){ if(c.rank>b.rank) best=t }
+  }
+  if(!best){ trick = []; leadSuit = null; renderTrick(); render(); log('هیچ کارت معتبری در تریکه وجود نداشت', 'bad'); return }
+  log(`🏆 برنده تریکه: ${best.who}`)
+  const winnerKey = best.whoKey ? best.whoKey : (best.who==='شما'?'me':(best.who.includes('چپ')?'p4': best.who.includes('راست')?'p2':'p3'))
+  trick = []; leadSuit = null; renderTrick(); render();
+  if(hands.me.filter(Boolean).length===0 && hands.p2.filter(Boolean).length===0 && hands.p3.filter(Boolean).length===0 && hands.p4.filter(Boolean).length===0){ log('✅ دست تمام شد — برای توزیع جدید دکمه "دست جدید" را بزنید'); return }
+  if(winnerKey && winnerKey!=='me') setTimeout(()=>aiTurn(winnerKey),400)
+}
+
+function autoPlay(){
+  const interval = setInterval(()=>{
+    if(hands.me.filter(Boolean).length>0){
+      const first = safeGetFirstValidCard(hands.me)
+      if(first) playerPlayCard(first)
+      else clearInterval(interval)
+    } else clearInterval(interval)
+  },500)
+}
+
+function runTests(){
+  log('--- اجرای تست‌ها ---', 'ok')
+  let passed=0, failed=0
+  try{ const t = cardText(null)==='کارت نامشخص'; log(`تست1: ${t?'PASS':'FAIL'}`); t?passed++:failed++ }catch(e){ log('تست1 کرش کرد','bad'); failed++ }
+  try{ playCard('تست', undefined); log('تست2: PASS'); passed++ }catch(e){ log('تست2: FAIL','bad'); failed++ }
+  try{ trick=[{who:'A',card:{rank:10,suit:'HEARTS'}},{who:'B',card:null},{who:'C',card:{rank:11,suit:'HEARTS'}},{who:'D',card:{rank:9,suit:'HEARTS'}}]; leadSuit='HEARTS'; finishTrick(); log('تست3: PASS'); passed++ }catch(e){ log('تست3: FAIL','bad'); failed++ }
+  try{ deal(); log('تست4: PASS'); passed++ }catch(e){ log('تست4: FAIL','bad'); failed++ }
+  log(`تست‌ها تمام شد — Passed: ${passed}, Failed: ${failed}`, failed? 'bad':'ok')
+}
+
+window.addEventListener('DOMContentLoaded',()=>{
+  logEl = document.getElementById('log')
+  handEl = document.getElementById('playerHand')
+  trumpEl = document.getElementById('trump')
+  leadEl = document.getElementById('lead')
+  trickArea = document.getElementById('trickArea')
+  document.getElementById('newRound').onclick = deal
+  document.getElementById('chooseTrump').onclick = ()=>{
+    const c = safeGetFirstValidCard(hands.me)
+    if(!c){ log('⚠️ شما کارت معتبری برای انتخاب حکم ندارید', 'bad'); return }
+    trump = c.suit; trumpEl.textContent = suitNameFromId(trump); log('🃏 شما حکم را ' + suitNameFromId(trump) + ' انتخاب کردید')
+  }
+  document.getElementById('autoPlay').onclick = autoPlay
+  document.getElementById('runTests').onclick = runTests
+  deal()
+})
+</script>
+</body>
+</html>
