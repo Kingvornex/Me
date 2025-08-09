@@ -1,0 +1,1972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D Space Craft Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .relative {
+            position: relative;
+        }
+
+        .absolute {
+            position: absolute;
+        }
+
+        .inset-0 {
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+
+        .w-full {
+            width: 100%;
+        }
+
+        .h-full {
+            height: 100%;
+        }
+
+        .h-screen {
+            height: 100vh;
+        }
+
+        .w-64 {
+            width: 16rem;
+        }
+
+        .w-32 {
+            width: 8rem;
+        }
+
+        .w-24 {
+            width: 6rem;
+        }
+
+        .w-20 {
+            width: 5rem;
+        }
+
+        .w-16 {
+            width: 4rem;
+        }
+
+        .w-8 {
+            width: 2rem;
+        }
+
+        .w-4 {
+            width: 1rem;
+        }
+
+        .w-3 {
+            width: 0.75rem;
+        }
+
+        .w-2 {
+            width: 0.5rem;
+        }
+
+        .w-1 {
+            width: 0.25rem;
+        }
+
+        .h-32 {
+            height: 8rem;
+        }
+
+        .h-20 {
+            height: 5rem;
+        }
+
+        .h-12 {
+            height: 3rem;
+        }
+
+        .h-8 {
+            height: 2rem;
+        }
+
+        .h-6 {
+            height: 1.5rem;
+        }
+
+        .h-4 {
+            height: 1rem;
+        }
+
+        .h-3 {
+            height: 0.75rem;
+        }
+
+        .h-2 {
+            height: 0.5rem;
+        }
+
+        .h-1 {
+            height: 0.25rem;
+        }
+
+        .top-4 {
+            top: 1rem;
+        }
+
+        .top-20 {
+            top: 5rem;
+        }
+
+        .left-4 {
+            left: 1rem;
+        }
+
+        .right-4 {
+            right: 1rem;
+        }
+
+        .bottom-4 {
+            bottom: 1rem;
+        }
+
+        .p-3 {
+            padding: 0.75rem;
+        }
+
+        .p-4 {
+            padding: 1rem;
+        }
+
+        .p-2 {
+            padding: 0.5rem;
+        }
+
+        .pb-2 {
+            padding-bottom: 0.5rem;
+        }
+
+        .mt-4 {
+            margin-top: 1rem;
+        }
+
+        .mt-6 {
+            margin-top: 1.5rem;
+        }
+
+        .mb-2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+
+        .ml-2 {
+            margin-left: 0.5rem;
+        }
+
+        .gap-2 {
+            gap: 0.5rem;
+        }
+
+        .gap-3 {
+            gap: 0.75rem;
+        }
+
+        .gap-4 {
+            gap: 1rem;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .flex-col {
+            flex-direction: column;
+        }
+
+        .flex-1 {
+            flex: 1;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .justify-center {
+            justify-content: center;
+        }
+
+        .justify-between {
+            justify-content: space-between;
+        }
+
+        .grid {
+            display: grid;
+        }
+
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .grid-cols-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .grid-cols-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .overflow-hidden {
+            overflow: hidden;
+        }
+
+        .overflow-y-auto {
+            overflow-y: auto;
+        }
+
+        .rounded {
+            border-radius: 0.25rem;
+        }
+
+        .rounded-full {
+            border-radius: 9999px;
+        }
+
+        .rounded-lg {
+            border-radius: 0.5rem;
+        }
+
+        .rounded-t-full {
+            border-top-left-radius: 9999px;
+            border-top-right-radius: 9999px;
+        }
+
+        .rounded-b-lg {
+            border-bottom-left-radius: 0.5rem;
+            border-bottom-right-radius: 0.5rem;
+        }
+
+        .border {
+            border-width: 1px;
+        }
+
+        .border-2 {
+            border-width: 2px;
+        }
+
+        .border-gray-600 {
+            border-color: #4b5563;
+        }
+
+        .border-gray-700 {
+            border-color: #374151;
+        }
+
+        .border-gray-500 {
+            border-color: #6b7280;
+        }
+
+        .border-green-400 {
+            border-color: #34d399;
+        }
+
+        .bg-black {
+            background-color: #000;
+        }
+
+        .bg-blue-500 {
+            background-color: #3b82f6;
+        }
+
+        .bg-blue-300 {
+            background-color: #93c5fd;
+        }
+
+        .bg-green-400 {
+            background-color: #4ade80;
+        }
+
+        .bg-gray-400 {
+            background-color: #9ca3af;
+        }
+
+        .bg-gray-700 {
+            background-color: #374151;
+        }
+
+        .bg-gray-800 {
+            background-color: #1f2937;
+        }
+
+        .bg-orange-500 {
+            background-color: #f97316;
+        }
+
+        .bg-yellow-500 {
+            background-color: #eab308;
+        }
+
+        .bg-red-500 {
+            background-color: #ef4444;
+        }
+
+        .bg-black\/50 {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .text-white {
+            color: #fff;
+        }
+
+        .text-gray-300 {
+            color: #d1d5db;
+        }
+
+        .text-gray-400 {
+            color: #9ca3af;
+        }
+
+        .text-gray-500 {
+            color: #6b7280;
+        }
+
+        .text-gray-600 {
+            color: #4b5563;
+        }
+
+        .text-blue-300 {
+            color: #93c5fd;
+        }
+
+        .text-green-400 {
+            color: #4ade80;
+        }
+
+        .text-yellow-400 {
+            color: #facc15;
+        }
+
+        .text-xs {
+            font-size: 0.75rem;
+        }
+
+        .text-sm {
+            font-size: 0.875rem;
+        }
+
+        .text-2xl {
+            font-size: 1.5rem;
+        }
+
+        .font-bold {
+            font-weight: 700;
+        }
+
+        .font-semibold {
+            font-weight: 600;
+        }
+
+        .opacity-0 {
+            opacity: 0;
+        }
+
+        .opacity-20 {
+            opacity: 0.2;
+        }
+
+        .opacity-30 {
+            opacity: 0.3;
+        }
+
+        .opacity-50 {
+            opacity: 0.5;
+        }
+
+        .opacity-60 {
+            opacity: 0.6;
+        }
+
+        .opacity-70 {
+            opacity: 0.7;
+        }
+
+        .opacity-80 {
+            opacity: 0.8;
+        }
+
+        .shadow-lg {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .transform {
+            transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+        }
+
+        .-translate-x-1\/2 {
+            --tw-translate-x: -50%;
+        }
+
+        .-translate-y-1\/2 {
+            --tw-translate-y: -50%;
+        }
+
+        .translate-x-1\/2 {
+            --tw-translate-x: 50%;
+        }
+
+        .translate-y-1\/2 {
+            --tw-translate-y: 50%;
+        }
+
+        .transition-transform {
+            transition-property: transform;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+
+        .transition-all {
+            transition-property: all;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+
+        .duration-100 {
+            transition-duration: 100ms;
+        }
+
+        .duration-300 {
+            transition-duration: 300ms;
+        }
+
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        .animate-ping {
+            animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: .5;
+            }
+        }
+
+        @keyframes ping {
+            75%, 100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        .pointer-events-none {
+            pointer-events: none;
+        }
+
+        .pointer-events-auto {
+            pointer-events: auto;
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        .whitespace-nowrap {
+            white-space: nowrap;
+        }
+
+        .backdrop-blur-sm {
+            backdrop-filter: blur(4px);
+        }
+
+        .z-50 {
+            z-index: 50;
+        }
+
+        /* Button styles */
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.15s ease;
+            padding: 0.5rem 1rem;
+            border: 1px solid transparent;
+            cursor: pointer;
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .button-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .button-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .button-primary:hover:not(:disabled) {
+            background-color: #2563eb;
+        }
+
+        .button-outline {
+            background-color: transparent;
+            border-color: #374151;
+            color: #d1d5db;
+        }
+
+        .button-outline:hover:not(:disabled) {
+            background-color: #374151;
+        }
+
+        /* Card styles */
+        .card {
+            background-color: rgba(17, 24, 39, 0.8);
+            border: 1px solid #374151;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1rem;
+            border-bottom: 1px solid #374151;
+        }
+
+        .card-content {
+            padding: 1rem;
+        }
+
+        /* Progress bar */
+        .progress {
+            background-color: #374151;
+            border-radius: 9999px;
+            height: 0.5rem;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #3b82f6;
+            transition: width 0.3s ease;
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-outline {
+            border: 1px solid #374151;
+            background-color: transparent;
+            color: #d1d5db;
+        }
+
+        .badge-secondary {
+            background-color: #374151;
+            color: #d1d5db;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #374151;
+        }
+
+        .tabs-trigger {
+            padding: 0.5rem 1rem;
+            border-bottom: 2px solid transparent;
+            color: #9ca3af;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .tabs-trigger:hover {
+            color: #d1d5db;
+        }
+
+        .tabs-trigger.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+
+        .tabs-content {
+            padding: 1rem 0;
+        }
+
+        .tabs-panel {
+            display: none;
+        }
+
+        .tabs-panel.active {
+            display: block;
+        }
+
+        /* Dialog */
+        .dialog-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dialog {
+            background-color: #111827;
+            border: 1px solid #374151;
+            border-radius: 0.5rem;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: auto;
+        }
+
+        .dialog-header {
+            padding: 1rem;
+            border-bottom: 1px solid #374151;
+        }
+
+        .dialog-content {
+            padding: 1rem;
+        }
+
+        /* Hidden */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Max height utilities */
+        .max-h-64 {
+            max-height: 16rem;
+        }
+
+        .max-h-48 {
+            max-height: 12rem;
+        }
+
+        /* Scrollbar styling */
+        .overflow-y-auto::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 3px;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="relative w-full h-screen bg-black overflow-hidden">
+        <!-- Game Container -->
+        <div id="game-container" class="relative w-full h-full bg-black overflow-hidden" style="min-height: 600px;">
+            <!-- Background stars will be added by JavaScript -->
+            
+            <!-- Earth (center) -->
+            <div class="absolute transform -translate-x-1/2 -translate-y-1/2" style="left: 50%; top: 50%; width: 120px; height: 120px;">
+                <div class="w-full h-full bg-blue-500 rounded-full relative shadow-xl">
+                    <div class="absolute inset-0 rounded-full bg-blue-300 opacity-30"></div>
+                    <div class="absolute inset-2 rounded-full bg-green-400 opacity-20"></div>
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xs font-bold">
+                        Earth
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other planets will be added by JavaScript -->
+            
+            <!-- Spacecraft will be added by JavaScript -->
+            
+            <!-- Launch sequence effect will be added by JavaScript -->
+            
+            <!-- Radar will be added by JavaScript -->
+        </div>
+
+        <!-- Resource Bar -->
+        <div class="absolute top-4 left-4 right-4 flex gap-4 pointer-events-auto">
+            <div class="card flex-1">
+                <div class="card-content p-3">
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-2">
+                            <span>🔧</span>
+                            <span class="font-semibold" id="resource-metal">500</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span>⛽</span>
+                            <span class="font-semibold" id="resource-fuel">200</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span>⭐</span>
+                            <span class="font-semibold" id="resource-crystals">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game State -->
+            <div class="card">
+                <div class="card-content p-3">
+                    <span class="badge badge-outline capitalize" id="game-state">building</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Spacecraft Status -->
+        <div class="absolute top-20 left-4 pointer-events-auto">
+            <div class="card w-64">
+                <div class="card-header pb-2">
+                    <div class="text-sm font-semibold flex items-center gap-2">
+                        🚀 Spacecraft Status
+                    </div>
+                </div>
+                <div class="card-content space-y-3">
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span>Health</span>
+                            <span id="spacecraft-health">100%</span>
+                        </div>
+                        <div class="progress h-2">
+                            <div class="progress-bar" id="health-bar" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span>Fuel</span>
+                            <span id="spacecraft-fuel">100%</span>
+                        </div>
+                        <div class="progress h-2">
+                            <div class="progress-bar" id="fuel-bar" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flight Controls Help -->
+        <div id="flight-controls" class="absolute top-20 right-4 pointer-events-auto hidden">
+            <div class="card w-64 backdrop-blur-sm bg-black/50 border-gray-700">
+                <div class="card-header pb-2">
+                    <div class="text-sm font-semibold text-white">Flight Controls</div>
+                </div>
+                <div class="card-content space-y-2 text-xs text-gray-300">
+                    <div class="flex justify-between">
+                        <span>W/↑</span>
+                        <span>Thrust</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>A/←</span>
+                        <span>Rotate Left</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>D/→</span>
+                        <span>Rotate Right</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Click Planet</span>
+                        <span>Land</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Panel -->
+        <div class="absolute bottom-4 left-4 right-4 pointer-events-auto">
+            <div class="card backdrop-blur-sm bg-black/50 border-gray-700">
+                <div class="card-content p-4">
+                    <div class="tabs" id="action-tabs">
+                        <div class="tabs-trigger active" data-tab="actions">Actions</div>
+                        <div class="tabs-trigger" data-tab="build">Build</div>
+                        <div class="tabs-trigger" data-tab="planets">Planets</div>
+                        <div class="tabs-trigger" data-tab="upgrade">Upgrade</div>
+                    </div>
+                    
+                    <div class="tabs-content">
+                        <!-- Actions Tab -->
+                        <div class="tabs-panel active" id="actions-panel">
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                <button class="button button-primary w-full" id="build-spacecraft-btn">
+                                    🚀 Build Spacecraft
+                                </button>
+                                <button class="button button-primary w-full hidden" id="launch-btn">
+                                    🚀 Launch
+                                </button>
+                                <button class="button button-primary w-full hidden" id="gather-resources-btn">
+                                    🔧 Gather Resources
+                                </button>
+                                <button class="button button-outline w-full hidden" id="repair-btn">
+                                    🔧 Repair (50 metal)
+                                </button>
+                                <button class="button button-primary w-full hidden" id="takeoff-btn">
+                                    🚀 Take Off
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Build Tab -->
+                        <div class="tabs-panel" id="build-panel">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-64 overflow-y-auto" id="parts-container">
+                                <!-- Parts will be added by JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Planets Tab -->
+                        <div class="tabs-panel" id="planets-panel">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-h-64 overflow-y-auto" id="planets-list">
+                                <!-- Planets will be added by JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Upgrade Tab -->
+                        <div class="tabs-panel" id="upgrade-panel">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-64 overflow-y-auto">
+                                <!-- Engine Upgrades -->
+                                <div class="card">
+                                    <div class="card-header pb-2">
+                                        <div class="text-sm font-semibold flex items-center gap-2">
+                                            🚀 Engine Upgrades
+                                        </div>
+                                    </div>
+                                    <div class="card-content space-y-2">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm">Speed Boost</span>
+                                            <button class="button button-sm button-outline" data-upgrade="speed">
+                                                200 metal
+                                            </button>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm">Fuel Efficiency</span>
+                                            <button class="button button-sm button-outline" data-upgrade="efficiency">
+                                                50 crystals
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Hull Upgrades -->
+                                <div class="card">
+                                    <div class="card-header pb-2">
+                                        <div class="text-sm font-semibold flex items-center gap-2">
+                                            🛡️ Hull Upgrades
+                                        </div>
+                                    </div>
+                                    <div class="card-content space-y-2">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm">Armor Plating</span>
+                                            <button class="button button-sm button-outline" data-upgrade="armor">
+                                                300 metal
+                                            </button>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm">Shield Generator</span>
+                                            <button class="button button-sm button-outline" data-upgrade="shield">
+                                                100 crystals
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Navigation Upgrades -->
+                                <div class="card">
+                                    <div class="card-header pb-2">
+                                        <div class="text-sm font-semibold flex items-center gap-2">
+                                            🧭 Navigation Upgrades
+                                        </div>
+                                    </div>
+                                    <div class="card-content space-y-2">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm">Long Range Scanner</span>
+                                            <button class="button button-sm button-outline" data-upgrade="scanner">
+                                                150m + 30c
+                                            </button>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm">Auto-Pilot</span>
+                                            <button class="button button-sm button-outline" data-upgrade="autopilot">
+                                                75 crystals
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Weapon Upgrades -->
+                                <div class="card">
+                                    <div class="card-header pb-2">
+                                        <div class="text-sm font-semibold flex items-center gap-2">
+                                            ⚡ Weapon Upgrades
+                                        </div>
+                                    </div>
+                                    <div class="card-content space-y-2">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm">Laser Upgrade</span>
+                                            <button class="button button-sm button-outline" data-upgrade="laser">
+                                                250m + 40c
+                                            </button>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm">Missile System</span>
+                                            <button class="button button-sm button-outline" data-upgrade="missile">
+                                                400 metal
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Resource Production -->
+                            <div class="card mt-4">
+                                <div class="card-header pb-2">
+                                    <div class="text-sm font-semibold flex items-center gap-2">
+                                        🔧 Resource Production
+                                    </div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="grid grid-cols-3 gap-4">
+                                        <button class="button button-outline h-20 flex flex-col" data-production="metal">
+                                            <span class="text-xs">Metal Refinery</span>
+                                            <span class="text-xs text-gray-500">100 metal</span>
+                                        </button>
+                                        <button class="button button-outline h-20 flex flex-col" data-production="fuel">
+                                            <span class="text-xs">Fuel Synthesizer</span>
+                                            <span class="text-xs text-gray-500">150 metal</span>
+                                        </button>
+                                        <button class="button button-outline h-20 flex flex-col" data-production="crystals">
+                                            <span class="text-xs">Crystal Miner</span>
+                                            <span class="text-xs text-gray-500">50 crystals</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Spacecraft Builder Dialog -->
+        <div id="builder-dialog" class="dialog-overlay hidden">
+            <div class="dialog" style="max-width: 64rem; max-height: 80vh;">
+                <div class="dialog-header">
+                    <div class="text-lg font-semibold flex items-center gap-2">
+                        🔧 Spacecraft Builder
+                    </div>
+                </div>
+                <div class="dialog-content">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Available Parts -->
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">Available Parts</h3>
+                            <div class="space-y-3 max-h-96 overflow-y-auto" id="available-parts">
+                                <!-- Parts will be added by JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Current Spacecraft -->
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">Current Spacecraft</h3>
+                            
+                            <!-- Spacecraft Stats -->
+                            <div class="card mb-4">
+                                <div class="card-header pb-2">
+                                    <div class="text-sm font-semibold">Spacecraft Stats</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <div class="text-xs text-gray-600">Speed</div>
+                                            <div class="font-semibold" id="stat-speed">1</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs text-gray-600">Fuel Capacity</div>
+                                            <div class="font-semibold" id="stat-fuel">100</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs text-gray-600">Durability</div>
+                                            <div class="font-semibold" id="stat-durability">100</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs text-gray-600">Accuracy</div>
+                                            <div class="font-semibold" id="stat-accuracy">0</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Installed Parts -->
+                            <div class="card mb-4">
+                                <div class="card-header pb-2">
+                                    <div class="text-sm font-semibold">Installed Parts</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="space-y-2 max-h-48 overflow-y-auto" id="installed-parts">
+                                        <!-- Installed parts will be added by JavaScript -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Build Button -->
+                            <button class="button button-primary w-full" id="confirm-build-btn">
+                                🚀 Build Spacecraft
+                                <span class="ml-2 text-xs" id="build-requirements"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State Management
+        class GameState {
+            constructor() {
+                this.state = {
+                    gameState: 'building',
+                    resources: {
+                        metal: 500,
+                        fuel: 200,
+                        crystals: 0
+                    },
+                    spacecraft: {
+                        parts: [
+                            {
+                                id: 'basic-engine',
+                                name: 'Basic Engine',
+                                type: 'engine',
+                                level: 1,
+                                cost: 100,
+                                required: true,
+                                stats: { speed: 1, fuelCapacity: 100 }
+                            },
+                            {
+                                id: 'basic-hull',
+                                name: 'Basic Hull',
+                                type: 'hull',
+                                level: 1,
+                                cost: 50,
+                                required: true,
+                                stats: { durability: 100 }
+                            }
+                        ],
+                        position: [400, 300, 0],
+                        velocity: [0, 0, 0],
+                        fuel: 100,
+                        health: 100
+                    },
+                    currentPlanet: 'earth',
+                    discoveredPlanets: ['earth'],
+                    unlockedParts: ['basic-engine', 'basic-hull'],
+                    planets: [
+                        {
+                            id: 'earth',
+                            name: 'Earth',
+                            position: [0, 0, 0],
+                            size: 3,
+                            color: '#4A90E2',
+                            resources: ['metal', 'fuel'],
+                            distance: 0,
+                            unlocked: true
+                        },
+                        {
+                            id: 'mars',
+                            name: 'Mars',
+                            position: [15, 0, 10],
+                            size: 2,
+                            color: '#CD5C5C',
+                            resources: ['metal', 'crystals'],
+                            distance: 18,
+                            unlocked: true
+                        },
+                        {
+                            id: 'jupiter',
+                            name: 'Jupiter',
+                            position: [30, 0, -20],
+                            size: 5,
+                            color: '#DAA520',
+                            resources: ['fuel', 'crystals'],
+                            distance: 36,
+                            unlocked: true
+                        }
+                    ]
+                };
+                
+                this.availableParts = [
+                    {
+                        id: 'basic-engine',
+                        name: 'Basic Engine',
+                        type: 'engine',
+                        cost: 0,
+                        icon: '🚀',
+                        description: 'Standard propulsion system',
+                        stats: { speed: 1, fuelCapacity: 100 },
+                        required: true
+                    },
+                    {
+                        id: 'advanced-engine',
+                        name: 'Advanced Engine',
+                        type: 'engine',
+                        cost: 300,
+                        icon: '🚀',
+                        description: 'High-performance engine with better efficiency',
+                        stats: { speed: 2, fuelCapacity: 150 },
+                        unlocked: true
+                    },
+                    {
+                        id: 'basic-hull',
+                        name: 'Basic Hull',
+                        type: 'hull',
+                        cost: 0,
+                        icon: '🛡️',
+                        description: 'Standard spacecraft hull',
+                        stats: { durability: 100 },
+                        required: true
+                    },
+                    {
+                        id: 'reinforced-hull',
+                        name: 'Reinforced Hull',
+                        type: 'hull',
+                        cost: 250,
+                        icon: '🛡️',
+                        description: 'Enhanced durability for long missions',
+                        stats: { durability: 200 },
+                        unlocked: true
+                    },
+                    {
+                        id: 'fuel-tank',
+                        name: 'Fuel Tank',
+                        type: 'fuel',
+                        cost: 200,
+                        icon: '⛽',
+                        description: 'Additional fuel capacity',
+                        stats: { fuelCapacity: 200 },
+                        unlocked: true
+                    },
+                    {
+                        id: 'navigation-system',
+                        name: 'Navigation System',
+                        type: 'navigation',
+                        cost: 400,
+                        icon: '🧭',
+                        description: 'Advanced navigation for deep space',
+                        stats: { accuracy: 2 },
+                        unlocked: true
+                    },
+                    {
+                        id: 'laser-cannon',
+                        name: 'Laser Cannon',
+                        type: 'weapon',
+                        cost: 500,
+                        icon: '⚡',
+                        description: 'Offensive capability for space combat',
+                        stats: { power: 50 },
+                        unlocked: true
+                    }
+                ];
+
+                this.keys = new Set();
+                this.thrust = false;
+                this.dimensions = { width: 800, height: 600 };
+                this.gameLoop = null;
+                
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.updateUI();
+                this.createBackgroundStars();
+                this.updateGameDisplay();
+                this.startGameLoop();
+            }
+
+            setupEventListeners() {
+                // Keyboard controls
+                document.addEventListener('keydown', (e) => {
+                    this.keys.add(e.key.toLowerCase());
+                });
+
+                document.addEventListener('keyup', (e) => {
+                    this.keys.delete(e.key.toLowerCase());
+                });
+
+                // Tab switching
+                document.querySelectorAll('.tabs-trigger').forEach(trigger => {
+                    trigger.addEventListener('click', () => {
+                        const tabName = trigger.dataset.tab;
+                        this.switchTab(tabName);
+                    });
+                });
+
+                // Action buttons
+                document.getElementById('build-spacecraft-btn').addEventListener('click', () => {
+                    this.showBuilder();
+                });
+
+                document.getElementById('launch-btn').addEventListener('click', () => {
+                    this.launch();
+                });
+
+                document.getElementById('gather-resources-btn').addEventListener('click', () => {
+                    this.gatherResources();
+                });
+
+                document.getElementById('repair-btn').addEventListener('click', () => {
+                    this.repair();
+                });
+
+                document.getElementById('takeoff-btn').addEventListener('click', () => {
+                    this.takeoff();
+                });
+
+                document.getElementById('confirm-build-btn').addEventListener('click', () => {
+                    this.confirmBuild();
+                });
+
+                // Close builder dialog
+                document.getElementById('builder-dialog').addEventListener('click', (e) => {
+                    if (e.target.id === 'builder-dialog') {
+                        this.hideBuilder();
+                    }
+                });
+
+                // Upgrade buttons
+                document.querySelectorAll('[data-upgrade]').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.purchaseUpgrade(btn.dataset.upgrade);
+                    });
+                });
+
+                // Production buttons
+                document.querySelectorAll('[data-production]').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.buildProduction(btn.dataset.production);
+                    });
+                });
+
+                // Window resize
+                window.addEventListener('resize', () => {
+                    this.updateDimensions();
+                });
+            }
+
+            updateDimensions() {
+                const container = document.getElementById('game-container');
+                if (container) {
+                    const rect = container.getBoundingClientRect();
+                    this.dimensions = {
+                        width: rect.width,
+                        height: rect.height
+                    };
+                }
+            }
+
+            switchTab(tabName) {
+                // Update triggers
+                document.querySelectorAll('.tabs-trigger').forEach(trigger => {
+                    trigger.classList.remove('active');
+                });
+                document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+                // Update panels
+                document.querySelectorAll('.tabs-panel').forEach(panel => {
+                    panel.classList.remove('active');
+                });
+                document.getElementById(`${tabName}-panel`).classList.add('active');
+            }
+
+            setGameState(gameState) {
+                this.state.gameState = gameState;
+                this.updateUI();
+                this.updateGameDisplay();
+            }
+
+            addResource(type, amount) {
+                this.state.resources[type] += amount;
+                this.updateUI();
+            }
+
+            spendResource(type, amount) {
+                if (this.state.resources[type] >= amount) {
+                    this.state.resources[type] -= amount;
+                    this.updateUI();
+                    return true;
+                }
+                return false;
+            }
+
+            addSpacecraftPart(part) {
+                this.state.spacecraft.parts.push(part);
+                this.updateSpacecraftStats();
+            }
+
+            removeSpacecraftPart(partId) {
+                const part = this.state.spacecraft.parts.find(p => p.id === partId);
+                if (part && !part.required) {
+                    this.state.spacecraft.parts = this.state.spacecraft.parts.filter(p => p.id !== partId);
+                    this.updateSpacecraftStats();
+                }
+            }
+
+            updateSpacecraftPosition(position) {
+                this.state.spacecraft.position = position;
+            }
+
+            updateSpacecraftVelocity(velocity) {
+                this.state.spacecraft.velocity = velocity;
+            }
+
+            consumeFuel(amount) {
+                if (this.state.spacecraft.fuel >= amount) {
+                    this.state.spacecraft.fuel -= amount;
+                    this.updateUI();
+                    return true;
+                }
+                return false;
+            }
+
+            repairSpacecraft(amount) {
+                const cost = amount * 2;
+                if (this.state.resources.metal >= cost && this.state.spacecraft.health < 100) {
+                    this.state.resources.metal -= cost;
+                    this.state.spacecraft.health = Math.min(100, this.state.spacecraft.health + amount);
+                    this.updateUI();
+                    return true;
+                }
+                return false;
+            }
+
+            discoverPlanet(planetId) {
+                if (!this.state.discoveredPlanets.includes(planetId)) {
+                    this.state.discoveredPlanets.push(planetId);
+                    this.updateUI();
+                }
+            }
+
+            landOnPlanet(planetId) {
+                this.state.currentPlanet = planetId;
+                this.setGameState('landed');
+            }
+
+            takeOff() {
+                this.state.currentPlanet = null;
+                this.setGameState('flying');
+            }
+
+            updateUI() {
+                // Update resources
+                document.getElementById('resource-metal').textContent = this.state.resources.metal;
+                document.getElementById('resource-fuel').textContent = this.state.resources.fuel;
+                document.getElementById('resource-crystals').textContent = this.state.resources.crystals;
+
+                // Update game state
+                document.getElementById('game-state').textContent = this.state.gameState;
+
+                // Update spacecraft status
+                document.getElementById('spacecraft-health').textContent = `${this.state.spacecraft.health}%`;
+                document.getElementById('spacecraft-fuel').textContent = `${this.state.spacecraft.fuel}%`;
+                document.getElementById('health-bar').style.width = `${this.state.spacecraft.health}%`;
+                document.getElementById('fuel-bar').style.width = `${this.state.spacecraft.fuel}%`;
+
+                // Update action buttons
+                const buildBtn = document.getElementById('build-spacecraft-btn');
+                const launchBtn = document.getElementById('launch-btn');
+                const gatherBtn = document.getElementById('gather-resources-btn');
+                const repairBtn = document.getElementById('repair-btn');
+                const takeoffBtn = document.getElementById('takeoff-btn');
+                const flightControls = document.getElementById('flight-controls');
+
+                // Hide all buttons first
+                buildBtn.classList.add('hidden');
+                launchBtn.classList.add('hidden');
+                gatherBtn.classList.add('hidden');
+                repairBtn.classList.add('hidden');
+                takeoffBtn.classList.add('hidden');
+                flightControls.classList.add('hidden');
+
+                // Show relevant buttons based on game state
+                switch (this.state.gameState) {
+                    case 'building':
+                        buildBtn.classList.remove('hidden');
+                        break;
+                    case 'built':
+                        launchBtn.classList.remove('hidden');
+                        break;
+                    case 'landed':
+                        gatherBtn.classList.remove('hidden');
+                        repairBtn.classList.remove('hidden');
+                        takeoffBtn.classList.remove('hidden');
+                        break;
+                    case 'flying':
+                        flightControls.classList.remove('hidden');
+                        break;
+                }
+
+                // Update upgrade buttons
+                this.updateUpgradeButtons();
+            }
+
+            updateUpgradeButtons() {
+                document.querySelectorAll('[data-upgrade]').forEach(btn => {
+                    const upgrade = btn.dataset.upgrade;
+                    let canAfford = false;
+
+                    switch (upgrade) {
+                        case 'speed':
+                            canAfford = this.state.resources.metal >= 200;
+                            break;
+                        case 'efficiency':
+                            canAfford = this.state.resources.crystals >= 50;
+                            break;
+                        case 'armor':
+                            canAfford = this.state.resources.metal >= 300;
+                            break;
+                        case 'shield':
+                            canAfford = this.state.resources.crystals >= 100;
+                            break;
+                        case 'scanner':
+                            canAfford = this.state.resources.metal >= 150 && this.state.resources.crystals >= 30;
+                            break;
+                        case 'autopilot':
+                            canAfford = this.state.resources.crystals >= 75;
+                            break;
+                        case 'laser':
+                            canAfford = this.state.resources.metal >= 250 && this.state.resources.crystals >= 40;
+                            break;
+                        case 'missile':
+                            canAfford = this.state.resources.metal >= 400;
+                            break;
+                    }
+
+                    btn.disabled = !canAfford;
+                });
+
+                document.querySelectorAll('[data-production]').forEach(btn => {
+                    const production = btn.dataset.production;
+                    let canAfford = false;
+
+                    switch (production) {
+                        case 'metal':
+                            canAfford = this.state.resources.metal >= 100;
+                            break;
+                        case 'fuel':
+                            canAfford = this.state.resources.metal >= 150;
+                            break;
+                        case 'crystals':
+                            canAfford = this.state.resources.crystals >= 50;
+                            break;
+                    }
+
+                    btn.disabled = !canAfford;
+                });
+            }
+
+            createBackgroundStars() {
+                const container = document.getElementById('game-container');
+                const starsContainer = document.createElement('div');
+                starsContainer.className = 'absolute inset-0';
+                starsContainer.style.pointerEvents = 'none';
+
+                for (let i = 0; i < 200; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'absolute bg-white rounded-full';
+                    star.style.left = `${Math.random() * 100}%`;
+                    star.style.top = `${Math.random() * 100}%`;
+                    star.style.width = `${Math.random() * 2 + 1}px`;
+                    star.style.height = `${Math.random() * 2 + 1}px`;
+                    star.style.opacity = Math.random() * 0.8 + 0.2;
+                    starsContainer.appendChild(star);
+                }
+
+                container.appendChild(starsContainer);
+            }
+
+            updateGameDisplay() {
+                // Clear existing game elements
+                const existingElements = document.querySelectorAll('.game-element');
+                existingElements.forEach(el => el.remove());
+
+                // Update planets display
+                this.updatePlanetsDisplay();
+
+                // Update spacecraft display
+                this.updateSpacecraftDisplay();
+
+                // Update radar
+                this.updateRadar();
+            }
+
+            updatePlanetsDisplay() {
+                const container = document.getElementById('game-container');
+                const centerX = this.dimensions.width / 2;
+                const centerY = this.dimensions.height / 2;
+                const scale = 10;
+
+                this.state.planets.forEach(planet => {
+                    if (planet.id === 'earth') return; // Earth is already in HTML
+
+                    if (!this.state.discoveredPlanets.includes(planet.id) && !planet.unlocked) return;
+
+                    const x = centerX + planet.position[0] * scale;
+                    const y = centerY + planet.position[2] * scale;
+                    const canLand = this.canLandOnPlanet(planet);
+
+                    const planetEl = document.createElement('div');
+                    planetEl.className = 'game-element absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-300';
+                    if (canLand) planetEl.classList.add('animate-pulse');
+                    
+                    planetEl.style.left = `${x}px`;
+                    planetEl.style.top = `${y}px`;
+                    planetEl.style.width = `${planet.size * 20}px`;
+                    planetEl.style.height = `${planet.size * 20}px`;
+
+                    planetEl.innerHTML = `
+                        <div class="rounded-full relative shadow-lg" style="background-color: ${planet.color}; width: 100%; height: 100%;">
+                            <div class="absolute inset-0 rounded-full opacity-30" style="background-color: ${planet.color}; transform: scale(1.2); filter: blur(4px);"></div>
+                            ${canLand ? '<div class="absolute inset-0 rounded-full border-2 border-green-400 animate-pulse"></div>' : ''}
+                        </div>
+                        ${this.state.discoveredPlanets.includes(planet.id) ? `
+                            <div class="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 text-white text-xs font-semibold whitespace-nowrap">
+                                ${planet.name}
+                                ${canLand ? '<span class="text-green-400 ml-1">✓</span>' : ''}
+                            </div>
+                            <div class="absolute top-full left-1/2 transform -translate-x-1/2 mt-6 flex gap-1">
+                                ${planet.resources.map(resource => `<span class="text-yellow-400 text-xs">${resource.charAt(0).toUpperCase()}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                    `;
+
+                    planetEl.addEventListener('click', () => {
+                        if (canLand) {
+                            this.landOnPlanet(planet.id);
+                        }
+                    });
+
+                    container.appendChild(planetEl);
+                });
+            }
+
+            updateSpacecraftDisplay() {
+                if (this.state.gameState !== 'built' && this.state.gameState !== 'launching' && this.state.gameState !== 'flying') return;
+
+                const container = document.getElementById('game-container');
+                const x = this.state.spacecraft.position[0];
+                const y = this.state.spacecraft.position[1];
+                const rotation = this.state.spacecraft.velocity[2] || 0;
+
+                const spacecraftEl = document.createElement('div');
+                spacecraftEl.className = 'game-element absolute transform -translate-x-1/2 -translate-y-1/2 transition-transform duration-100';
+                spacecraftEl.style.left = `${x}px`;
+                spacecraftEl.style.top = `${y}px`;
+                spacecraftEl.style.transform = `translate(-50%, -50%) rotate(${rotation}deg)`;
+
+                spacecraftEl.innerHTML = `
+                    <div class="relative">
+                        <div class="w-8 h-12 bg-gray-400 rounded-t-full relative">
+                            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-6 border-l-transparent border-r-transparent border-b-red-500"></div>
+                            <div class="absolute top-2 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-blue-300 rounded-full"></div>
+                            <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-4 h-3 bg-gray-700 rounded-b-lg"></div>
+                        </div>
+                        ${this.thrust ? `
+                            <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full">
+                                <div class="animate-pulse">
+                                    <div class="w-2 h-4 bg-orange-500 rounded-b-full mx-auto"></div>
+                                    <div class="w-3 h-6 bg-yellow-500 rounded-b-full mx-auto -mt-1 opacity-70"></div>
+                                    <div class="w-4 h-8 bg-red-500 rounded-b-full mx-auto -mt-1 opacity-50"></div>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+
+                container.appendChild(spacecraftEl);
+            }
+
+            updateRadar() {
+                const existingRadar = document.querySelector('.radar-container');
+                if (existingRadar) existingRadar.remove();
+
+                if (this.state.gameState === 'built' || this.state.gameState === 'launching' || this.state.gameState === 'flying') {
+                    const container = document.getElementById('game-container');
+                    const radarEl = document.createElement('div');
+                    radarEl.className = 'game-element radar-container absolute top-4 left-4 w-32 h-32 bg-black/50 border border-gray-600 rounded-lg backdrop-blur-sm';
+
+                    radarEl.innerHTML = `
+                        <div class="absolute inset-2 border border-gray-500 rounded">
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-blue-500 rounded-full"></div>
+                            ${this.state.planets.filter(p => p.id !== 'earth').filter(p => this.state.discoveredPlanets.includes(p.id) || p.unlocked).map(planet => {
+                                const radarX = 50 + (planet.position[0] / 50) * 40;
+                                const radarY = 50 + (planet.position[2] / 50) * 40;
+                                return `<div class="absolute w-1 h-1 rounded-full transform -translate-x-1/2 -translate-y-1/2" style="left: ${radarX}%; top: ${radarY}%; background-color: ${planet.color};"></div>`;
+                            }).join('')}
+                            <div class="absolute w-1 h-1 bg-white rounded-full transform -translate-x-1/2 -translate-y-1/2 animate-pulse" style="left: ${50 + ((this.state.spacecraft.position[0] - this.dimensions.width / 2) / this.dimensions.width) * 80}%; top: ${50 + ((this.state.spacecraft.position[1] - this.dimensions.height / 2) / this.dimensions.height) * 80}%;"></div>
+                        </div>
+                        <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 text-xs text-gray-400">RADAR</div>
+                    `;
+
+                    container.appendChild(radarEl);
+                }
+            }
+
+            canLandOnPlanet(planet) {
+                if (this.state.gameState !== 'flying') return false;
+                
+                const centerX = this.dimensions.width / 2;
+                const centerY = this.dimensions.height / 2;
+                const scale = 10;
+                
+                const planetX = centerX + planet.position[0] * scale;
+                const planetY = centerY + planet.position[2] * scale;
+                
+                const distance = Math.sqrt(
+                    Math.pow(this.state.spacecraft.position[0] - planetX, 2) +
+                    Math.pow(this.state.spacecraft.position[1] - planetY, 2)
+                );
+                
+                return distance <= planet.size * 10 + 20;
+            }
+
+            startGameLoop() {
+                this.gameLoop = setInterval(() => {
+                    if (this.state.gameState === 'flying') {
+                        this.updateGamePhysics();
+                    }
+                }, 1000 / 60);
+            }
+
+            updateGamePhysics() {
+                const rotationSpeed = 5;
+                const thrustPower = 0.2;
+                let newRotation = this.state.spacecraft.velocity[2] || 0;
+                let newVx = this.state.spacecraft.velocity[0] || 0;
+                let newVy = this.state.spacecraft.velocity[1] || 0;
+
+                // Handle rotation
+                if (this.keys.has('a') || this.keys.has('arrowleft')) {
+                    newRotation -= rotationSpeed;
+                }
+                if (this.keys.has('d') || this.keys.has('arrowright')) {
+                    newRotation += rotationSpeed;
+                }
+
+                // Handle thrust
+                const isThrusting = this.keys.has('w') || this.keys.has('arrowup');
+                this.thrust = isThrusting;
+
+                if (isThrusting) {
+                    const radians = (newRotation * Math.PI) / 180;
+                    newVx += Math.sin(radians) * thrustPower;
+                    newVy -= Math.cos(radians) * thrustPower;
+                    this.consumeFuel(0.1);
+                }
+
+                // Apply drag
+                newVx *= 0.99;
+                newVy *= 0.99;
+
+                // Update position
+                const newX = this.state.spacecraft.position[0] + newVx;
+                const newY = this.state.spacecraft.position[1] + newVy;
+
+                // Keep spacecraft in bounds
+                const boundedX = Math.max(50, Math.min(this.dimensions.width - 50, newX));
+                const boundedY = Math.max(50, Math.min(this.dimensions.height - 50, newY));
+
+                this.updateSpacecraftPosition([boundedX, boundedY, 0]);
+                this.updateSpacecraftVelocity([newVx, newVy, newRotation]);
+
+                // Auto-discover planets
+                this.state.planets.forEach(planet => {
+                    if (this.canLandOnPlanet(planet)) {
+                        this.discoverPlanet(planet.id);
+                    }
+                });
+
+                this.updateGameDisplay();
+            }
+
+            showBuilder() {
+                this.updateBuilderDisplay();
+                document.getElementById('builder-dialog').classList.remove('hidden');
+            }
+
+            hideBuilder() {
+                document.getElementById('builder-dialog').classList.add('hidden');
+            }
+
+            updateBuilderDisplay() {
+                const availableContainer = document.getElementById('available-parts');
+                const installedContainer = document.getElementById('installed-parts');
+
+                // Clear existing content
+                availableContainer.innerHTML = '';
+                installedContainer.innerHTML = '';
+
+                // Add available parts
+                this.availableParts.forEach(part => {
+                    const isInstalled = this.state.spacecraft.parts.some(p => p.id === part.id);
+                    const canInstall = this.state.unlockedParts.includes(part.id) && !isInstalled;
+
+                    const partEl = document.createElement('div');
+                    partEl.className = `card ${isInstalled ? 'border-green-500' : ''}`;
+                    partEl.innerHTML = `
+                        <div class="card-content p-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-2xl">${part.icon}</span>
+                                    <div>
+                                        <h4 class="font-semibold text-sm">${part.name}</h4>
+                                        <p class="text-xs text-gray-600">${part.description}</p>
+                                        <div class="flex gap-2 mt-1">
+                                            ${Object.entries(part.stats).map(([key, value]) => 
+                                                `<span class="badge badge-secondary text-xs">${key}: ${value}</span>`
+                                            ).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    ${part.required ? '<span class="badge badge-outline text-xs">Required</span>' : ''}
+                                    ${isInstalled ? '<span class="text-green-600">✓</span>' : 
+                                      canInstall ? `<button class="button button-sm" onclick="game.addSpacecraftPartFromBuilder('${part.id}')">+</button>` : 
+                                      '<span class="text-gray-400">🔒</span>'}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    availableContainer.appendChild(partEl);
+                });
+
+                // Add installed parts
+                this.state.spacecraft.parts.forEach(part => {
+                    const partEl = document.createElement('div');
+                    partEl.className = 'flex items-center justify-between p-2 bg-gray-50 rounded';
+                    partEl.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <span>${this.availableParts.find(p => p.id === part.id)?.icon || '🔧'}</span>
+                            <span class="text-sm font-medium">${part.name}</span>
+                        </div>
+                        ${!part.required ? `<button class="button button-sm" onclick="game.removeSpacecraftPartFromBuilder('${part.id}')">−</button>` : ''}
+                    `;
+                    installedContainer.appendChild(partEl);
+                });
+
+                this.updateSpacecraftStats();
+            }
+
+            updateSpacecraftStats() {
+                const stats = {
+                    speed: 0,
+                    fuelCapacity: 0,
+                    durability: 0,
+                    accuracy: 0,
+                    power: 0
+                };
+
+                this.state.spacecraft.parts.forEach(part => {
+                    Object.keys(stats).forEach(key => {
+                        if (part.stats[key]) {
+                            stats[key] += part.stats[key] || 0;
+                        }
+                    });
+                });
+
+                document.getElementById('stat-speed').textContent = stats.speed;
+                document.getElementById('stat-fuel').textContent = stats.fuelCapacity;
+                document.getElementById('stat-durability').textContent = stats.durability;
+                document.getElementById('stat-accuracy').textContent = stats.accuracy;
+
+                const canBuild = this.state.spacecraft.parts.some(p => p.type === 'engine') && 
+                               this.state.spacecraft.parts.some(p => p.type === 'hull');
+                
+                const buildBtn = document.getElementById('confirm-build-btn');
+                buildBtn.disabled = !canBuild;
+                
+                const requirements = document.getElementById('build-requirements');
+                if (!canBuild) {
+                    requirements.textContent = '(Need engine and hull)';
+                } else {
+                    requirements.textContent = '';
+                }
+            }
+
+            addSpacecraftPartFromBuilder(partId) {
+                const part = this.availableParts.find(p => p.id === partId);
+                if (part && this.state.unlockedParts.includes(partId)) {
+                    const newPart = {
+                        id: part.id,
+                        name: part.name,
+                        type: part.type,
+                        level: 1,
+                        cost: part.cost,
+                        stats: part.stats
+                    };
+                    this.addSpacecraftPart(newPart);
+                    this.updateBuilderDisplay();
+                }
+            }
+
+            removeSpacecraftPartFromBuilder(partId) {
+                this.removeSpacecraftPart(partId);
+                this.updateBuilderDisplay();
+            }
+
+            confirmBuild() {
+                const canBuild = this.state.spacecraft.parts.some(p => p.type === 'engine') && 
+                               this.state.spacecraft.parts.some(p => p.type === 'hull');
+                
+                if (canBuild) {
+                    this.setGameState('built');
+                    this.hideBuilder();
+                }
+            }
+
+            launch() {
+                this.setGameState('launching');
+                
+                // Add launch effects
+                const container = document.getElementById('game-container');
+                const launchEffect = document.createElement('div');
+                launchEffect.className = 'game-element absolute inset-0 bg-orange-500 opacity-20 animate-pulse';
+                
+                // Add launch particles
+                for (let i = 0; i < 50; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'absolute bg-yellow-500 rounded-full animate-ping';
+                    particle.style.left = `${50 + Math.random() * 20}%`;
+                    particle.style.top = `${50 + Math.random() * 20}%`;
+                    particle.style.width = `${Math.random() * 4 + 2}px`;
+                    particle.style.height = `${Math.random() * 4 + 2}px`;
+                    particle.style.animationDelay = `${Math.random() * 2}s`;
+                    particle.style.animationDuration = `${Math.random() * 2 + 1}s`;
+                    launchEffect.appendChild(particle);
+                }
+                
+                container.appendChild(launchEffect);
+
+                // Transition to flying after 2 seconds
+                setTimeout(() => {
+                    launchEffect.remove();
+                    this.setGameState('flying');
+                }, 2000);
+            }
+
+            gatherResources() {
+                if (this.state.currentPlanet) {
+                    this.addResource('metal', 50);
+                    this.addResource('fuel', 25);
+                    if (Math.random() > 0.7) {
+                        this.addResource('crystals', 10);
+                    }
+                }
+            }
+
+            repair() {
+                this.repairSpacecraft(25);
+            }
+
+            purchaseUpgrade(upgrade) {
+                let success = false;
+                
+                switch (upgrade) {
+                    case 'speed':
+                        success = this.spendResource('metal', 200);
+                        if (success) console.log('Engine speed upgraded');
+                        break;
+                    case 'efficiency':
+                        success = this.spendResource('crystals', 50);
+                        if (success) console.log('Fuel efficiency upgraded');
+                        break;
+                    case 'armor':
+                        success = this.spendResource('metal', 300);
+                        if (success) console.log('Hull armor upgraded');
+                        break;
+                    case 'shield':
+                        success = this.spendResource('crystals', 100);
+                        if (success) console.log('Shield generator added');
+                        break;
+                    case 'scanner':
+                        success = this.spendResource('metal', 150) && this.spendResource('crystals', 30);
+                        if (success) console.log('Long range scanner upgraded');
+                        break;
+                    case 'autopilot':
+                        success = this.spendResource('crystals', 75);
+                        if (success) console.log('Auto-pilot installed');
+                        break;
+                    case 'laser':
+                        success = this.spendResource('metal', 250) && this.spendResource('crystals', 40);
+                        if (success) console.log('Laser weapon upgraded');
+                        break;
+                    case 'missile':
+                        success = this.spendResource('metal', 400);
+                        if (success) console.log('Missile system added');
+                        break;
+                }
+                
+                if (success) {
+                    this.updateUI();
+                }
+            }
+
+            buildProduction(type) {
+                let success = false;
+                
+                switch (type) {
+                    case 'metal':
+                        success = this.spendResource('metal', 100);
+                        if (success) console.log('Metal refinery built');
+                        break;
+                    case 'fuel':
+                        success = this.spendResource('metal', 150);
+                        if (success) console.log('Fuel synthesizer built');
+                        break;
+                    case 'crystals':
+                        success = this.spendResource('crystals', 50);
+                        if (success) console.log('Crystal miner built');
+                        break;
+                }
+                
+                if (success) {
+                    this.updateUI();
+                }
+            }
+        }
+
+        // Initialize the game
+        const game = new GameState();
+    </script>
+</body>
+</html>
