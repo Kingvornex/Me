@@ -1,0 +1,2670 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Crime City RPG - Extended Edition</title>
+    <style>
+        body { 
+            margin: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            background: #111;
+            font-family: Arial, sans-serif;
+            color: white;
+            overflow: hidden;
+        }
+        canvas { 
+            background: #222; 
+            border: 2px solid #444;
+            cursor: crosshair;
+        }
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 5px;
+            width: 220px;
+        }
+        #inventory {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 5px;
+            width: 220px;
+        }
+        #dialogue {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            padding: 15px;
+            border-radius: 5px;
+            max-width: 600px;
+            display: none;
+        }
+        #minimap {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            border: 1px solid #444;
+            border-radius: 5px;
+        }
+        button {
+            background: #444;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        button:hover {
+            background: #555;
+        }
+        .tab {
+            overflow: hidden;
+            border: 1px solid #444;
+            background-color: #333;
+            margin-top: 5px;
+        }
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 8px 10px;
+            transition: 0.3s;
+            margin: 0;
+            font-size: 12px;
+        }
+        .tab button:hover {
+            background-color: #444;
+        }
+        .tab button.active {
+            background-color: #555;
+        }
+        .tabcontent {
+            display: none;
+            padding: 6px 12px;
+            border: 1px solid #444;
+            border-top: none;
+        }
+        .item {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            margin: 2px;
+            border: 1px solid #555;
+            text-align: center;
+            line-height: 40px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+        .item:hover {
+            border-color: #fff;
+        }
+        #skills {
+            margin-top: 5px;
+        }
+        .skill {
+            margin: 2px 0;
+        }
+        .skill-bar {
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .skill-progress {
+            height: 100%;
+            background: #4CAF50;
+        }
+        #notification {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+            max-width: 400px;
+            text-align: center;
+        }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 2px 0;
+        }
+        .stat-value {
+            font-weight: bold;
+        }
+        #playerAvatar {
+            width: 60px;
+            height: 60px;
+            background: #555;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+        }
+        .equipment-slot {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            margin: 2px;
+            border: 1px solid #555;
+            text-align: center;
+            line-height: 40px;
+            cursor: pointer;
+            font-size: 10px;
+            background: #333;
+        }
+        .equipment-slot:hover {
+            border-color: #fff;
+        }
+        #equipment {
+            margin-top: 10px;
+        }
+        .quest-item {
+            margin: 5px 0;
+            padding: 5px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+        }
+        .quest-item.completed {
+            background: rgba(0,255,0,0.2);
+        }
+        .quest-item.failed {
+            background: rgba(255,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="1200" height="800"></canvas>
+    
+    <div id="ui">
+        <div id="playerAvatar">👤</div>
+        <div>Name: <span id="playerName">Rookie Criminal</span></div>
+        <div>Level: <span id="level">1</span></div>
+        <div>Class: <span id="playerClass">Thug</span></div>
+        <div>Health: <span id="health">100</span>/<span id="maxHealth">100</span></div>
+        <div>Stamina: <span id="stamina">100</span>/<span id="maxStamina">100</span></div>
+        <div>Money: $<span id="money">200</span></div>
+        <div>Wanted Level: <span id="wanted">0</span></div>
+        <div>Location: <span id="location">Downtown</span></div>
+        <div>Reputation: <span id="reputation">0</span></div>
+        <div>Experience: <span id="experience">0</span>/<span id="expToNext">100</span></div>
+        
+        <div class="tab">
+            <button class="tablinks active" onclick="openTab(event, 'StatsTab')">Stats</button>
+            <button class="tablinks" onclick="openTab(event, 'SkillsTab')">Skills</button>
+            <button class="tablinks" onclick="openTab(event, 'QuestsTab')">Quests</button>
+        </div>
+        
+        <div id="StatsTab" class="tabcontent" style="display: block;">
+            <div class="stat-row">
+                <span>Strength:</span>
+                <span class="stat-value" id="strength">1</span>
+            </div>
+            <div class="stat-row">
+                <span>Agility:</span>
+                <span class="stat-value" id="agility">1</span>
+            </div>
+            <div class="stat-row">
+                <span>Intelligence:</span>
+                <span class="stat-value" id="intelligence">1</span>
+            </div>
+            <div class="stat-row">
+                <span>Charisma:</span>
+                <span class="stat-value" id="charisma">1</span>
+            </div>
+            <div class="stat-row">
+                <span>Luck:</span>
+                <span class="stat-value" id="luck">1</span>
+            </div>
+            <div class="stat-row">
+                <span>Endurance:</span>
+                <span class="stat-value" id="endurance">1</span>
+            </div>
+            <div>Stat Points: <span id="statPoints">0</span></div>
+            <div><button onclick="openStatAllocation()">Allocate Stats</button></div>
+        </div>
+        
+        <div id="SkillsTab" class="tabcontent">
+            <div id="skills">
+                <div class="skill">
+                    <div>Stealth: <span id="stealth">1</span>/10</div>
+                    <div class="skill-bar"><div class="skill-progress" id="stealthBar" style="width: 10%"></div></div>
+                </div>
+                <div class="skill">
+                    <div>Hacking: <span id="hacking">1</span>/10</div>
+                    <div class="skill-bar"><div class="skill-progress" id="hackingBar" style="width: 10%"></div></div>
+                </div>
+                <div class="skill">
+                    <div>Driving: <span id="driving">1</span>/10</div>
+                    <div class="skill-bar"><div class="skill-progress" id="drivingBar" style="width: 10%"></div></div>
+                </div>
+                <div class="skill">
+                    <div>Intimidation: <span id="intimidation">1</span>/10</div>
+                    <div class="skill-bar"><div class="skill-progress" id="intimidationBar" style="width: 10%"></div></div>
+                </div>
+                <div class="skill">
+                    <div>Persuasion: <span id="persuasion">1</span>/10</div>
+                    <div class="skill-bar"><div class="skill-progress" id="persuasionBar" style="width: 10%"></div></div>
+                </div>
+                <div class="skill">
+                    <div>Lockpicking: <span id="lockpicking">1</span>/10</div>
+                    <div class="skill-bar"><div class="skill-progress" id="lockpickingBar" style="width: 10%"></div></div>
+                </div>
+                <div class="skill">
+                    <div>Firearms: <span id="firearms">1</span>/10</div>
+                    <div class="skill-bar"><div class="skill-progress" id="firearmsBar" style="width: 10%"></div></div>
+                </div>
+                <div class="skill">
+                    <div>Melee: <span id="melee">1</span>/10</div>
+                    <div class="skill-bar"><div class="skill-progress" id="meleeBar" style="width: 10%"></div></div>
+                </div>
+            </div>
+            <div>Skill Points: <span id="skillPoints">0</span></div>
+            <div><button onclick="openSkillAllocation()">Allocate Skills</button></div>
+        </div>
+        
+        <div id="QuestsTab" class="tabcontent">
+            <div id="questList"></div>
+        </div>
+        
+        <div><button onclick="saveGame()">Save Game</button></div>
+        <div><button onclick="loadGame()">Load Game</button></div>
+    </div>
+    
+    <div id="inventory">
+        <h3>Inventory</h3>
+        <div id="inventoryItems"></div>
+        
+        <div class="tab">
+            <button class="tablinks active" onclick="openTab(event, 'WeaponsTab')">Weapons</button>
+            <button class="tablinks" onclick="openTab(event, 'ArmorTab')">Armor</button>
+            <button class="tablinks" onclick="openTab(event, 'ItemsTab')">Items</button>
+        </div>
+        
+        <div id="WeaponsTab" class="tabcontent" style="display: block;">
+            <div id="weaponsList"></div>
+        </div>
+        
+        <div id="ArmorTab" class="tabcontent">
+            <div id="armorList"></div>
+        </div>
+        
+        <div id="ItemsTab" class="tabcontent">
+            <div id="itemsList"></div>
+        </div>
+        
+        <div id="equipment">
+            <h4>Equipment</h4>
+            <div class="equipment-slot" id="weaponSlot" title="Weapon">🔫</div>
+            <div class="equipment-slot" id="armorSlot" title="Armor">🛡️</div>
+            <div class="equipment-slot" id="accessorySlot" title="Accessory">💍</div>
+        </div>
+    </div>
+    
+    <div id="dialogue">
+        <div id="dialogueText"></div>
+        <div id="dialogueOptions"></div>
+    </div>
+    
+    <canvas id="minimap" width="200" height="200"></canvas>
+    
+    <div id="notification">
+        <div id="notificationText"></div>
+        <button onclick="closeNotification()">OK</button>
+    </div>
+    
+    <div id="statAllocation" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); padding: 20px; border-radius: 10px; width: 400px;">
+        <h3>Allocate Stat Points</h3>
+        <div>Points Available: <span id="availableStatPoints">0</span></div>
+        <div id="statAllocationButtons"></div>
+        <button onclick="closeStatAllocation()">Done</button>
+    </div>
+    
+    <div id="skillAllocation" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); padding: 20px; border-radius: 10px; width: 400px;">
+        <h3>Allocate Skill Points</h3>
+        <div>Points Available: <span id="availableSkillPoints">0</span></div>
+        <div id="skillAllocationButtons"></div>
+        <button onclick="closeSkillAllocation()">Done</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const minimap = document.getElementById('minimap');
+        const minimapCtx = minimap.getContext('2d');
+        
+        // Game state
+        const game = {
+            player: {
+                x: 2500,
+                y: 2500,
+                width: 20,
+                height: 20,
+                speed: 3,
+                health: 100,
+                maxHealth: 100,
+                stamina: 100,
+                maxStamina: 100,
+                money: 200,
+                wanted: 0,
+                reputation: 0,
+                level: 1,
+                experience: 0,
+                experienceToNext: 100,
+                color: '#ff0000',
+                name: 'Rookie Criminal',
+                class: 'Thug',
+                stats: {
+                    strength: 1,
+                    agility: 1,
+                    intelligence: 1,
+                    charisma: 1,
+                    luck: 1,
+                    endurance: 1
+                },
+                statPoints: 0,
+                skills: {
+                    stealth: 1,
+                    hacking: 1,
+                    driving: 1,
+                    intimidation: 1,
+                    persuasion: 1,
+                    lockpicking: 1,
+                    firearms: 1,
+                    melee: 1
+                },
+                skillPoints: 0,
+                inventory: {
+                    weapons: [],
+                    armor: [],
+                    items: []
+                },
+                equipment: {
+                    weapon: null,
+                    armor: null,
+                    accessory: null
+                },
+                currentQuests: [],
+                completedQuests: [],
+                currentVehicle: null,
+                training: null,
+                trainingTime: 0
+            },
+            gameTime: 0,
+            timeOfDay: 'Day',
+            keys: {},
+            dialogueActive: false,
+            camera: {
+                x: 0,
+                y: 0
+            },
+            citySize: 5000,
+            districts: [
+                { name: 'Downtown', x: 2000, y: 2000, width: 1000, height: 1000, color: '#444', type: 'urban' },
+                { name: 'Industrial', x: 0, y: 0, width: 1000, height: 1000, color: '#555', type: 'industrial' },
+                { name: 'Residential', x: 3500, y: 0, width: 1000, height: 1000, color: '#666', type: 'residential' },
+                { name: 'Suburbs', x: 3500, y: 3500, width: 1000, height: 1000, color: '#777', type: 'residential' },
+                { name: 'Harbor', x: 0, y: 3500, width: 1000, height: 1000, color: '#888', type: 'industrial' },
+                { name: 'Financial', x: 2000, y: 0, width: 1000, height: 1000, color: '#999', type: 'urban' },
+                { name: 'Chinatown', x: 1000, y: 1000, width: 800, height: 800, color: '#aa6644', type: 'urban' },
+                { name: 'Little Italy', x: 3000, y: 2000, width: 800, height: 800, color: '#cc6666', type: 'urban' },
+                { name: 'Ghetto', x: 1000, y: 3000, width: 800, height: 800, color: '#996633', type: 'urban' },
+                { name: 'Rich District', x: 3000, y: 1000, width: 800, height: 800, color: '#99cc99', type: 'residential' }
+            ],
+            buildings: [],
+            npcs: [],
+            vehicles: [],
+            items: [],
+            police: [],
+            gangs: [
+                { name: 'The Syndicate', color: '#ff0000', territory: 'Downtown', power: 8 },
+                { name: 'The Mafia', color: '#000000', territory: 'Little Italy', power: 7 },
+                { name: 'The Triads', color: '#ffff00', territory: 'Chinatown', power: 6 },
+                { name: 'Street Gang', color: '#00ff00', territory: 'Ghetto', power: 5 }
+            ],
+            factionReputation: {
+                'The Syndicate': 0,
+                'The Mafia': 0,
+                'The Triads': 0,
+                'Street Gang': 0,
+                'Police': 0,
+                'Civilians': 0
+            }
+        };
+
+        // Initialize city
+        function initCity() {
+            // Create streets
+            for (let i = 0; i < game.citySize; i += 300) {
+                game.buildings.push({
+                    x: i, y: 1500, width: 300, height: 200, color: '#333', name: 'Street', type: 'street'
+                });
+                
+                game.buildings.push({
+                    x: 1500, y: i, width: 200, height: 300, color: '#333', name: 'Street', type: 'street'
+                });
+                
+                game.buildings.push({
+                    x: i, y: 3500, width: 300, height: 200, color: '#333', name: 'Street', type: 'street'
+                });
+                
+                game.buildings.push({
+                    x: 3500, y: i, width: 200, height: 300, color: '#333', name: 'Street', type: 'street'
+                });
+            }
+            
+            // Create banks
+            game.buildings.push({ 
+                x: 2200, y: 2200, width: 150, height: 120, color: '#888', name: 'Central Bank', type: 'bank', 
+                security: 8, money: 10000, district: 'Downtown' 
+            });
+            
+            game.buildings.push({ 
+                x: 3500, y: 200, width: 120, height: 100, color: '#888', name: 'Financial Bank', type: 'bank', 
+                security: 9, money: 15000, district: 'Financial' 
+            });
+            
+            game.buildings.push({ 
+                x: 3800, y: 3800, width: 100, height: 80, color: '#888', name: 'Suburban Bank', type: 'bank', 
+                security: 5, money: 5000, district: 'Suburbs' 
+            });
+            
+            // Shops
+            game.buildings.push({ 
+                x: 2300, y: 2500, width: 80, height: 80, color: '#777', name: 'Weapon Shop', type: 'shop', 
+                items: ['Pistol', 'Knife', 'Bulletproof Vest'], district: 'Downtown' 
+            });
+            
+            game.buildings.push({ 
+                x: 200, y: 200, width: 80, height: 80, color: '#777', name: 'Electronics Store', type: 'shop', 
+                items: ['Phone', 'Laptop', 'Hacking Tool'], district: 'Industrial' 
+            });
+            
+            game.buildings.push({ 
+                x: 3800, y: 3800, width: 80, height: 80, color: '#777', name: 'General Store', type: 'shop', 
+                items: ['Health Kit', 'Lockpick', 'Mask'], district: 'Suburbs' 
+            });
+            
+            game.buildings.push({ 
+                x: 1200, y: 1200, width: 80, height: 80, color: '#aa6644', name: 'Chinese Market', type: 'shop', 
+                items: ['Ancient Coin', 'Lucky Charm', 'Exotic Weapon'], district: 'Chinatown' 
+            });
+            
+            game.buildings.push({ 
+                x: 3200, y: 2200, width: 80, height: 80, color: '#cc6666', name: 'Italian Restaurant', type: 'shop', 
+                items: ['Italian Food', 'Wine', 'Cigar'], district: 'Little Italy' 
+            });
+            
+            // Special locations
+            game.buildings.push({ 
+                x: 200, y: 3800, width: 150, height: 120, color: '#666', name: 'Police Station', type: 'police', 
+                district: 'Harbor' 
+            });
+            
+            game.buildings.push({ 
+                x: 2200, y: 200, width: 150, height: 120, color: '#999', name: 'City Hall', type: 'government', 
+                district: 'Financial' 
+            });
+            
+            game.buildings.push({ 
+                x: 200, y: 200, width: 200, height: 150, color: '#555', name: 'Warehouse', type: 'warehouse', 
+                district: 'Industrial' 
+            });
+            
+            game.buildings.push({ 
+                x: 3800, y: 200, width: 120, height: 100, color: '#666', name: 'Mansion', type: 'house', 
+                security: 6, money: 8000, district: 'Rich District' 
+            });
+            
+            game.buildings.push({ 
+                x: 200, y: 3800, width: 150, height: 120, color: '#888', name: 'Docks', type: 'docks', 
+                district: 'Harbor' 
+            });
+            
+            // Training facilities
+            game.buildings.push({ 
+                x: 1000, y: 1500, width: 100, height: 100, color: '#555', name: 'Gym', type: 'training', 
+                training: 'strength', district: 'Industrial' 
+            });
+            
+            game.buildings.push({ 
+                x: 2500, y: 3000, width: 100, height: 100, color: '#666', name: 'Shooting Range', type: 'training', 
+                training: 'firearms', district: 'Downtown' 
+            });
+            
+            game.buildings.push({ 
+                x: 1500, y: 1000, width: 100, height: 100, color: '#777', name: 'Library', type: 'training', 
+                training: 'intelligence', district: 'Chinatown' 
+            });
+            
+            game.buildings.push({ 
+                x: 3500, y: 2500, width: 100, height: 100, color: '#888', name: 'Dance Studio', type: 'training', 
+                training: 'agility', district: 'Little Italy' 
+            });
+            
+            // Gang hideouts
+            game.buildings.push({ 
+                x: 2400, y: 2400, width: 120, height: 100, color: '#ff0000', name: 'Syndicate Hideout', type: 'gang', 
+                gang: 'The Syndicate', district: 'Downtown' 
+            });
+            
+            game.buildings.push({ 
+                x: 3400, y: 2400, width: 120, height: 100, color: '#000000', name: 'Mafia Headquarters', type: 'gang', 
+                gang: 'The Mafia', district: 'Little Italy' 
+            });
+            
+            game.buildings.push({ 
+                x: 1400, y: 1400, width: 120, height: 100, color: '#ffff00', name: 'Triad Base', type: 'gang', 
+                gang: 'The Triads', district: 'Chinatown' 
+            });
+            
+            game.buildings.push({ 
+                x: 1400, y: 3400, width: 120, height: 100, color: '#00ff00', name: 'Street Gang Clubhouse', type: 'gang', 
+                gang: 'Street Gang', district: 'Ghetto' 
+            });
+            
+            // Safe houses
+            game.buildings.push({ 
+                x: 2100, y: 2100, width: 80, height: 80, color: '#444', name: 'Safe House', type: 'safehouse', 
+                district: 'Downtown' 
+            });
+            
+            game.buildings.push({ 
+                x: 100, y: 100, width: 80, height: 80, color: '#555', name: 'Abandoned Warehouse', type: 'safehouse', 
+                district: 'Industrial' 
+            });
+            
+            game.buildings.push({ 
+                x: 3600, y: 3600, width: 80, height: 80, color: '#777', name: 'Motel Room', type: 'safehouse', 
+                district: 'Suburbs' 
+            });
+            
+            // Create NPCs
+            // Crime bosses
+            game.npcs.push({ 
+                id: 1, x: 2400, y: 2400, width: 20, height: 20, name: 'Don Moretti', color: '#ff0000', 
+                type: 'boss', gang: 'The Syndicate', district: 'Downtown', 
+                dialogue: "I've got a job for you. The Central Bank has a shipment of diamonds coming in tomorrow. I need you to get them for me."
+            });
+            
+            game.npcs.push({ 
+                id: 2, x: 200, y: 200, width: 20, height: 20, name: 'The Fixer', color: '#ff00ff', 
+                type: 'boss', gang: 'The Mafia', district: 'Industrial', 
+                dialogue: "The competition is getting too strong. I need you to sabotage their operations at the warehouse."
+            });
+            
+            game.npcs.push({ 
+                id: 3, x: 1400, y: 1400, width: 20, height: 20, name: 'Mr. Chang', color: '#ffff00', 
+                type: 'boss', gang: 'The Triads', district: 'Chinatown', 
+                dialogue: "We need to expand our territory. The Street Gang is encroaching on our business. Teach them a lesson."
+            });
+            
+            game.npcs.push({ 
+                id: 4, x: 1400, y: 3400, width: 20, height: 20, name: 'Big Tony', color: '#00ff00', 
+                type: 'boss', gang: 'Street Gang', district: 'Ghetto', 
+                dialogue: "We need weapons and supplies. Hit the weapon shop and bring back what you can."
+            });
+            
+            // Quest givers
+            game.npcs.push({ 
+                id: 5, x: 2200, y: 200, width: 20, height: 20, name: 'Mr. Johnson', color: '#ffff00', 
+                type: 'questgiver', district: 'Financial', 
+                dialogue: "I need sensitive information from City Hall. Can you hack their systems and get it for me?"
+            });
+            
+            game.npcs.push({ 
+                id: 6, x: 200, y: 3800, width: 20, height: 20, name: 'Captain Davis', color: '#00ffff', 
+                type: 'questgiver', district: 'Harbor', 
+                dialogue: "We need someone on the inside. Infiltrate the crime syndicate and report back to me."
+            });
+            
+            // Trainers
+            game.npcs.push({ 
+                id: 7, x: 1000, y: 1500, width: 20, height: 20, name: 'Muscle Mike', color: '#ff9900', 
+                type: 'trainer', training: 'strength', district: 'Industrial', 
+                dialogue: "Want to get stronger? I can train you. It'll cost you $100 per session."
+            });
+            
+            game.npcs.push({ 
+                id: 8, x: 2500, y: 3000, width: 20, height: 20, name: 'Sergeant Smith', color: '#0099ff', 
+                type: 'trainer', training: 'firearms', district: 'Downtown', 
+                dialogue: "I can teach you how to handle a gun properly. $150 per lesson."
+            });
+            
+            game.npcs.push({ 
+                id: 9, x: 1500, y: 1000, width: 20, height: 20, name: 'Professor Lee', color: '#99ff00', 
+                type: 'trainer', training: 'intelligence', district: 'Chinatown', 
+                dialogue: "Knowledge is power. I can expand your mind. $200 per session."
+            });
+            
+            game.npcs.push({ 
+                id: 10, x: 3500, y: 2500, width: 20, height: 20, name: 'Dance Instructor', color: '#ff00cc', 
+                type: 'trainer', training: 'agility', district: 'Little Italy', 
+                dialogue: "Agility and grace are important in our line of work. $100 per class."
+            });
+            
+            // Shopkeepers
+            game.npcs.push({ 
+                id: 11, x: 2300, y: 2500, width: 20, height: 20, name: 'Gun Dealer', color: '#ff9900', 
+                type: 'shopkeeper', shop: 'Weapon Shop', district: 'Downtown' 
+            });
+            
+            game.npcs.push({ 
+                id: 12, x: 200, y: 200, width: 20, height: 20, name: 'Electronics Seller', color: '#0099ff', 
+                type: 'shopkeeper', shop: 'Electronics Store', district: 'Industrial' 
+            });
+            
+            game.npcs.push({ 
+                id: 13, x: 3800, y: 3800, width: 20, height: 20, name: 'Store Owner', color: '#99ff00', 
+                type: 'shopkeeper', shop: 'General Store', district: 'Suburbs' 
+            });
+            
+            game.npcs.push({ 
+                id: 14, x: 1200, y: 1200, width: 20, height: 20, name: 'Shop Owner', color: '#ffcc00', 
+                type: 'shopkeeper', shop: 'Chinese Market', district: 'Chinatown' 
+            });
+            
+            game.npcs.push({ 
+                id: 15, x: 3200, y: 2200, width: 20, height: 20, name: 'Restaurant Owner', color: '#cc9966', 
+                type: 'shopkeeper', shop: 'Italian Restaurant', district: 'Little Italy' 
+            });
+            
+            // Gang members
+            for (let i = 0; i < 30; i++) {
+                const gang = game.gangs[Math.floor(Math.random() * game.gangs.length)];
+                const district = game.districts.find(d => d.name === gang.territory);
+                
+                game.npcs.push({ 
+                    id: 100 + i, 
+                    x: district.x + Math.random() * district.width, 
+                    y: district.y + Math.random() * district.height, 
+                    width: 20, 
+                    height: 20, 
+                    name: `${gang.name} Member`, 
+                    color: gang.color, 
+                    type: 'gangmember', 
+                    gang: gang.name,
+                    district: district.name,
+                    money: Math.floor(Math.random() * 200) + 50,
+                    moveSpeed: 1 + Math.random(),
+                    moveDirection: Math.random() * Math.PI * 2,
+                    health: 50 + Math.floor(Math.random() * 50),
+                    damage: 10 + Math.floor(Math.random() * 20)
+                });
+            }
+            
+            // Civilians
+            for (let i = 0; i < 50; i++) {
+                const district = game.districts[Math.floor(Math.random() * game.districts.length)];
+                game.npcs.push({ 
+                    id: 200 + i, 
+                    x: district.x + Math.random() * district.width, 
+                    y: district.y + Math.random() * district.height, 
+                    width: 20, 
+                    height: 20, 
+                    name: 'Civilian', 
+                    color: '#cccccc', 
+                    type: 'civilian', 
+                    district: district.name,
+                    money: Math.floor(Math.random() * 100) + 20,
+                    moveSpeed: 1 + Math.random(),
+                    moveDirection: Math.random() * Math.PI * 2
+                });
+            }
+            
+            // Create vehicles
+            const vehicleTypes = [
+                { name: 'Sedan', color: '#ff0000', speed: 4, width: 40, height: 20 },
+                { name: 'SUV', color: '#0000ff', speed: 3, width: 45, height: 25 },
+                { name: 'Sports Car', color: '#ffff00', speed: 6, width: 40, height: 18 },
+                { name: 'Truck', color: '#00ff00', speed: 2, width: 50, height: 30 },
+                { name: 'Motorcycle', color: '#ff00ff', speed: 7, width: 25, height: 15 },
+                { name: 'Van', color: '#00ffff', speed: 3, width: 50, height: 25 }
+            ];
+            
+            for (let i = 0; i < 30; i++) {
+                const type = vehicleTypes[Math.floor(Math.random() * vehicleTypes.length)];
+                const district = game.districts[Math.floor(Math.random() * game.districts.length)];
+                
+                game.vehicles.push({
+                    id: i,
+                    x: district.x + Math.random() * district.width,
+                    y: district.y + Math.random() * district.height,
+                    width: type.width,
+                    height: type.height,
+                    color: type.color,
+                    speed: type.speed,
+                    name: type.name,
+                    type: 'civilian',
+                    occupied: true,
+                    moveSpeed: 1 + Math.random() * 2,
+                    moveDirection: Math.random() * Math.PI * 2
+                });
+            }
+            
+            // Create police vehicles
+            for (let i = 0; i < 10; i++) {
+                game.vehicles.push({
+                    id: 100 + i,
+                    x: 200 + Math.random() * 100,
+                    y: 3800 + Math.random() * 100,
+                    width: 45,
+                    height: 25,
+                    color: '#0000ff',
+                    speed: 5,
+                    name: 'Police Car',
+                    type: 'police',
+                    occupied: true
+                });
+            }
+            
+            // Create police officers
+            for (let i = 0; i < 20; i++) {
+                game.police.push({
+                    id: i,
+                    x: 200 + Math.random() * 100,
+                    y: 3800 + Math.random() * 100,
+                    width: 20,
+                    height: 20,
+                    color: '#0000ff',
+                    speed: 2.5,
+                    weapon: 'Pistol',
+                    alert: false,
+                    health: 100,
+                    damage: 15
+                });
+            }
+            
+            // Create items on the ground
+            const itemTypes = [
+                { name: 'Money', effect: 'money', value: 50, color: '#ffff00' },
+                { name: 'Health Kit', effect: 'health', value: 50, color: '#ff0000' },
+                { name: 'Ammo', effect: 'ammo', value: 10, color: '#00ff00' },
+                { name: 'Phone', effect: 'communication', value: 1, color: '#0000ff' },
+                { name: 'Keycard', effect: 'keycard', value: 1, color: '#ffff00' },
+                { name: 'Lucky Charm', effect: 'luck', value: 1, color: '#ff00ff' },
+                { name: 'Energy Drink', effect: 'stamina', value: 30, color: '#00ffff' },
+                { name: 'Stolen Jewelry', effect: 'money', value: 200, color: '#ff9900' }
+            ];
+            
+            for (let i = 0; i < 20; i++) {
+                const district = game.districts[Math.floor(Math.random() * game.districts.length)];
+                const type = itemTypes[Math.floor(Math.random() * itemTypes.length)];
+                
+                game.items.push({
+                    id: i,
+                    x: district.x + Math.random() * district.width,
+                    y: district.y + Math.random() * district.height,
+                    width: 15,
+                    height: 15,
+                    color: type.color,
+                    name: type.name,
+                    type: 'item',
+                    effect: type.effect,
+                    value: type.value
+                });
+            }
+        }
+
+        // Quests
+        const quests = {
+            'Heist': {
+                description: 'Steal diamonds from the Central Bank',
+                reward: { money: 3000, experience: 800, reputation: 15, faction: 'The Syndicate', factionRep: 20 },
+                requirements: { hacking: 4, stealth: 3, firearms: 2 },
+                steps: [
+                    { description: 'Get security codes from the bank manager', completed: false },
+                    { description: 'Disable the security system', completed: false },
+                    { description: 'Steal the diamonds', completed: false },
+                    { description: 'Escape the police', completed: false }
+                ],
+                currentStep: 0,
+                completed: false,
+                failed: false
+            },
+            'Sabotage': {
+                description: 'Sabotage the competition at the warehouse',
+                reward: { money: 2000, experience: 600, reputation: 12, faction: 'The Mafia', factionRep: 15 },
+                requirements: { strength: 3, stealth: 3 },
+                steps: [
+                    { description: 'Get explosives from the docks', completed: false },
+                    { description: 'Sneak into the warehouse', completed: false },
+                    { description: 'Plant the explosives', completed: false },
+                    { description: 'Escape before the explosion', completed: false }
+                ],
+                currentStep: 0,
+                completed: false,
+                failed: false
+            },
+            'Corporate Espionage': {
+                description: 'Hack City Hall systems for sensitive information',
+                reward: { money: 4000, experience: 1000, reputation: 20, faction: 'Police', factionRep: -10 },
+                requirements: { hacking: 6, intelligence: 4 },
+                steps: [
+                    { description: 'Get hacking tools from the electronics store', completed: false },
+                    { description: 'Find a security vulnerability', completed: false },
+                    { description: 'Hack into the system', completed: false },
+                    { description: 'Download the information', completed: false }
+                ],
+                currentStep: 0,
+                completed: false,
+                failed: false
+            },
+            'Undercover': {
+                description: 'Infiltrate the crime syndicate',
+                reward: { money: 3000, experience: 800, reputation: 15, faction: 'Police', factionRep: 20 },
+                requirements: { charisma: 4, stealth: 4 },
+                steps: [
+                    { description: 'Gain the trust of a low-level criminal', completed: false },
+                    { description: 'Complete small tasks for the syndicate', completed: false },
+                    { description: 'Meet with the boss', completed: false },
+                    { description: 'Report back to Captain Davis', completed: false }
+                ],
+                currentStep: 0,
+                completed: false,
+                failed: false
+            },
+            'Gang War': {
+                description: 'Eliminate rival gang members in Ghetto',
+                reward: { money: 1500, experience: 500, reputation: 10, faction: 'The Triads', factionRep: 15 },
+                requirements: { firearms: 3, strength: 2 },
+                steps: [
+                    { description: 'Eliminate 5 rival gang members', completed: false, target: 5, progress: 0 },
+                    { description: 'Scare the remaining gang members', completed: false },
+                    { description: 'Report back to Mr. Chang', completed: false }
+                ],
+                currentStep: 0,
+                completed: false,
+                failed: false
+            },
+            'Arms Deal': {
+                description: 'Acquire weapons for the Street Gang',
+                reward: { money: 1000, experience: 400, reputation: 8, faction: 'Street Gang', factionRep: 20 },
+                requirements: { persuasion: 3, charisma: 2 },
+                steps: [
+                    { description: 'Talk to the weapon dealer', completed: false },
+                    { description: 'Negotiate a good price', completed: false },
+                    { description: 'Deliver the weapons to Big Tony', completed: false }
+                ],
+                currentStep: 0,
+                completed: false,
+                failed: false
+            },
+            'Training': {
+                description: 'Improve your skills',
+                reward: { money: 500, experience: 300, reputation: 5 },
+                requirements: {},
+                steps: [
+                    { description: 'Train strength at the gym', completed: false },
+                    { description: 'Practice firearms at the shooting range', completed: false },
+                    { description: 'Study at the library', completed: false },
+                    { description: 'Take agility classes at the dance studio', completed: false }
+                ],
+                currentStep: 0,
+                completed: false,
+                failed: false
+            }
+        };
+
+        // Weapons
+        const weapons = [
+            { name: 'Knife', damage: 15, price: 50, type: 'melee', stat: 'melee', requiredLevel: 1 },
+            { name: 'Brass Knuckles', damage: 20, price: 100, type: 'melee', stat: 'melee', requiredLevel: 2 },
+            { name: 'Baseball Bat', damage: 25, price: 150, type: 'melee', stat: 'melee', requiredLevel: 3 },
+            { name: 'Pistol', damage: 30, price: 200, type: 'ranged', stat: 'firearms', ammo: 12, requiredLevel: 2 },
+            { name: 'Shotgun', damage: 45, price: 500, type: 'ranged', stat: 'firearms', ammo: 6, requiredLevel: 4 },
+            { name: 'Assault Rifle', damage: 35, price: 800, type: 'ranged', stat: 'firearms', ammo: 30, requiredLevel: 5 },
+            { name: 'Sniper Rifle', damage: 80, price: 1200, type: 'ranged', stat: 'firearms', ammo: 5, requiredLevel: 6 },
+            { name: 'SMG', damage: 25, price: 600, type: 'ranged', stat: 'firearms', ammo: 40, requiredLevel: 4 },
+            { name: 'Rocket Launcher', damage: 150, price: 3000, type: 'ranged', stat: 'firearms', ammo: 1, requiredLevel: 8 }
+        ];
+
+        // Armor
+        const armor = [
+            { name: 'Leather Jacket', defense: 5, price: 100, type: 'armor', requiredLevel: 1 },
+            { name: 'Kevlar Vest', defense: 15, price: 300, type: 'armor', requiredLevel: 3 },
+            { name: 'Bulletproof Vest', defense: 25, price: 600, type: 'armor', requiredLevel: 5 },
+            { name: 'Tactical Armor', defense: 35, price: 1000, type: 'armor', requiredLevel: 7 },
+            { name: 'Military Armor', defense: 50, price: 2000, type: 'armor', requiredLevel: 10 }
+        ];
+
+        // Accessories
+        const accessories = [
+            { name: 'Watch', effect: 'luck', value: 1, price: 200, type: 'accessory', requiredLevel: 2 },
+            { name: 'Lucky Charm', effect: 'luck', value: 2, price: 500, type: 'accessory', requiredLevel: 4 },
+            { name: 'Amulet', effect: 'charisma', value: 2, price: 400, type: 'accessory', requiredLevel: 3 },
+            { name: 'Ring', effect: 'intelligence', value: 2, price: 600, type: 'accessory', requiredLevel: 5 },
+            { name: 'Necklace', effect: 'all', value: 1, price: 1000, type: 'accessory', requiredLevel: 7 }
+        ];
+
+        // Items
+        const items = [
+            { name: 'Health Kit', effect: 'health', value: 50, price: 100, type: 'consumable' },
+            { name: 'Medkit', effect: 'health', value: 100, price: 200, type: 'consumable' },
+            { name: 'Lockpick', effect: 'lockpick', value: 1, price: 50, type: 'consumable' },
+            { name: 'Mask', effect: 'disguise', value: 1, price: 75, type: 'consumable' },
+            { name: 'Phone', effect: 'communication', value: 1, price: 150, type: 'item' },
+            { name: 'Laptop', effect: 'hacking', value: 2, price: 500, type: 'item' },
+            { name: 'Hacking Tool', effect: 'hacking', value: 3, price: 800, type: 'item' },
+            { name: 'Bulletproof Vest', effect: 'armor', value: 25, price: 300, type: 'armor' },
+            { name: 'Ammo', effect: 'ammo', value: 10, price: 20, type: 'consumable' },
+            { name: 'Energy Drink', effect: 'stamina', value: 30, price: 30, type: 'consumable' },
+            { name: 'Stolen Jewelry', effect: 'money', value: 200, price: 0, type: 'item' },
+            { name: 'Ancient Coin', effect: 'luck', value: 1, price: 300, type: 'item' },
+            { name: 'Exotic Weapon', effect: 'damage', value: 10, price: 1000, type: 'item' }
+        ];
+
+        // Input handling
+        window.addEventListener('keydown', e => {
+            game.keys[e.key.toLowerCase()] = true;
+            
+            // Action key
+            if (e.key === ' ' || e.key === 'e') {
+                handleAction();
+            }
+            
+            // Weapon switching
+            if (e.key === '1' || e.key === '2' || e.key === '3') {
+                const index = parseInt(e.key) - 1;
+                if (index < game.player.inventory.weapons.length) {
+                    equipWeapon(index);
+                }
+            }
+        });
+        
+        window.addEventListener('keyup', e => game.keys[e.key.toLowerCase()] = false);
+
+        // Game loop
+        function gameLoop() {
+            update();
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function update() {
+            if (game.dialogueActive) return;
+            
+            // Update game time
+            game.gameTime++;
+            if (game.gameTime % 2000 === 0) {
+                game.timeOfDay = game.timeOfDay === 'Day' ? 'Night' : 'Day';
+            }
+            
+            // Player movement
+            let moveSpeed = game.player.speed;
+            if (game.player.currentVehicle) {
+                moveSpeed = game.player.currentVehicle.speed;
+            }
+            
+            if (game.keys['w'] || game.keys['arrowup']) game.player.y -= moveSpeed;
+            if (game.keys['s'] || game.keys['arrowdown']) game.player.y += moveSpeed;
+            if (game.keys['a'] || game.keys['arrowleft']) game.player.x -= moveSpeed;
+            if (game.keys['d'] || game.keys['arrowright']) game.player.x += moveSpeed;
+            
+            // Update stamina
+            if (game.keys['w'] || game.keys['arrowup'] || game.keys['s'] || game.keys['arrowdown'] || 
+                game.keys['a'] || game.keys['arrowleft'] || game.keys['d'] || game.keys['arrowright']) {
+                game.player.stamina = Math.max(0, game.player.stamina - 0.1);
+            } else {
+                game.player.stamina = Math.min(game.player.maxStamina, game.player.stamina + 0.05);
+            }
+            
+            // Keep player in bounds
+            game.player.x = Math.max(0, Math.min(game.citySize - game.player.width, game.player.x));
+            game.player.y = Math.max(0, Math.min(game.citySize - game.player.height, game.player.y));
+            
+            // Update camera to follow player
+            game.camera.x = game.player.x - canvas.width / 2;
+            game.camera.y = game.player.y - canvas.height / 2;
+            
+            // Keep camera in bounds
+            game.camera.x = Math.max(0, Math.min(game.citySize - canvas.width, game.camera.x));
+            game.camera.y = Math.max(0, Math.min(game.citySize - canvas.height, game.camera.y));
+            
+            // Move NPCs
+            game.npcs.forEach(npc => {
+                if (npc.type === 'civilian' || npc.type === 'gangmember') {
+                    // Random movement
+                    npc.x += Math.cos(npc.moveDirection) * npc.moveSpeed;
+                    npc.y += Math.sin(npc.moveDirection) * npc.moveSpeed;
+                    
+                    // Change direction occasionally
+                    if (Math.random() < 0.02) {
+                        npc.moveDirection = Math.random() * Math.PI * 2;
+                    }
+                    
+                    // Keep in bounds
+                    if (npc.x < 0 || npc.x > game.citySize) {
+                        npc.moveDirection = Math.PI - npc.moveDirection;
+                    }
+                    if (npc.y < 0 || npc.y > game.citySize) {
+                        npc.moveDirection = -npc.moveDirection;
+                    }
+                }
+            });
+            
+            // Move vehicles
+            game.vehicles.forEach(vehicle => {
+                if (vehicle.type === 'civilian') {
+                    // Random movement
+                    vehicle.x += Math.cos(vehicle.moveDirection) * vehicle.moveSpeed;
+                    vehicle.y += Math.sin(vehicle.moveDirection) * vehicle.moveSpeed;
+                    
+                    // Change direction occasionally
+                    if (Math.random() < 0.01) {
+                        vehicle.moveDirection = Math.random() * Math.PI * 2;
+                    }
+                    
+                    // Keep in bounds
+                    if (vehicle.x < 0 || vehicle.x > game.citySize) {
+                        vehicle.moveDirection = Math.PI - vehicle.moveDirection;
+                    }
+                    if (vehicle.y < 0 || vehicle.y > game.citySize) {
+                        vehicle.moveDirection = -vehicle.moveDirection;
+                    }
+                } else if (vehicle.type === 'police' && game.player.wanted > 0) {
+                    // Police cars chase the player
+                    const dx = game.player.x - vehicle.x;
+                    const dy = game.player.y - vehicle.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance > 0) {
+                        vehicle.x += (dx / distance) * vehicle.speed;
+                        vehicle.y += (dy / distance) * vehicle.speed;
+                    }
+                }
+            });
+            
+            // Move police
+            game.police.forEach(police => {
+                if (game.player.wanted > 0) {
+                    // Police chase the player
+                    const dx = game.player.x - police.x;
+                    const dy = game.player.y - police.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance > 0) {
+                        police.x += (dx / distance) * police.speed;
+                        police.y += (dy / distance) * police.speed;
+                    }
+                    
+                    // Check if police caught the player
+                    if (distance < 30) {
+                        arrestPlayer();
+                    }
+                }
+            });
+            
+            // Update training
+            if (game.player.training) {
+                game.player.trainingTime++;
+                if (game.player.trainingTime >= 300) { // 5 seconds at 60fps
+                    completeTraining();
+                }
+            }
+            
+            // Update player location
+            updatePlayerLocation();
+            
+            // Update UI
+            updateUI();
+        }
+
+        function render() {
+            // Clear canvas
+            ctx.fillStyle = game.timeOfDay === 'Day' ? '#87CEEB' : '#000033';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Save context
+            ctx.save();
+            
+            // Apply camera transform
+            ctx.translate(-game.camera.x, -game.camera.y);
+            
+            // Draw districts
+            game.districts.forEach(district => {
+                ctx.fillStyle = district.color;
+                ctx.fillRect(district.x, district.y, district.width, district.height);
+                
+                // Draw district name
+                ctx.fillStyle = 'white';
+                ctx.font = '16px Arial';
+                ctx.fillText(district.name, district.x + 10, district.y + 20);
+            });
+            
+            // Draw buildings
+            game.buildings.forEach(building => {
+                if (building.type === 'street') {
+                    ctx.fillStyle = building.color;
+                    ctx.fillRect(building.x, building.y, building.width, building.height);
+                    
+                    // Draw road lines
+                    ctx.strokeStyle = 'white';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([10, 10]);
+                    ctx.beginPath();
+                    if (building.width > building.height) {
+                        ctx.moveTo(building.x, building.y + building.height / 2);
+                        ctx.lineTo(building.x + building.width, building.y + building.height / 2);
+                    } else {
+                        ctx.moveTo(building.x + building.width / 2, building.y);
+                        ctx.lineTo(building.x + building.width / 2, building.y + building.height);
+                    }
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                } else {
+                    ctx.fillStyle = building.color;
+                    ctx.fillRect(building.x, building.y, building.width, building.height);
+                    
+                    // Draw building name
+                    ctx.fillStyle = 'white';
+                    ctx.font = '12px Arial';
+                    ctx.fillText(building.name, building.x, building.y - 5);
+                }
+            });
+            
+            // Draw items
+            game.items.forEach(item => {
+                ctx.fillStyle = item.color;
+                ctx.fillRect(item.x, item.y, item.width, item.height);
+                
+                // Draw item name
+                ctx.fillStyle = 'white';
+                ctx.font = '10px Arial';
+                ctx.fillText(item.name, item.x, item.y - 5);
+            });
+            
+            // Draw vehicles
+            game.vehicles.forEach(vehicle => {
+                ctx.fillStyle = vehicle.color;
+                ctx.fillRect(vehicle.x, vehicle.y, vehicle.width, vehicle.height);
+                
+                // Draw police lights
+                if (vehicle.type === 'police') {
+                    ctx.fillStyle = Math.sin(Date.now() / 200) > 0 ? '#ff0000' : '#0000ff';
+                    ctx.fillRect(vehicle.x + vehicle.width - 10, vehicle.y - 5, 5, 5);
+                    ctx.fillRect(vehicle.x + vehicle.width - 5, vehicle.y - 5, 5, 5);
+                }
+            });
+            
+            // Draw NPCs
+            game.npcs.forEach(npc => {
+                ctx.fillStyle = npc.color;
+                ctx.fillRect(npc.x, npc.y, npc.width, npc.height);
+                
+                // Draw NPC name
+                ctx.fillStyle = 'white';
+                ctx.font = '10px Arial';
+                ctx.fillText(npc.name, npc.x - 10, npc.y - 5);
+            });
+            
+            // Draw police
+            game.police.forEach(police => {
+                ctx.fillStyle = police.color;
+                ctx.fillRect(police.x, police.y, police.width, police.height);
+            });
+            
+            // Draw player
+            ctx.fillStyle = game.player.color;
+            ctx.fillRect(game.player.x, game.player.y, game.player.width, game.player.height);
+            
+            // Draw player name
+            ctx.fillStyle = 'white';
+            ctx.font = '12px Arial';
+            ctx.fillText(game.player.name, game.player.x - 10, game.player.y - 5);
+            
+            // Restore context
+            ctx.restore();
+            
+            // Draw minimap
+            renderMinimap();
+            
+            // Draw wanted stars
+            if (game.player.wanted > 0) {
+                ctx.fillStyle = 'yellow';
+                for (let i = 0; i < game.player.wanted; i++) {
+                    ctx.fillText('★', 10 + i * 15, 30);
+                }
+            }
+            
+            // Draw stamina bar
+            ctx.fillStyle = '#333';
+            ctx.fillRect(10, 40, 200, 10);
+            ctx.fillStyle = '#00ff00';
+            ctx.fillRect(10, 40, 200 * (game.player.stamina / game.player.maxStamina), 10);
+            ctx.strokeStyle = '#fff';
+            ctx.strokeRect(10, 40, 200, 10);
+        }
+
+        function renderMinimap() {
+            // Clear minimap
+            minimapCtx.fillStyle = '#111';
+            minimapCtx.fillRect(0, 0, minimap.width, minimap.height);
+            
+            // Scale factor
+            const scale = minimap.width / game.citySize;
+            
+            // Draw districts
+            game.districts.forEach(district => {
+                minimapCtx.fillStyle = district.color;
+                minimapCtx.fillRect(
+                    district.x * scale,
+                    district.y * scale,
+                    district.width * scale,
+                    district.height * scale
+                );
+            });
+            
+            // Draw player
+            minimapCtx.fillStyle = '#ff0000';
+            minimapCtx.fillRect(
+                game.player.x * scale - 2,
+                game.player.y * scale - 2,
+                4,
+                4
+            );
+            
+            // Draw police
+            game.police.forEach(police => {
+                minimapCtx.fillStyle = '#0000ff';
+                minimapCtx.fillRect(
+                    police.x * scale - 1,
+                    police.y * scale - 1,
+                    2,
+                    2
+                );
+            });
+            
+            // Draw police vehicles
+            game.vehicles.forEach(vehicle => {
+                if (vehicle.type === 'police') {
+                    minimapCtx.fillStyle = '#0000ff';
+                    minimapCtx.fillRect(
+                        vehicle.x * scale - 1,
+                        vehicle.y * scale - 1,
+                        2,
+                        2
+                    );
+                }
+            });
+        }
+
+        function isColliding(obj1, obj2) {
+            return obj1.x < obj2.x + obj2.width &&
+                   obj1.x + obj1.width > obj2.x &&
+                   obj1.y < obj2.y + obj2.height &&
+                   obj1.y + obj1.height > obj2.y;
+        }
+
+        function handleAction() {
+            // Check NPC interactions
+            game.npcs.forEach(npc => {
+                if (isColliding(game.player, npc)) {
+                    if (!game.dialogueActive) {
+                        showDialogue(npc);
+                    }
+                }
+            });
+            
+            // Check building interactions
+            game.buildings.forEach(building => {
+                if (isColliding(game.player, building)) {
+                    if (building.type === 'bank') {
+                        robBank(building);
+                    } else if (building.type === 'shop') {
+                        enterShop(building);
+                    } else if (building.type === 'house') {
+                        robHouse(building);
+                    } else if (building.type === 'warehouse') {
+                        enterWarehouse(building);
+                    } else if (building.type === 'training') {
+                        startTraining(building);
+                    } else if (building.type === 'gang') {
+                        enterGangHideout(building);
+                    } else if (building.type === 'safehouse') {
+                        enterSafeHouse(building);
+                    }
+                }
+            });
+            
+            // Check vehicle interactions
+            game.vehicles.forEach(vehicle => {
+                if (isColliding(game.player, vehicle) && !vehicle.occupied) {
+                    enterVehicle(vehicle);
+                }
+            });
+            
+            // Check item pickups
+            game.items.forEach((item, index) => {
+                if (isColliding(game.player, item)) {
+                    pickupItem(item, index);
+                }
+            });
+        }
+
+        function showDialogue(npc) {
+            game.dialogueActive = true;
+            const dialogueDiv = document.getElementById('dialogue');
+            const dialogueText = document.getElementById('dialogueText');
+            const dialogueOptions = document.getElementById('dialogueOptions');
+            
+            dialogueText.innerHTML = `${npc.name}: "${npc.dialogue || 'What do you want?'}"`;
+            dialogueOptions.innerHTML = '';
+            
+            if (npc.type === 'boss') {
+                // Check for available quests from this boss
+                const availableQuests = Object.keys(quests).filter(questName => {
+                    const quest = quests[questName];
+                    return !quest.completed && !quest.failed && 
+                           quest.reward.faction === npc.gang &&
+                           !game.player.currentQuests.includes(questName);
+                });
+                
+                if (availableQuests.length > 0) {
+                    availableQuests.forEach(questName => {
+                        const quest = quests[questName];
+                        
+                        // Check if player meets requirements
+                        let canAccept = true;
+                        let requirementsText = 'Requirements: ';
+                        
+                        for (const [skill, level] of Object.entries(quest.requirements)) {
+                            if (game.player.skills[skill] < level) {
+                                canAccept = false;
+                                requirementsText += `${skill} ${level}, `;
+                            }
+                        }
+                        
+                        if (canAccept) {
+                            const acceptBtn = document.createElement('button');
+                            acceptBtn.textContent = `Accept quest: ${quest.description}`;
+                            acceptBtn.onclick = () => {
+                                acceptQuest(questName);
+                                closeDialogue();
+                            };
+                            dialogueOptions.appendChild(acceptBtn);
+                        } else {
+                            requirementsText = requirementsText.slice(0, -2);
+                            const reqDiv = document.createElement('div');
+                            reqDiv.textContent = requirementsText;
+                            reqDiv.style.color = '#ff6666';
+                            dialogueOptions.appendChild(reqDiv);
+                        }
+                    });
+                }
+                
+                // Join gang option
+                if (!game.player.class.includes(npc.gang)) {
+                    const joinBtn = document.createElement('button');
+                    joinBtn.textContent = `Join ${npc.gang}`;
+                    joinBtn.onclick = () => {
+                        joinGang(npc.gang);
+                        closeDialogue();
+                    };
+                    dialogueOptions.appendChild(joinBtn);
+                }
+            }
+            
+            if (npc.type === 'questgiver') {
+                // Check for available quests from this questgiver
+                const availableQuests = Object.keys(quests).filter(questName => {
+                    const quest = quests[questName];
+                    return !quest.completed && !quest.failed && 
+                           !game.player.currentQuests.includes(questName) &&
+                           !quest.reward.faction; // Not a faction quest
+                });
+                
+                if (availableQuests.length > 0) {
+                    availableQuests.forEach(questName => {
+                        const quest = quests[questName];
+                        
+                        // Check if player meets requirements
+                        let canAccept = true;
+                        let requirementsText = 'Requirements: ';
+                        
+                        for (const [skill, level] of Object.entries(quest.requirements)) {
+                            if (game.player.skills[skill] < level) {
+                                canAccept = false;
+                                requirementsText += `${skill} ${level}, `;
+                            }
+                        }
+                        
+                        if (canAccept) {
+                            const acceptBtn = document.createElement('button');
+                            acceptBtn.textContent = `Accept quest: ${quest.description}`;
+                            acceptBtn.onclick = () => {
+                                acceptQuest(questName);
+                                closeDialogue();
+                            };
+                            dialogueOptions.appendChild(acceptBtn);
+                        } else {
+                            requirementsText = requirementsText.slice(0, -2);
+                            const reqDiv = document.createElement('div');
+                            reqDiv.textContent = requirementsText;
+                            reqDiv.style.color = '#ff6666';
+                            dialogueOptions.appendChild(reqDiv);
+                        }
+                    });
+                }
+            }
+            
+            if (npc.type === 'trainer') {
+                const trainBtn = document.createElement('button');
+                trainBtn.textContent = `Train ${npc.training} ($100)`;
+                trainBtn.onclick = () => {
+                    if (game.player.money >= 100) {
+                        game.player.money -= 100;
+                        game.player.training = npc.training;
+                        game.player.trainingTime = 0;
+                        showNotification(`You started training ${npc.training}!`);
+                        closeDialogue();
+                    } else {
+                        showNotification("You don't have enough money!");
+                    }
+                };
+                dialogueOptions.appendChild(trainBtn);
+            }
+            
+            if (npc.type === 'shopkeeper') {
+                const shopBtn = document.createElement('button');
+                shopBtn.textContent = 'Browse shop';
+                shopBtn.onclick = () => {
+                    enterShop(game.buildings.find(b => b.name === npc.shop));
+                    closeDialogue();
+                };
+                dialogueOptions.appendChild(shopBtn);
+            }
+            
+            if (npc.type === 'civilian') {
+                const robBtn = document.createElement('button');
+                robBtn.textContent = 'Rob civilian';
+                robBtn.onclick = () => {
+                    robCivilian(npc);
+                    closeDialogue();
+                };
+                dialogueOptions.appendChild(robBtn);
+                
+                const talkBtn = document.createElement('button');
+                talkBtn.textContent = 'Talk';
+                talkBtn.onclick = () => {
+                    const messages = [
+                        "Have you seen anything unusual around here?",
+                        "Do you know where I can find some work?",
+                        "I'm new in town. Any advice?",
+                        "Have you heard any rumors lately?"
+                    ];
+                    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+                    dialogueText.innerHTML = `${npc.name}: "${randomMessage}"`;
+                    
+                    // Chance to gain charisma
+                    if (Math.random() < 0.3) {
+                        game.player.experience += 5;
+                        if (Math.random() < 0.1) {
+                            game.player.skills.persuasion += 0.1;
+                            showNotification("Your persuasion skill increased!");
+                        }
+                    }
+                };
+                dialogueOptions.appendChild(talkBtn);
+            }
+            
+            if (npc.type === 'gangmember') {
+                const intimidateBtn = document.createElement('button');
+                intimidateBtn.textContent = 'Intimidate';
+                intimidateBtn.onclick = () => {
+                    intimidateNPC(npc);
+                    closeDialogue();
+                };
+                dialogueOptions.appendChild(intimidateBtn);
+                
+                const attackBtn = document.createElement('button');
+                attackBtn.textContent = 'Attack';
+                attackBtn.onclick = () => {
+                    attackNPC(npc);
+                    closeDialogue();
+                };
+                dialogueOptions.appendChild(attackBtn);
+                
+                const talkBtn = document.createElement('button');
+                talkBtn.textContent = 'Talk';
+                talkBtn.onclick = () => {
+                    const messages = [
+                        "What's happening in this part of town?",
+                        "I'm looking for work. Know anyone hiring?",
+                        "Heard any rumors lately?",
+                        "What's your story?"
+                    ];
+                    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+                    dialogueText.innerHTML = `${npc.name}: "${randomMessage}"`;
+                    
+                    // Chance to gain faction reputation
+                    if (Math.random() < 0.2) {
+                        game.factionReputation[npc.gang] += 1;
+                        showNotification(`Your reputation with ${npc.gang} increased!`);
+                    }
+                };
+                dialogueOptions.appendChild(talkBtn);
+            }
+            
+            const leaveBtn = document.createElement('button');
+            leaveBtn.textContent = 'Leave';
+            leaveBtn.onclick = closeDialogue;
+            dialogueOptions.appendChild(leaveBtn);
+            
+            dialogueDiv.style.display = 'block';
+        }
+
+        function closeDialogue() {
+            game.dialogueActive = false;
+            document.getElementById('dialogue').style.display = 'none';
+        }
+
+        function acceptQuest(questName) {
+            game.player.currentQuests.push(questName);
+            const quest = quests[questName];
+            game.questProgress = game.questProgress || {};
+            game.questProgress[questName] = 0;
+            
+            showNotification(`Quest accepted: ${quest.description}`);
+            updateQuestUI();
+        }
+
+        function completeQuest(questName) {
+            const quest = quests[questName];
+            quest.completed = true;
+            
+            // Remove from current quests
+            const index = game.player.currentQuests.indexOf(questName);
+            if (index > -1) {
+                game.player.currentQuests.splice(index, 1);
+            }
+            
+            // Add to completed quests
+            game.player.completedQuests.push(questName);
+            
+            // Apply rewards
+            game.player.money += quest.reward.money;
+            game.player.experience += quest.reward.experience;
+            game.player.reputation += quest.reward.reputation;
+            
+            if (quest.reward.faction) {
+                game.factionReputation[quest.reward.faction] += quest.reward.factionRep;
+                showNotification(`Your reputation with ${quest.reward.faction} ${quest.reward.factionRep > 0 ? 'increased' : 'decreased'}!`);
+            }
+            
+            showNotification(`Quest completed! You earned $${quest.reward.money}, ${quest.reward.experience} XP, and ${quest.reward.reputation} reputation!`);
+            
+            checkLevelUp();
+            updateQuestUI();
+        }
+
+        function failQuest(questName) {
+            const quest = quests[questName];
+            quest.failed = true;
+            
+            // Remove from current quests
+            const index = game.player.currentQuests.indexOf(questName);
+            if (index > -1) {
+                game.player.currentQuests.splice(index, 1);
+            }
+            
+            showNotification(`Quest failed: ${quest.description}`);
+            updateQuestUI();
+        }
+
+        function updateQuestProgress(questName, progress) {
+            if (!game.questProgress) game.questProgress = {};
+            game.questProgress[questName] = progress;
+            
+            const quest = quests[questName];
+            if (quest.steps[progress]) {
+                showNotification(`Quest progress: ${quest.steps[progress].description}`);
+            }
+            
+            // Check if quest is completed
+            if (progress >= quest.steps.length) {
+                completeQuest(questName);
+            }
+            
+            updateQuestUI();
+        }
+
+        function joinGang(gangName) {
+            game.player.class = `${gangName} Member`;
+            game.factionReputation[gangName] += 10;
+            showNotification(`You joined ${gangName}!`);
+        }
+
+        function robBank(bank) {
+            // Check if player has required skills
+            const requiredStealth = 4;
+            const requiredHacking = 3;
+            
+            if (game.player.skills.stealth < requiredStealth || game.player.skills.hacking < requiredHacking) {
+                showNotification(`You need at least ${requiredStealth} Stealth and ${requiredHacking} Hacking to rob this bank!`);
+                return;
+            }
+            
+            // Calculate success chance
+            const successChance = 0.2 + (game.player.skills.stealth * 0.05) + (game.player.skills.hacking * 0.05) + (game.player.stats.luck * 0.02);
+            
+            if (Math.random() < successChance) {
+                // Success
+                const stolenMoney = Math.floor(bank.money * (0.2 + Math.random() * 0.3));
+                game.player.money += stolenMoney;
+                game.player.wanted = Math.min(5, game.player.wanted + 3);
+                game.player.experience += 200;
+                game.player.reputation += 10;
+                game.factionReputation['Civilians'] -= 5;
+                
+                showNotification(`You robbed the bank and got $${stolenMoney}! Wanted +3`);
+                
+                // Check quest progress
+                if (game.player.currentQuests.includes('Heist') && game.questProgress.Heist === 2) {
+                    updateQuestProgress('Heist', 3);
+                }
+            } else {
+                // Failure
+                game.player.wanted = Math.min(5, game.player.wanted + 4);
+                game.player.health = Math.max(0, game.player.health - 50);
+                
+                showNotification("The robbery went wrong! Police are after you! Health -50, Wanted +4");
+            }
+            
+            // Update quest progress
+            if (game.player.currentQuests.includes('Heist') && game.questProgress.Heist === 1) {
+                updateQuestProgress('Heist', 2);
+            }
+            
+            checkLevelUp();
+        }
+
+        function robHouse(house) {
+            // Check if it's daytime
+            if (game.timeOfDay === 'Day') {
+                showNotification("You can't rob a house during the day! Too many witnesses.");
+                return;
+            }
+            
+            // Calculate success chance
+            const successChance = 0.4 + (game.player.skills.stealth * 0.05) + (game.player.stats.agility * 0.03) + (game.player.stats.luck * 0.02);
+            
+            if (Math.random() < successChance) {
+                // Success
+                const stolenMoney = Math.floor(house.money * (0.3 + Math.random() * 0.4));
+                game.player.money += stolenMoney;
+                game.player.wanted = Math.min(5, game.player.wanted + 1);
+                game.player.experience += 100;
+                game.player.reputation += 5;
+                game.factionReputation['Civilians'] -= 2;
+                
+                showNotification(`You robbed the house and got $${stolenMoney}! Wanted +1`);
+            } else {
+                // Failure
+                game.player.wanted = Math.min(5, game.player.wanted + 2);
+                game.player.health = Math.max(0, game.player.health - 30);
+                
+                showNotification("The homeowner caught you! Health -30, Wanted +2");
+            }
+            
+            checkLevelUp();
+        }
+
+        function robCivilian(npc) {
+            // Calculate success chance
+            const successChance = 0.6 + (game.player.skills.intimidation * 0.05) + (game.player.stats.strength * 0.03) + (game.player.stats.luck * 0.02);
+            
+            if (Math.random() < successChance) {
+                // Success
+                const stolenMoney = npc.money;
+                game.player.money += stolenMoney;
+                game.player.wanted = Math.min(5, game.player.wanted + 1);
+                game.player.experience += 50;
+                game.player.reputation += 2;
+                game.factionReputation['Civilians'] -= 1;
+                
+                showNotification(`You robbed the civilian and got $${stolenMoney}! Wanted +1`);
+                
+                // Remove the civilian
+                const index = game.npcs.indexOf(npc);
+                if (index > -1) {
+                    game.npcs.splice(index, 1);
+                }
+            } else {
+                // Failure
+                game.player.wanted = Math.min(5, game.player.wanted + 1);
+                game.player.health = Math.max(0, game.player.health - 20);
+                
+                showNotification("The civilian fought back! Health -20, Wanted +1");
+            }
+            
+            checkLevelUp();
+        }
+
+        function intimidateNPC(npc) {
+            // Calculate success chance
+            const successChance = 0.5 + (game.player.skills.intimidation * 0.05) + (game.player.stats.strength * 0.03) + (game.player.stats.charisma * 0.02);
+            
+            if (Math.random() < successChance) {
+                // Success
+                game.player.experience += 30;
+                game.player.reputation += 1;
+                game.factionReputation[npc.gang] -= 2;
+                
+                showNotification("You intimidated the gang member!");
+                
+                // Chance to get money
+                if (Math.random() < 0.3) {
+                    const money = Math.floor(20 + Math.random() * 50);
+                    game.player.money += money;
+                    showNotification(`You got $${money} from the intimidated gang member!`);
+                }
+            } else {
+                // Failure
+                game.player.health = Math.max(0, game.player.health - 15);
+                game.factionReputation[npc.gang] -= 5;
+                
+                showNotification("The gang member fought back! Health -15");
+            }
+            
+            checkLevelUp();
+        }
+
+        function attackNPC(npc) {
+            // Calculate damage
+            let playerDamage = 10;
+            if (game.player.equipment.weapon) {
+                playerDamage = game.player.equipment.weapon.damage;
+                playerDamage += game.player.stats.strength * 2;
+                playerDamage += game.player.skills[game.player.equipment.weapon.stat] * 3;
+            }
+            
+            // Calculate hit chance
+            const hitChance = 0.7 + (game.player.stats.agility * 0.02) + (game.player.stats.luck * 0.01);
+            
+            if (Math.random() < hitChance) {
+                // Player hits
+                npc.health -= playerDamage;
+                showNotification(`You hit the ${npc.name} for ${playerDamage} damage!`);
+                
+                if (npc.health <= 0) {
+                    // NPC defeated
+                    game.player.experience += 100;
+                    game.player.reputation += 3;
+                    game.factionReputation[npc.gang] -= 10;
+                    
+                    // Loot money
+                    const money = npc.money || Math.floor(50 + Math.random() * 100);
+                    game.player.money += money;
+                    
+                    showNotification(`You defeated the ${npc.name}! Got $${money}!`);
+                    
+                    // Remove the NPC
+                    const index = game.npcs.indexOf(npc);
+                    if (index > -1) {
+                        game.npcs.splice(index, 1);
+                    }
+                    
+                    // Check quest progress
+                    if (game.player.currentQuests.includes('Gang War') && game.questProgress['Gang War'] === 0) {
+                        if (!game.questProgress['Gang War_progress']) {
+                            game.questProgress['Gang War_progress'] = 0;
+                        }
+                        game.questProgress['Gang War_progress']++;
+                        
+                        if (game.questProgress['Gang War_progress'] >= quests['Gang War'].steps[0].target) {
+                            updateQuestProgress('Gang War', 1);
+                        }
+                    }
+                } else {
+                    // NPC attacks back
+                    const npcDamage = npc.damage || 10;
+                    game.player.health = Math.max(0, game.player.health - npcDamage);
+                    showNotification(`The ${npc.name} hit you for ${npcDamage} damage!`);
+                }
+            } else {
+                // Player misses
+                showNotification("You missed!");
+                
+                // NPC attacks back
+                const npcDamage = npc.damage || 10;
+                game.player.health = Math.max(0, game.player.health - npcDamage);
+                showNotification(`The ${npc.name} hit you for ${npcDamage} damage!`);
+            }
+            
+            checkLevelUp();
+        }
+
+        function enterShop(shop) {
+            game.dialogueActive = true;
+            const dialogueDiv = document.getElementById('dialogue');
+            const dialogueText = document.getElementById('dialogueText');
+            const dialogueOptions = document.getElementById('dialogueOptions');
+            
+            dialogueText.innerHTML = `Welcome to ${shop.name}! What would you like to buy?`;
+            dialogueOptions.innerHTML = '';
+            
+            // Add weapons if it's a weapon shop
+            if (shop.name === 'Weapon Shop') {
+                weapons.forEach(weapon => {
+                    if (game.player.level >= weapon.requiredLevel) {
+                        const buyBtn = document.createElement('button');
+                        buyBtn.textContent = `${weapon.name} - $${weapon.price}`;
+                        buyBtn.onclick = () => {
+                            if (game.player.money >= weapon.price) {
+                                game.player.money -= weapon.price;
+                                game.player.inventory.weapons.push({...weapon});
+                                updateInventoryUI();
+                                showNotification(`You bought ${weapon.name}!`);
+                            } else {
+                                showNotification("You don't have enough money!");
+                            }
+                        };
+                        dialogueOptions.appendChild(buyBtn);
+                    }
+                });
+            }
+            
+            // Add armor if it's a general store
+            if (shop.name === 'General Store') {
+                armor.forEach(armorItem => {
+                    if (game.player.level >= armorItem.requiredLevel) {
+                        const buyBtn = document.createElement('button');
+                        buyBtn.textContent = `${armorItem.name} - $${armorItem.price}`;
+                        buyBtn.onclick = () => {
+                            if (game.player.money >= armorItem.price) {
+                                game.player.money -= armorItem.price;
+                                game.player.inventory.armor.push({...armorItem});
+                                updateInventoryUI();
+                                showNotification(`You bought ${armorItem.name}!`);
+                            } else {
+                                showNotification("You don't have enough money!");
+                            }
+                        };
+                        dialogueOptions.appendChild(buyBtn);
+                    }
+                });
+            }
+            
+            // Add items based on shop type
+            shop.items.forEach(itemName => {
+                const item = items.find(i => i.name === itemName);
+                if (item) {
+                    const buyBtn = document.createElement('button');
+                    buyBtn.textContent = `${item.name} - $${item.price}`;
+                    buyBtn.onclick = () => {
+                        if (game.player.money >= item.price) {
+                            game.player.money -= item.price;
+                            game.player.inventory.items.push({...item});
+                            updateInventoryUI();
+                            showNotification(`You bought ${item.name}!`);
+                            
+                            // Check quest progress
+                            if (game.player.currentQuests.includes('Corporate Espionage') && itemName === 'Hacking Tool' && game.questProgress['Corporate Espionage'] === 0) {
+                                updateQuestProgress('Corporate Espionage', 1);
+                            }
+                        } else {
+                            showNotification("You don't have enough money!");
+                        }
+                    };
+                    dialogueOptions.appendChild(buyBtn);
+                }
+            });
+            
+            // Add special items for specialty shops
+            if (shop.name === 'Chinese Market') {
+                accessories.forEach(acc => {
+                    const buyBtn = document.createElement('button');
+                    buyBtn.textContent = `${acc.name} - $${acc.price}`;
+                    buyBtn.onclick = () => {
+                        if (game.player.money >= acc.price) {
+                            game.player.money -= acc.price;
+                            game.player.inventory.items.push({...acc});
+                            updateInventoryUI();
+                            showNotification(`You bought ${acc.name}!`);
+                        } else {
+                            showNotification("You don't have enough money!");
+                        }
+                    };
+                    dialogueOptions.appendChild(buyBtn);
+                });
+            }
+            
+            const leaveBtn = document.createElement('button');
+            leaveBtn.textContent = 'Leave';
+            leaveBtn.onclick = closeDialogue;
+            dialogueOptions.appendChild(leaveBtn);
+            
+            dialogueDiv.style.display = 'block';
+        }
+
+        function enterWarehouse(warehouse) {
+            game.dialogueActive = true;
+            const dialogueDiv = document.getElementById('dialogue');
+            const dialogueText = document.getElementById('dialogueText');
+            const dialogueOptions = document.getElementById('dialogueOptions');
+            
+            dialogueText.innerHTML = "You're at the warehouse. What do you want to do?";
+            dialogueOptions.innerHTML = '';
+            
+            // Check if player has explosives for sabotage quest
+            if (game.player.currentQuests.includes('Sabotage') && game.questProgress.Sabotage === 0) {
+                const searchBtn = document.createElement('button');
+                searchBtn.textContent = 'Search for explosives';
+                searchBtn.onclick = () => {
+                    if (Math.random() < 0.7) {
+                        updateQuestProgress('Sabotage', 1);
+                    } else {
+                        showNotification("You couldn't find any explosives here.");
+                    }
+                    closeDialogue();
+                };
+                dialogueOptions.appendChild(searchBtn);
+            }
+            
+            // Option to plant explosives if player has them
+            if (game.player.currentQuests.includes('Sabotage') && game.questProgress.Sabotage === 1) {
+                const plantBtn = document.createElement('button');
+                plantBtn.textContent = 'Plant explosives';
+                plantBtn.onclick = () => {
+                    updateQuestProgress('Sabotage', 2);
+                    showNotification("You've planted the explosives! Get out of here before they detonate!");
+                    closeDialogue();
+                    
+                    // Start countdown timer
+                    setTimeout(() => {
+                        if (game.questProgress.Sabotage === 2) {
+                            updateQuestProgress('Sabotage', 3);
+                        }
+                    }, 10000);
+                };
+                dialogueOptions.appendChild(plantBtn);
+            }
+            
+            // Option to steal goods
+            const stealBtn = document.createElement('button');
+            stealBtn.textContent = 'Steal goods';
+            stealBtn.onclick = () => {
+                const successChance = 0.3 + (game.player.skills.stealth * 0.05) + (game.player.stats.agility * 0.03) + (game.player.stats.luck * 0.02);
+                
+                if (Math.random() < successChance) {
+                    const stolenValue = Math.floor(200 + Math.random() * 500);
+                    game.player.money += stolenValue;
+                    game.player.wanted = Math.min(5, game.player.wanted + 1);
+                    game.player.experience += 100;
+                    game.player.reputation += 5;
+                    
+                    showNotification(`You stole goods worth $${stolenValue}! Wanted +1`);
+                } else {
+                    game.player.wanted = Math.min(5, game.player.wanted + 2);
+                    game.player.health = Math.max(0, game.player.health - 30);
+                    
+                    showNotification("You were caught by security! Health -30, Wanted +2");
+                }
+                
+                checkLevelUp();
+                closeDialogue();
+            };
+            dialogueOptions.appendChild(stealBtn);
+            
+            const leaveBtn = document.createElement('button');
+            leaveBtn.textContent = 'Leave';
+            leaveBtn.onclick = closeDialogue;
+            dialogueOptions.appendChild(leaveBtn);
+            
+            dialogueDiv.style.display = 'block';
+        }
+
+        function startTraining(building) {
+            if (game.player.training) {
+                showNotification("You're already training!");
+                return;
+            }
+            
+            game.player.training = building.training;
+            game.player.trainingTime = 0;
+            showNotification(`You started training ${building.training}!`);
+        }
+
+        function completeTraining() {
+            const training = game.player.training;
+            game.player.training = null;
+            game.player.trainingTime = 0;
+            
+            // Increase stat based on training type
+            if (training === 'strength') {
+                game.player.stats.strength += 0.5;
+                game.player.skills.melee += 0.2;
+                showNotification("Your strength and melee skills increased!");
+            } else if (training === 'firearms') {
+                game.player.skills.firearms += 0.5;
+                showNotification("Your firearms skill increased!");
+            } else if (training === 'intelligence') {
+                game.player.stats.intelligence += 0.5;
+                game.player.skills.hacking += 0.2;
+                showNotification("Your intelligence and hacking skills increased!");
+            } else if (training === 'agility') {
+                game.player.stats.agility += 0.5;
+                game.player.skills.stealth += 0.2;
+                showNotification("Your agility and stealth skills increased!");
+            }
+            
+            // Check quest progress
+            if (game.player.currentQuests.includes('Training')) {
+                if (!game.questProgress['Training_progress']) {
+                    game.questProgress['Training_progress'] = {};
+                }
+                
+                if (!game.questProgress['Training_progress'][training]) {
+                    game.questProgress['Training_progress'][training] = true;
+                    
+                    // Check if all trainings are completed
+                    const trainings = ['strength', 'firearms', 'intelligence', 'agility'];
+                    const completedTrainings = trainings.filter(t => game.questProgress['Training_progress'][t]);
+                    
+                    if (completedTrainings.length === trainings.length) {
+                        updateQuestProgress('Training', 1);
+                    }
+                }
+            }
+            
+            updateUI();
+        }
+
+        function enterGangHideout(building) {
+            game.dialogueActive = true;
+            const dialogueDiv = document.getElementById('dialogue');
+            const dialogueText = document.getElementById('dialogueText');
+            const dialogueOptions = document.getElementById('dialogueOptions');
+            
+            dialogueText.innerHTML = `You're at the ${building.name}. What do you want to do?`;
+            dialogueOptions.innerHTML = '';
+            
+            // Option to join gang
+            if (!game.player.class.includes(building.gang)) {
+                const joinBtn = document.createElement('button');
+                joinBtn.textContent = `Join ${building.gang}`;
+                joinBtn.onclick = () => {
+                    joinGang(building.gang);
+                    closeDialogue();
+                };
+                dialogueOptions.appendChild(joinBtn);
+            }
+            
+            // Option to do work for the gang
+            const workBtn = document.createElement('button');
+            workBtn.textContent = 'Do work for the gang';
+            workBtn.onclick = () => {
+                const workTypes = ['intimidation', 'theft', 'delivery'];
+                const workType = workTypes[Math.floor(Math.random() * workTypes.length)];
+                
+                if (workType === 'intimidation') {
+                    showNotification("You intimidated a local business owner. The gang is pleased.");
+                    game.player.experience += 50;
+                    game.player.reputation += 2;
+                    game.factionReputation[building.gang] += 3;
+                } else if (workType === 'theft') {
+                    const stolen = Math.floor(100 + Math.random() * 200);
+                    game.player.money += stolen;
+                    showNotification(`You stole $${stolen} for the gang.`);
+                    game.player.experience += 75;
+                    game.player.reputation += 3;
+                    game.factionReputation[building.gang] += 5;
+                } else if (workType === 'delivery') {
+                    showNotification("You delivered a package for the gang.");
+                    game.player.experience += 25;
+                    game.player.reputation += 1;
+                    game.factionReputation[building.gang] += 2;
+                }
+                
+                checkLevelUp();
+                closeDialogue();
+            };
+            dialogueOptions.appendChild(workBtn);
+            
+            const leaveBtn = document.createElement('button');
+            leaveBtn.textContent = 'Leave';
+            leaveBtn.onclick = closeDialogue;
+            dialogueOptions.appendChild(leaveBtn);
+            
+            dialogueDiv.style.display = 'block';
+        }
+
+        function enterSafeHouse(building) {
+            game.dialogueActive = true;
+            const dialogueDiv = document.getElementById('dialogue');
+            const dialogueText = document.getElementById('dialogueText');
+            const dialogueOptions = document.getElementById('dialogueOptions');
+            
+            dialogueText.innerHTML = `You're at the ${building.name}. What do you want to do?`;
+            dialogueOptions.innerHTML = '';
+            
+            // Option to rest
+            const restBtn = document.createElement('button');
+            restBtn.textContent = 'Rest (Restore Health)';
+            restBtn.onclick = () => {
+                game.player.health = game.player.maxHealth;
+                game.player.stamina = game.player.maxStamina;
+                showNotification("You rested and restored your health and stamina.");
+                closeDialogue();
+            };
+            dialogueOptions.appendChild(restBtn);
+            
+            // Option to store items
+            const storeBtn = document.createElement('button');
+            storeBtn.textContent = 'Store Items';
+            storeBtn.onclick = () => {
+                showNotification("You stored your items safely.");
+                closeDialogue();
+            };
+            dialogueOptions.appendChild(storeBtn);
+            
+            // Option to lower wanted level
+            if (game.player.wanted > 0) {
+                const hideBtn = document.createElement('button');
+                hideBtn.textContent = 'Hide Out (Lower Wanted Level)';
+                hideBtn.onclick = () => {
+                    game.player.wanted = Math.max(0, game.player.wanted - 1);
+                    showNotification("You hid out and lowered your wanted level.");
+                    closeDialogue();
+                };
+                dialogueOptions.appendChild(hideBtn);
+            }
+            
+            const leaveBtn = document.createElement('button');
+            leaveBtn.textContent = 'Leave';
+            leaveBtn.onclick = closeDialogue;
+            dialogueOptions.appendChild(leaveBtn);
+            
+            dialogueDiv.style.display = 'block';
+        }
+
+        function enterVehicle(vehicle) {
+            if (game.player.currentVehicle) {
+                // Exit current vehicle
+                game.player.currentVehicle.occupied = false;
+                game.player.currentVehicle = null;
+                game.player.speed = 3 + (game.player.stats.agility * 0.2);
+                showNotification("You exited the vehicle.");
+            } else {
+                // Enter vehicle
+                game.player.currentVehicle = vehicle;
+                vehicle.occupied = true;
+                game.player.speed = vehicle.speed;
+                showNotification(`You entered the ${vehicle.name}.`);
+            }
+        }
+
+        function pickupItem(item, index) {
+            if (item.effect === 'money') {
+                game.player.money += item.value;
+                showNotification(`You found $${item.value}!`);
+            } else if (item.effect === 'health') {
+                game.player.health = Math.min(game.player.maxHealth, game.player.health + item.value);
+                showNotification(`You recovered ${item.value} health!`);
+            } else if (item.effect === 'stamina') {
+                game.player.stamina = Math.min(game.player.maxStamina, game.player.stamina + item.value);
+                showNotification(`You recovered ${item.value} stamina!`);
+            } else {
+                const itemData = items.find(i => i.name === item.name);
+                if (itemData) {
+                    game.player.inventory.items.push({...itemData});
+                    showNotification(`You picked up ${item.name}!`);
+                }
+            }
+            
+            // Remove item from world
+            game.items.splice(index, 1);
+            updateInventoryUI();
+        }
+
+        function equipWeapon(index) {
+            const weapon = game.player.inventory.weapons[index];
+            if (weapon) {
+                game.player.equipment.weapon = weapon;
+                updateInventoryUI();
+                showNotification(`You equipped ${weapon.name}!`);
+            }
+        }
+
+        function equipArmor(index) {
+            const armorItem = game.player.inventory.armor[index];
+            if (armorItem) {
+                game.player.equipment.armor = armorItem;
+                updateInventoryUI();
+                showNotification(`You equipped ${armorItem.name}!`);
+            }
+        }
+
+        function equipAccessory(index) {
+            const accessory = game.player.inventory.items[index];
+            if (accessory && accessory.type === 'accessory') {
+                game.player.equipment.accessory = accessory;
+                updateInventoryUI();
+                showNotification(`You equipped ${accessory.name}!`);
+            }
+        }
+
+        function useItem(item, index) {
+            if (item.type === 'consumable') {
+                if (item.effect === 'health') {
+                    game.player.health = Math.min(game.player.maxHealth, game.player.health + item.value);
+                    showNotification(`You used a ${item.name} and recovered ${item.value} health!`);
+                } else if (item.effect === 'stamina') {
+                    game.player.stamina = Math.min(game.player.maxStamina, game.player.stamina + item.value);
+                    showNotification(`You used a ${item.name} and recovered ${item.value} stamina!`);
+                } else if (item.effect === 'ammo') {
+                    // Add ammo to equipped weapon
+                    if (game.player.equipment.weapon && game.player.equipment.weapon.ammo !== undefined) {
+                        game.player.equipment.weapon.ammo += item.value;
+                        showNotification(`You added ${item.value} ammo to your ${game.player.equipment.weapon.name}!`);
+                    } else {
+                        showNotification("You don't have a weapon equipped!");
+                    }
+                } else if (item.effect === 'lockpick') {
+                    showNotification("You can use lockpicks to unlock doors and safes.");
+                } else if (item.effect === 'disguise') {
+                    game.player.wanted = Math.max(0, game.player.wanted - 1);
+                    showNotification("You used a disguise to lower your wanted level!");
+                }
+                
+                // Remove used item
+                game.player.inventory.items.splice(index, 1);
+            } else if (item.type === 'item') {
+                if (item.effect === 'money') {
+                    game.player.money += item.value;
+                    showNotification(`You sold the ${item.name} for $${item.value}!`);
+                    game.player.inventory.items.splice(index, 1);
+                } else if (item.effect === 'luck') {
+                    game.player.stats.luck += item.value;
+                    showNotification(`Your luck increased by ${item.value}!`);
+                    game.player.inventory.items.splice(index, 1);
+                } else if (item.effect === 'damage') {
+                    showNotification("This item can be used to enhance your weapons.");
+                } else if (item.effect === 'hacking') {
+                    showNotification("You can use hacking tools to bypass security systems.");
+                }
+            }
+            
+            updateInventoryUI();
+        }
+
+        function arrestPlayer() {
+            game.player.wanted = 0;
+            const fine = Math.min(game.player.money, 500 * game.player.level);
+            game.player.money -= fine;
+            game.player.health = Math.max(1, Math.floor(game.player.maxHealth / 2));
+            game.player.reputation = Math.max(0, game.player.reputation - 5);
+            
+            // Move player to police station
+            game.player.x = 250;
+            game.player.y = 3850;
+            
+            showNotification(`You were arrested! You paid a $${fine} fine and lost some health and reputation.`);
+        }
+
+        function checkLevelUp() {
+            if (game.player.experience >= game.player.experienceToNext) {
+                game.player.level++;
+                game.player.experience -= game.player.experienceToNext;
+                game.player.experienceToNext = game.player.level * 150;
+                game.player.maxHealth += 10;
+                game.player.health = game.player.maxHealth;
+                game.player.maxStamina += 5;
+                game.player.stamina = game.player.maxStamina;
+                game.player.statPoints += 2;
+                game.player.skillPoints += 1;
+                
+                showNotification(`Level up! You are now level ${game.player.level}. You gained 2 stat points and 1 skill point!`);
+                updateUI();
+            }
+        }
+
+        function updatePlayerLocation() {
+            let location = 'Unknown';
+            
+            game.districts.forEach(district => {
+                if (game.player.x >= district.x && 
+                    game.player.x < district.x + district.width &&
+                    game.player.y >= district.y && 
+                    game.player.y < district.y + district.height) {
+                    location = district.name;
+                }
+            });
+            
+            document.getElementById('location').textContent = location;
+        }
+
+        function updateUI() {
+            document.getElementById('playerName').textContent = game.player.name;
+            document.getElementById('level').textContent = game.player.level;
+            document.getElementById('playerClass').textContent = game.player.class;
+            document.getElementById('health').textContent = Math.floor(game.player.health);
+            document.getElementById('maxHealth').textContent = game.player.maxHealth;
+            document.getElementById('stamina').textContent = Math.floor(game.player.stamina);
+            document.getElementById('maxStamina').textContent = game.player.maxStamina;
+            document.getElementById('money').textContent = game.player.money;
+            document.getElementById('wanted').textContent = game.player.wanted;
+            document.getElementById('reputation').textContent = game.player.reputation;
+            document.getElementById('experience').textContent = Math.floor(game.player.experience);
+            document.getElementById('expToNext').textContent = game.player.experienceToNext;
+            
+            // Update stats
+            document.getElementById('strength').textContent = Math.floor(game.player.stats.strength);
+            document.getElementById('agility').textContent = Math.floor(game.player.stats.agility);
+            document.getElementById('intelligence').textContent = Math.floor(game.player.stats.intelligence);
+            document.getElementById('charisma').textContent = Math.floor(game.player.stats.charisma);
+            document.getElementById('luck').textContent = Math.floor(game.player.stats.luck);
+            document.getElementById('endurance').textContent = Math.floor(game.player.stats.endurance);
+            document.getElementById('statPoints').textContent = game.player.statPoints;
+            
+            // Update skills
+            document.getElementById('stealth').textContent = Math.floor(game.player.skills.stealth);
+            document.getElementById('hacking').textContent = Math.floor(game.player.skills.hacking);
+            document.getElementById('driving').textContent = Math.floor(game.player.skills.driving);
+            document.getElementById('intimidation').textContent = Math.floor(game.player.skills.intimidation);
+            document.getElementById('persuasion').textContent = Math.floor(game.player.skills.persuasion);
+            document.getElementById('lockpicking').textContent = Math.floor(game.player.skills.lockpicking);
+            document.getElementById('firearms').textContent = Math.floor(game.player.skills.firearms);
+            document.getElementById('melee').textContent = Math.floor(game.player.skills.melee);
+            document.getElementById('skillPoints').textContent = game.player.skillPoints;
+            
+            // Update skill bars
+            document.getElementById('stealthBar').style.width = `${game.player.skills.stealth * 10}%`;
+            document.getElementById('hackingBar').style.width = `${game.player.skills.hacking * 10}%`;
+            document.getElementById('drivingBar').style.width = `${game.player.skills.driving * 10}%`;
+            document.getElementById('intimidationBar').style.width = `${game.player.skills.intimidation * 10}%`;
+            document.getElementById('persuasionBar').style.width = `${game.player.skills.persuasion * 10}%`;
+            document.getElementById('lockpickingBar').style.width = `${game.player.skills.lockpicking * 10}%`;
+            document.getElementById('firearmsBar').style.width = `${game.player.skills.firearms * 10}%`;
+            document.getElementById('meleeBar').style.width = `${game.player.skills.melee * 10}%`;
+            
+            updateQuestUI();
+            updateInventoryUI();
+        }
+
+        function updateQuestUI() {
+            const questList = document.getElementById('questList');
+            questList.innerHTML = '';
+            
+            // Current quests
+            game.player.currentQuests.forEach(questName => {
+                const quest = quests[questName];
+                const questDiv = document.createElement('div');
+                questDiv.className = 'quest-item';
+                
+                let progressText = '';
+                if (game.questProgress && game.questProgress[questName] !== undefined) {
+                    const progress = game.questProgress[questName];
+                    if (quest.steps[progress]) {
+                        progressText = ` - ${quest.steps[progress].description}`;
+                    }
+                }
+                
+                questDiv.innerHTML = `<strong>${quest.description}</strong>${progressText}`;
+                questList.appendChild(questDiv);
+            });
+            
+            // Completed quests
+            if (game.player.completedQuests.length > 0) {
+                const completedHeader = document.createElement('div');
+                completedHeader.innerHTML = '<strong>Completed Quests:</strong>';
+                questList.appendChild(completedHeader);
+                
+                game.player.completedQuests.forEach(questName => {
+                    const quest = quests[questName];
+                    const questDiv = document.createElement('div');
+                    questDiv.className = 'quest-item completed';
+                    questDiv.innerHTML = quest.description;
+                    questList.appendChild(questDiv);
+                });
+            }
+        }
+
+        function updateInventoryUI() {
+            // Update weapons
+            const weaponsList = document.getElementById('weaponsList');
+            weaponsList.innerHTML = '';
+            
+            game.player.inventory.weapons.forEach((weapon, index) => {
+                const weaponDiv = document.createElement('div');
+                weaponDiv.textContent = `${index + 1}. ${weapon.name} (Damage: ${weapon.damage})`;
+                if (game.player.equipment.weapon === weapon) {
+                    weaponDiv.style.color = '#ffff00';
+                }
+                
+                const equipBtn = document.createElement('button');
+                equipBtn.textContent = 'Equip';
+                equipBtn.onclick = () => equipWeapon(index);
+                weaponDiv.appendChild(equipBtn);
+                
+                weaponsList.appendChild(weaponDiv);
+            });
+            
+            // Update armor
+            const armorList = document.getElementById('armorList');
+            armorList.innerHTML = '';
+            
+            game.player.inventory.armor.forEach((armorItem, index) => {
+                const armorDiv = document.createElement('div');
+                armorDiv.textContent = `${armorItem.name} (Defense: ${armorItem.defense})`;
+                if (game.player.equipment.armor === armorItem) {
+                    armorDiv.style.color = '#ffff00';
+                }
+                
+                const equipBtn = document.createElement('button');
+                equipBtn.textContent = 'Equip';
+                equipBtn.onclick = () => equipArmor(index);
+                armorDiv.appendChild(equipBtn);
+                
+                armorList.appendChild(armorDiv);
+            });
+            
+            // Update items
+            const itemsList = document.getElementById('itemsList');
+            itemsList.innerHTML = '';
+            
+            game.player.inventory.items.forEach((item, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.textContent = `${item.name} (${item.effect}: ${item.value})`;
+                
+                if (item.type === 'consumable' || item.type === 'item') {
+                    const useBtn = document.createElement('button');
+                    useBtn.textContent = 'Use';
+                    useBtn.onclick = () => useItem(item, index);
+                    itemDiv.appendChild(useBtn);
+                }
+                
+                if (item.type === 'accessory') {
+                    const equipBtn = document.createElement('button');
+                    equipBtn.textContent = 'Equip';
+                    equipBtn.onclick = () => equipAccessory(index);
+                    itemDiv.appendChild(equipBtn);
+                }
+                
+                itemsList.appendChild(itemDiv);
+            });
+            
+            // Update inventory items display
+            const inventoryItems = document.getElementById('inventoryItems');
+            inventoryItems.innerHTML = '';
+            
+            game.player.inventory.items.forEach((item, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'item';
+                itemDiv.textContent = item.name.charAt(0);
+                itemDiv.title = item.name;
+                inventoryItems.appendChild(itemDiv);
+            });
+            
+            // Update equipment display
+            if (game.player.equipment.weapon) {
+                document.getElementById('weaponSlot').textContent = '🔫';
+                document.getElementById('weaponSlot').title = game.player.equipment.weapon.name;
+            }
+            
+            if (game.player.equipment.armor) {
+                document.getElementById('armorSlot').textContent = '🛡️';
+                document.getElementById('armorSlot').title = game.player.equipment.armor.name;
+            }
+            
+            if (game.player.equipment.accessory) {
+                document.getElementById('accessorySlot').textContent = '💍';
+                document.getElementById('accessorySlot').title = game.player.equipment.accessory.name;
+            }
+        }
+
+        function showNotification(text) {
+            const notificationDiv = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notificationText.textContent = text;
+            notificationDiv.style.display = 'block';
+        }
+
+        function closeNotification() {
+            document.getElementById('notification').style.display = 'none';
+        }
+
+        function openTab(evt, tabName) {
+            const tabcontent = document.getElementsByClassName("tabcontent");
+            for (let i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            
+            const tablinks = document.getElementsByClassName("tablinks");
+            for (let i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        function openStatAllocation() {
+            if (game.player.statPoints <= 0) {
+                showNotification("You don't have any stat points to allocate!");
+                return;
+            }
+            
+            const statAllocationDiv = document.getElementById('statAllocation');
+            const availableStatPoints = document.getElementById('availableStatPoints');
+            const statAllocationButtons = document.getElementById('statAllocationButtons');
+            
+            availableStatPoints.textContent = game.player.statPoints;
+            statAllocationButtons.innerHTML = '';
+            
+            Object.keys(game.player.stats).forEach(stat => {
+                const statDiv = document.createElement('div');
+                statDiv.textContent = `${stat}: ${Math.floor(game.player.stats[stat])}`;
+                
+                const increaseBtn = document.createElement('button');
+                increaseBtn.textContent = '+';
+                increaseBtn.onclick = () => {
+                    if (game.player.statPoints > 0) {
+                        game.player.stats[stat] += 0.5;
+                        game.player.statPoints--;
+                        availableStatPoints.textContent = game.player.statPoints;
+                        statDiv.textContent = `${stat}: ${Math.floor(game.player.stats[stat])}`;
+                        updateUI();
+                    }
+                };
+                
+                statDiv.appendChild(increaseBtn);
+                statAllocationButtons.appendChild(statDiv);
+            });
+            
+            statAllocationDiv.style.display = 'block';
+        }
+
+        function closeStatAllocation() {
+            document.getElementById('statAllocation').style.display = 'none';
+        }
+
+        function openSkillAllocation() {
+            if (game.player.skillPoints <= 0) {
+                showNotification("You don't have any skill points to allocate!");
+                return;
+            }
+            
+            const skillAllocationDiv = document.getElementById('skillAllocation');
+            const availableSkillPoints = document.getElementById('availableSkillPoints');
+            const skillAllocationButtons = document.getElementById('skillAllocationButtons');
+            
+            availableSkillPoints.textContent = game.player.skillPoints;
+            skillAllocationButtons.innerHTML = '';
+            
+            Object.keys(game.player.skills).forEach(skill => {
+                const skillDiv = document.createElement('div');
+                skillDiv.textContent = `${skill}: ${Math.floor(game.player.skills[skill])}`;
+                
+                const increaseBtn = document.createElement('button');
+                increaseBtn.textContent = '+';
+                increaseBtn.onclick = () => {
+                    if (game.player.skillPoints > 0 && game.player.skills[skill] < 10) {
+                        game.player.skills[skill] += 0.5;
+                        game.player.skillPoints--;
+                        availableSkillPoints.textContent = game.player.skillPoints;
+                        skillDiv.textContent = `${skill}: ${Math.floor(game.player.skills[skill])}`;
+                        updateUI();
+                    }
+                };
+                
+                skillDiv.appendChild(increaseBtn);
+                skillAllocationButtons.appendChild(skillDiv);
+            });
+            
+            skillAllocationDiv.style.display = 'block';
+        }
+
+        function closeSkillAllocation() {
+            document.getElementById('skillAllocation').style.display = 'none';
+        }
+
+        function saveGame() {
+            localStorage.setItem('crimeCitySave', JSON.stringify(game));
+            showNotification('Game saved!');
+        }
+
+        function loadGame() {
+            const savedGame = localStorage.getItem('crimeCitySave');
+            if (savedGame) {
+                const parsedGame = JSON.parse(savedGame);
+                
+                // Restore game state
+                Object.assign(game, parsedGame);
+                
+                // Restore non-serializable functions
+                gameLoop();
+                
+                updateInventoryUI();
+                showNotification('Game loaded!');
+            } else {
+                showNotification('No saved game found!');
+            }
+        }
+
+        // Initialize game
+        initCity();
+        updateInventoryUI();
+        gameLoop();
+    </script>
+</body>
+</html>
