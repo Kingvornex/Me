@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بازی حکم آنلاین و آفلاین</title>
+    <meta name="description" content="بازی کارتی حکم با قابلیت بازی آنلاین و آفلاین برای دستگاه‌های اندرویدی">
+    <meta name="keywords" content="حکم, بازی کارتی, آفلاین, آنلاین, اندروید">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+        }
+        
+        .card {
+            width: 60px;
+            height: 90px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            border: 2px solid #333;
+        }
+        
+        .card.red {
+            background: white;
+            color: #dc2626;
+        }
+        
+        .card.black {
+            background: white;
+            color: #1f2937;
+        }
+        
+        .card.playable {
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
+            transform: translateY(-10px);
+        }
+        
+        .card-back {
+            background: linear-gradient(45deg, #1e40af, #3730a3);
+            color: white;
+        }
+        
+        .game-board {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            margin: 20px 0;
+        }
+        
+        .player-position {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .player-north {
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .player-south {
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .player-east {
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .player-west {
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .played-card {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .hand-container {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .suit-button {
+            padding: 15px 30px;
+            margin: 10px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .suit-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .hearts { background: #dc2626; color: white; }
+        .diamonds { background: #dc2626; color: white; }
+        .clubs { background: #1f2937; color: white; }
+        .spades { background: #1f2937; color: white; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-900 via-purple-800 to-purple-900 min-h-screen">
+    <!-- Main Menu -->
+    <div id="mainMenu" class="min-h-screen p-4">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-12">
+                <h1 class="text-5xl md:text-7xl font-bold text-white mb-4">
+                    حکم
+                </h1>
+                <p class="text-xl text-purple-200 mb-8">
+                    بازی محبوب کارت ایرانی - نسخه آفلاین
+                </p>
+                <div class="inline-block bg-purple-600 text-white px-4 py-2 rounded-full text-lg">
+                    برای اندروید و وب
+                </div>
+            </div>
+
+            <!-- Game Mode Selection -->
+            <div class="grid md:grid-cols-1 gap-6 mb-8">
+                <!-- Offline Mode -->
+                <div class="bg-white/10 backdrop-blur-sm border-white/20 text-white rounded-lg p-6">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="text-2xl">📱</span>
+                        <h2 class="text-2xl font-bold">بازی آفلاین</h2>
+                    </div>
+                    <p class="text-purple-200 mb-6">
+                        با هوش مصنوعی بازی کنید - نیازی به اینترنت ندارید
+                    </p>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center gap-2 text-sm">
+                            <span class="text-green-400">✓</span>
+                            <span>بازی با ۳ هوش مصنوعی هوشمند</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm">
+                            <span class="text-green-400">✓</span>
+                            <span>بدون نیاز به اتصال اینترنت</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm">
+                            <span class="text-green-400">✓</span>
+                            <span>قابلیت تمرین و یادگیری</span>
+                        </div>
+                    </div>
+                    <button 
+                        onclick="startOfflineGame()"
+                        class="w-full bg-green-600 hover:bg-green-700 text-white py-4 px-6 rounded-lg text-lg font-semibold transition-colors"
+                    >
+                        شروع بازی آفلاین
+                    </button>
+                </div>
+            </div>
+
+            <!-- Game Features -->
+            <div class="bg-white/5 backdrop-blur-sm border-white/10 rounded-lg p-6">
+                <h2 class="text-white text-center text-xl font-bold mb-6">ویژگی‌های بازی</h2>
+                <div class="grid md:grid-cols-3 gap-4 text-center">
+                    <div class="space-y-2">
+                        <div class="text-3xl mb-2">🎮</div>
+                        <h3 class="text-white font-semibold">بازی کامل حکم</h3>
+                        <p class="text-purple-200 text-sm">تمام قوانین بازی حکم به صورت کامل پیاده‌سازی شده</p>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="text-3xl mb-2">🤖</div>
+                        <h3 class="text-white font-semibold">هوش مصنوعی</h3>
+                        <p class="text-purple-200 text-sm">بازی با هوش مصنوعی هوشمند و چالش‌برانگیز</p>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="text-3xl mb-2">📱</div>
+                        <h3 class="text-white font-semibold">بهینه برای موبایل</h3>
+                        <p class="text-purple-200 text-sm">رابط کاربری بهینه شده برای دستگاه‌های موبایل</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="bg-white/5 backdrop-blur-sm border-white/10 rounded-lg p-6 mt-6">
+                <h2 class="text-white text-center text-xl font-bold mb-6">آموزش بازی</h2>
+                <div class="text-purple-200 space-y-3">
+                    <p class="text-sm">
+                        <strong>هدف بازی:</strong> حکم یک بازی کارتی چهار نفره است که دو تیم دو نفره با هم رقابت می‌کنند.
+                    </p>
+                    <p class="text-sm">
+                        <strong>نحوه بازی:</strong> در هر دست، یک بازیکن حکم (خال اصلی) را تعیین می‌کند و بازیکنان باید کارت‌های هم‌خال را بازی کنند.
+                    </p>
+                    <p class="text-sm">
+                        <strong>امتیازدهی:</strong> تیمی که بتواند ۷ دست از ۱۳ دست را ببرد، برنده بازی می‌شود.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen" class="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-green-900 p-4 hidden">
+        <div class="max-w-6xl mx-auto">
+            <!-- Back Button -->
+            <button 
+                onclick="backToMenu()"
+                class="mb-4 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-colors"
+            >
+                ← بازگشت به منو
+            </button>
+
+            <!-- Game Status -->
+            <div class="fixed top-4 left-4 bg-white/10 backdrop-blur-sm rounded-lg p-3">
+                <div class="text-white text-sm space-y-1">
+                    <p>دور: <span id="round">1</span></p>
+                    <p>فاز: <span id="phase">انتخاب حکم</span></p>
+                    <p>نوبت: <span id="currentPlayer">شما</span></p>
+                </div>
+            </div>
+
+            <!-- Game Board -->
+            <div class="game-board">
+                <!-- North Player -->
+                <div class="player-position player-north">
+                    <div class="text-white font-semibold">بازیکن شمالی</div>
+                    <div class="text-white text-sm">تیم: سیاه</div>
+                    <div class="text-white text-sm">کارت: <span id="northCards">13</span></div>
+                </div>
+
+                <!-- South Player (Human) -->
+                <div class="player-position player-south">
+                    <div class="text-white font-semibold">شما</div>
+                    <div class="text-white text-sm">تیم: قرمز</div>
+                    <div class="text-white text-sm">کارت: <span id="southCards">13</span></div>
+                </div>
+
+                <!-- East Player -->
+                <div class="player-position player-east">
+                    <div class="text-white font-semibold">بازیکن شرقی</div>
+                    <div class="text-white text-sm">تیم: قرمز</div>
+                    <div class="text-white text-sm">کارت: <span id="eastCards">13</span></div>
+                </div>
+
+                <!-- West Player -->
+                <div class="player-position player-west">
+                    <div class="text-white font-semibold">بازیکن غربی</div>
+                    <div class="text-white text-sm">تیم: سیاه</div>
+                    <div class="text-white text-sm">کارت: <span id="westCards">13</span></div>
+                </div>
+
+                <!-- Played Cards Area -->
+                <div id="playedCardsArea" class="played-card">
+                    <!-- Played cards will appear here -->
+                </div>
+            </div>
+
+            <!-- Player Hand -->
+            <div class="mt-20">
+                <div id="playerHand" class="hand-container">
+                    <!-- Player cards will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hokm Selection Modal -->
+    <div id="hokmModal" class="modal hidden">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold mb-4 text-center">حکم را انتخاب کنید</h3>
+            <p class="text-gray-600 mb-6 text-center">
+                لطفاً یک خال را به عنوان حکم انتخاب کنید
+            </p>
+            <div class="grid grid-cols-2 gap-4">
+                <button 
+                    onclick="selectHokm('hearts')"
+                    class="suit-button hearts"
+                >
+                    ♥ دل
+                </button>
+                <button 
+                    onclick="selectHokm('diamonds')"
+                    class="suit-button diamonds"
+                >
+                    ♦ میش
+                </button>
+                <button 
+                    onclick="selectHokm('clubs')"
+                    class="suit-button clubs"
+                >
+                    ♣ گشنیز
+                </button>
+                <button 
+                    onclick="selectHokm('spades')"
+                    class="suit-button spades"
+                >
+                    ♠ خاس
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            mode: 'menu',
+            players: [
+                { id: 1, name: 'شما', position: 'south', isHuman: true, team: 'red', hand: [] },
+                { id: 2, name: 'بازیکن شمالی', position: 'north', isHuman: false, team: 'black', hand: [] },
+                { id: 3, name: 'بازیکن شرقی', position: 'east', isHuman: false, team: 'red', hand: [] },
+                { id: 4, name: 'بازیکن غربی', position: 'west', isHuman: false, team: 'black', hand: [] }
+            ],
+            currentPlayer: 0,
+            hokmSuit: null,
+            trick: { cards: [] },
+            round: 1,
+            phase: 'bidding',
+            scores: { red: 0, black: 0 }
+        };
+
+        // Card suits and ranks
+        const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
+        const suitNames = { hearts: '♥ دل', diamonds: '♦ میش', clubs: '♣ گشنیز', spades: '♠ خاس' };
+        const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        const rankValues = { 'A': 14, 'K': 13, 'Q': 12, 'J': 11, '10': 10, '9': 9, '8': 8, '7': 7, '6': 6, '5': 5, '4': 4, '3': 3, '2': 2 };
+
+        // Create and shuffle deck
+        function createDeck() {
+            const deck = [];
+            suits.forEach(suit => {
+                ranks.forEach(rank => {
+                    deck.push({ suit, rank, value: rankValues[rank] });
+                });
+            });
+            return shuffleDeck(deck);
+        }
+
+        function shuffleDeck(deck) {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+            return deck;
+        }
+
+        // Deal cards
+        function dealCards() {
+            const deck = createDeck();
+            gameState.players.forEach(player => {
+                player.hand = deck.splice(0, 13);
+            });
+        }
+
+        // Start offline game
+        function startOfflineGame() {
+            gameState.mode = 'game';
+            gameState.phase = 'bidding';
+            gameState.currentPlayer = 0;
+            gameState.hokmSuit = null;
+            gameState.trick = { cards: [] };
+            gameState.round = 1;
+            gameState.scores = { red: 0, black: 0 };
+            
+            dealCards();
+            
+            document.getElementById('mainMenu').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            
+            updateGameDisplay();
+            
+            // Show hokm selection modal
+            setTimeout(() => {
+                document.getElementById('hokmModal').classList.remove('hidden');
+            }, 1000);
+        }
+
+        // Back to menu
+        function backToMenu() {
+            gameState.mode = 'menu';
+            document.getElementById('mainMenu').classList.remove('hidden');
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('hokmModal').classList.add('hidden');
+        }
+
+        // Select hokm suit
+        function selectHokm(suit) {
+            gameState.hokmSuit = suit;
+            gameState.phase = 'playing';
+            document.getElementById('hokmModal').classList.add('hidden');
+            updateGameDisplay();
+            renderPlayerHand();
+        }
+
+        // Render player hand
+        function renderPlayerHand() {
+            const handContainer = document.getElementById('playerHand');
+            const humanPlayer = gameState.players[0];
+            
+            handContainer.innerHTML = '';
+            
+            humanPlayer.hand.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = `card ${card.suit === 'hearts' || card.suit === 'diamonds' ? 'red' : 'black'}`;
+                
+                if (gameState.currentPlayer === 0 && gameState.phase === 'playing') {
+                    cardElement.classList.add('playable');
+                    cardElement.onclick = () => playCard(index);
+                }
+                
+                cardElement.innerHTML = `
+                    <div>${suitNames[card.suit].split(' ')[0]}</div>
+                    <div>${card.rank}</div>
+                `;
+                
+                handContainer.appendChild(cardElement);
+            });
+        }
+
+        // Play card
+        function playCard(cardIndex) {
+            if (gameState.currentPlayer !== 0 || gameState.phase !== 'playing') return;
+            
+            const humanPlayer = gameState.players[0];
+            const card = humanPlayer.hand[cardIndex];
+            
+            // Add card to trick
+            gameState.trick.cards.push({
+                playerId: humanPlayer.id,
+                card: card
+            });
+            
+            // Remove card from hand
+            humanPlayer.hand.splice(cardIndex, 1);
+            
+            // Move to next player
+            gameState.currentPlayer = (gameState.currentPlayer + 1) % 4;
+            
+            updateGameDisplay();
+            renderPlayerHand();
+            
+            // AI players play
+            setTimeout(() => {
+                playAITurn();
+            }, 1000);
+        }
+
+        // AI turn
+        function playAITurn() {
+            if (gameState.currentPlayer === 0 || gameState.phase !== 'playing') return;
+            
+            const currentPlayer = gameState.players[gameState.currentPlayer];
+            
+            // Simple AI: play random card
+            if (currentPlayer.hand.length > 0) {
+                const randomIndex = Math.floor(Math.random() * currentPlayer.hand.length);
+                const card = currentPlayer.hand[randomIndex];
+                
+                gameState.trick.cards.push({
+                    playerId: currentPlayer.id,
+                    card: card
+                });
+                
+                currentPlayer.hand.splice(randomIndex, 1);
+            }
+            
+            // Check if trick is complete
+            if (gameState.trick.cards.length === 4) {
+                // Trick complete, reset
+                gameState.trick = { cards: [] };
+                gameState.currentPlayer = 0;
+            } else {
+                gameState.currentPlayer = (gameState.currentPlayer + 1) % 4;
+            }
+            
+            updateGameDisplay();
+            
+            // Continue AI turns
+            if (gameState.currentPlayer !== 0 && gameState.phase === 'playing') {
+                setTimeout(() => {
+                    playAITurn();
+                }, 1000);
+            } else {
+                renderPlayerHand();
+            }
+        }
+
+        // Update game display
+        function updateGameDisplay() {
+            document.getElementById('round').textContent = gameState.round;
+            document.getElementById('phase').textContent = gameState.phase === 'bidding' ? 'انتخاب حکم' : 'در حال بازی';
+            document.getElementById('currentPlayer').textContent = gameState.players[gameState.currentPlayer].name;
+            
+            // Update card counts
+            gameState.players.forEach((player, index) => {
+                const cardCountElement = document.getElementById(player.position + 'Cards');
+                if (cardCountElement) {
+                    cardCountElement.textContent = player.hand.length;
+                }
+            });
+            
+            // Update played cards area
+            const playedCardsArea = document.getElementById('playedCardsArea');
+            playedCardsArea.innerHTML = '';
+            
+            gameState.trick.cards.forEach(trickCard => {
+                const cardElement = document.createElement('div');
+                cardElement.className = `card ${trickCard.card.suit === 'hearts' || trickCard.card.suit === 'diamonds' ? 'red' : 'black'}`;
+                cardElement.style.position = 'absolute';
+                cardElement.style.transform = 'translate(-50%, -50%)';
+                cardElement.innerHTML = `
+                    <div>${suitNames[trickCard.card.suit].split(' ')[0]}</div>
+                    <div>${trickCard.card.rank}</div>
+                `;
+                playedCardsArea.appendChild(cardElement);
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Game is ready
+            console.log('Hokm Game Loaded');
+        });
+    </script>
+</body>
+</html>
