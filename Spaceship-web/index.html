@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Space Craft Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #0a0a1a 0%, #000000 100%);
+        }
+
+        /* Game Mode Selector */
+        .game-mode-selector {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            padding: 8px;
+            border: 1px solid #374151;
+        }
+
+        .mode-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .mode-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #374151;
+            color: #d1d5db;
+        }
+
+        .mode-btn:hover {
+            background: #4b5563;
+        }
+
+        .mode-btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .mode-btn.advanced.active {
+            background: #8b5cf6;
+        }
+
+        /* HUD Overlay */
+        .hud-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 50;
+        }
+
+        .hud-card {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid #374151;
+            border-radius: 12px;
+            padding: 16px;
+            min-width: 280px;
+        }
+
+        .hud-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .player-name {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .rank-badge {
+            background: #ca8a04;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .level-progress {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: #374151;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+            transition: width 0.3s ease;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-badge {
+            background: #ca8a04;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .stat-badge.blue { background: #2563eb; }
+        .stat-badge.green { background: #16a34a; }
+        .stat-badge.orange { background: #ea580c; }
+
+        /* Spacecraft Status Panel */
+        .spacecraft-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 50;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .status-label {
+            color: #9ca3af;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            background: #374151;
+            color: #d1d5db;
+        }
+
+        .status-badge.docked { background: #16a34a; }
+        .status-badge.launching { background: #ca8a04; }
+        .status-badge.traveling { background: #2563eb; }
+        .status-badge.orbit { background: #8b5cf6; }
+        .status-badge.landed { background: #ea580c; }
+
+        .resource-bar {
+            margin-bottom: 12px;
+        }
+
+        .resource-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .systems-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            font-size: 12px;
+        }
+
+        .system-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Game Settings Panel */
+        .settings-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 50;
+        }
+
+        .settings-tabs {
+            width: 320px;
+        }
+
+        .tab-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            background: #374151;
+            border-radius: 6px;
+            padding: 4px;
+            margin-bottom: 12px;
+        }
+
+        .tab-btn {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            color: #9ca3af;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .setting-item {
+            margin-bottom: 12px;
+        }
+
+        .setting-label {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 4px;
+        }
+
+        .setting-select {
+            width: 100%;
+            background: #374151;
+            color: white;
+            border: 1px solid #4b5563;
+            border-radius: 4px;
+            padding: 6px 8px;
+            font-size: 12px;
+        }
+
+        .setting-checkbox {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .setting-checkbox input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+
+        .setting-range {
+            width: 100%;
+            margin-top: 4px;
+        }
+
+        /* Game Stats Panel */
+        .stats-panel {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 50;
+        }
+
+        .stats-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .stat-label {
+            color: #9ca3af;
+        }
+
+        /* Controls Help */
+        .controls-help {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 50;
+        }
+
+        .control-item {
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .kbd {
+            background: #374151;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 11px;
+        }
+
+        /* Network Status */
+        .network-status {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 6px;
+            padding: 8px 16px;
+            border: 1px solid #374151;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* 3D Canvas Styling */
+        #game-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+
+        .loading-text {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .loading-bar {
+            width: 300px;
+            height: 4px;
+            background: #374151;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .loading-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+            animation: loading 2s ease-in-out infinite;
+        }
+
+        @keyframes loading {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hud-overlay, .spacecraft-panel {
+                position: relative;
+                top: auto;
+                left: auto;
+                right: auto;
+                margin-bottom: 10px;
+            }
+            
+            .settings-panel, .stats-panel, .controls-help {
+                display: none;
+            }
+            
+            .game-mode-selector {
+                top: 10px;
+                padding: 4px;
+            }
+            
+            .mode-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="loading-screen">
+            <div class="loading-text">🚀 Initializing 3D Space Craft Simulator</div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+
+        <!-- 3D Canvas Container -->
+        <div id="canvas-container">
+            <canvas id="game-canvas"></canvas>
+        </div>
+
+        <!-- Game Mode Selector -->
+        <div class="game-mode-selector">
+            <div class="mode-buttons">
+                <button class="mode-btn active" onclick="setGameMode('basic')">
+                    🎮 Basic 3D
+                </button>
+                <button class="mode-btn advanced" onclick="setGameMode('advanced')">
+                    🚀 Advanced 3D
+                </button>
+            </div>
+        </div>
+
+        <!-- HUD Overlay -->
+        <div class="hud-overlay">
+            <div class="hud-card">
+                <div class="hud-title">
+                    <span>🎮</span>
+                    <span>3D Space Command</span>
+                </div>
+                
+                <div class="player-info">
+                    <div class="player-name" id="player-name">Space Commander</div>
+                    <div class="rank-badge" id="player-rank">Cadet</div>
+                </div>
+                
+                <div class="level-progress">
+                    <span>⭐</span>
+                    <span>Level <span id="player-level">1</span></span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="level-progress" style="width: 0%"></div>
+                    </div>
+                    <div class="stat-badge" id="player-xp">0 XP</div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-badge">💰 <span id="player-credits">2500</span></div>
+                        <span>Credits</span>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-badge blue">🚀 <span id="player-missions">0</span></div>
+                        <span>Missions</span>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-badge green">🌍 <span id="player-planets">1</span></div>
+                        <span>Planets</span>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-badge orange">📏 <span id="player-distance">0</span>M</div>
+                        <span>Distance</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Spacecraft Status Panel -->
+        <div class="spacecraft-panel">
+            <div class="hud-card">
+                <div class="hud-title">
+                    <span>🚀</span>
+                    <span id="spacecraft-name">Stellar Explorer X1</span>
+                </div>
+                
+                <div class="status-item">
+                    <span class="status-label">Status</span>
+                    <div class="status-badge docked" id="spacecraft-status">DOCKED</div>
+                </div>
+                
+                <div class="resource-bar">
+                    <div class="resource-info">
+                        <span class="status-label">Hull</span>
+                        <span><span id="hull-current">150</span>/<span id="hull-max">200</span></span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="hull-progress" style="width: 75%"></div>
+                    </div>
+                </div>
+                
+                <div class="resource-bar">
+                    <div class="resource-info">
+                        <span class="status-label">Shield</span>
+                        <span><span id="shield-current">75</span>/<span id="shield-max">75</span></span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="shield-progress" style="width: 100%"></div>
+                    </div>
+                </div>
+                
+                <div class="resource-bar">
+                    <div class="resource-info">
+                        <span class="status-label">Fuel</span>
+                        <span><span id="fuel-current">150</span>/<span id="fuel-max">150</span></span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="fuel-progress" style="width: 100%"></div>
+                    </div>
+                </div>
+                
+                <div class="systems-grid">
+                    <div class="system-item">
+                        <span>🖥️</span>
+                        <span>Engine: <span id="engine-level">2</span></span>
+                    </div>
+                    <div class="system-item">
+                        <span>📦</span>
+                        <span>Cargo: <span id="cargo-level">20</span></span>
+                    </div>
+                    <div class="system-item">
+                        <span>⚡</span>
+                        <span>Weapons: <span id="weapons-level">1</span></span>
+                    </div>
+                    <div class="system-item">
+                        <span>👁️</span>
+                        <span>Scanner: <span id="scanner-level">1</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Settings Panel -->
+        <div class="settings-panel">
+            <div class="settings-tabs">
+                <div class="tab-list">
+                    <button class="tab-btn active" onclick="switchTab('graphics')">🎨 Graphics</button>
+                    <button class="tab-btn" onclick="switchTab('audio')">🔊 Audio</button>
+                    <button class="tab-btn" onclick="switchTab('controls')">🎮 Controls</button>
+                </div>
+                
+                <div id="graphics-tab" class="tab-content active">
+                    <div class="hud-card">
+                        <div class="setting-item">
+                            <div class="setting-label">Quality</div>
+                            <select class="setting-select" id="quality-select" onchange="updateGraphics()">
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high" selected>High</option>
+                                <option value="ultra">Ultra</option>
+                            </select>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-checkbox">
+                                <span class="setting-label">Shadows</span>
+                                <input type="checkbox" id="shadows-checkbox" checked onchange="updateGraphics()">
+                            </div>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-checkbox">
+                                <span class="setting-label">Particles</span>
+                                <input type="checkbox" id="particles-checkbox" checked onchange="updateGraphics()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="audio-tab" class="tab-content">
+                    <div class="hud-card">
+                        <div class="setting-item">
+                            <div class="setting-label">Master Volume</div>
+                            <input type="range" class="setting-range" id="master-volume" min="0" max="100" value="80" onchange="updateAudio()">
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">Music Volume</div>
+                            <input type="range" class="setting-range" id="music-volume" min="0" max="100" value="60" onchange="updateAudio()">
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-checkbox">
+                                <span class="setting-label">Spatial Audio</span>
+                                <input type="checkbox" id="spatial-audio" checked onchange="updateAudio()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="controls-tab" class="tab-content">
+                    <div class="hud-card">
+                        <div class="setting-item">
+                            <div class="setting-label">Mouse Sensitivity</div>
+                            <input type="range" class="setting-range" id="mouse-sensitivity" min="0" max="100" value="50" onchange="updateControls()">
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-checkbox">
+                                <span class="setting-label">Invert Y-Axis</span>
+                                <input type="checkbox" id="invert-y" onchange="updateControls()">
+                            </div>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-checkbox">
+                                <span class="setting-label">Flight Assist</span>
+                                <input type="checkbox" id="flight-assist" checked onchange="updateControls()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Stats Panel -->
+        <div class="stats-panel">
+            <div class="hud-card">
+                <div class="hud-title">
+                    <span>🏆</span>
+                    <span>Game Statistics</span>
+                </div>
+                
+                <div class="stats-grid-2">
+                    <div>
+                        <div class="stat-label">Play Time:</div>
+                        <div id="play-time">0h 0m</div>
+                    </div>
+                    <div>
+                        <div class="stat-label">Enemies Defeated:</div>
+                        <div id="enemies-defeated">0</div>
+                    </div>
+                    <div>
+                        <div class="stat-label">Resources Collected:</div>
+                        <div id="resources-collected">0</div>
+                    </div>
+                    <div>
+                        <div class="stat-label">Discoveries Made:</div>
+                        <div id="discoveries-made">0</div>
+                    </div>
+                    <div>
+                        <div class="stat-label">Distance Traveled:</div>
+                        <div id="distance-traveled">0M km</div>
+                    </div>
+                    <div>
+                        <div class="stat-label">Fuel Consumed:</div>
+                        <div id="fuel-consumed">0 units</div>
+                    </div>
+                    <div>
+                        <div class="stat-label">Shield Damage:</div>
+                        <div id="shield-damage">0</div>
+                    </div>
+                    <div>
+                        <div class="stat-label">Critical Hits:</div>
+                        <div id="critical-hits">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls Help -->
+        <div class="controls-help">
+            <div class="hud-card">
+                <div class="hud-title">
+                    <span>📡</span>
+                    <span>Quick Controls</span>
+                </div>
+                
+                <div class="control-item"><kbd class="kbd">WASD</kbd> Move</div>
+                <div class="control-item"><kbd class="kbd">Mouse</kbd> Look</div>
+                <div class="control-item"><kbd class="kbd">Space</kbd> Boost</div>
+                <div class="control-item"><kbd class="kbd">Shift</kbd> Brake</div>
+                <div class="control-item"><kbd class="kbd">E</kbd> Interact</div>
+                <div class="control-item"><kbd class="kbd">Tab</kbd> Menu</div>
+                <div class="control-item"><kbd class="kbd">1-4</kbd> Weapons</div>
+                <div class="control-item"><kbd class="kbd">C</kbd> Cloak</div>
+            </div>
+        </div>
+
+        <!-- Network Status -->
+        <div class="network-status">
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span>Connected to 3D Engine</span>
+                <span>|</span>
+                <span>Ping: 12ms</span>
+                <span>|</span>
+                <span>FPS: 60</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            gameMode: 'basic',
+            player: {
+                name: 'Space Commander',
+                credits: 2500,
+                experience: 0,
+                level: 1,
+                missionsCompleted: 0,
+                totalDistanceTraveled: 0,
+                planetsDiscovered: 1,
+                achievements: ['Rookie Pilot', 'First Launch'],
+                rank: 'Cadet'
+            },
+            spacecraft: {
+                name: 'Stellar Explorer X1',
+                hull: 150,
+                maxHull: 200,
+                engine: 2,
+                fuel: 150,
+                maxFuel: 150,
+                shield: 75,
+                maxShield: 75,
+                cargo: 20,
+                maxCargo: 20,
+                weapons: 1,
+                scanner: 1,
+                cloaking: false,
+                status: 'docked',
+                currentPlanet: 'Earth',
+                totalLaunches: 0,
+                successfulLandings: 0
+            },
+            graphics: {
+                quality: 'high',
+                shadows: true,
+                particles: true,
+                antiAliasing: true,
+                postProcessing: true,
+                renderDistance: 1000,
+                fps: 60
+            },
+            audio: {
+                masterVolume: 80,
+                musicVolume: 60,
+                sfxVolume: 70,
+                voiceVolume: 80,
+                spatialAudio: true,
+                surroundSound: true
+            },
+            controls: {
+                mouseSensitivity: 50,
+                controllerSensitivity: 50,
+                invertY: false,
+                autoAim: false,
+                vibration: true,
+                flightAssist: true
+            },
+            gameStats: {
+                totalPlayTime: 0,
+                enemiesDefeated: 0,
+                resourcesCollected: 0,
+                discoveriesMade: 0,
+                distanceTraveled: 0,
+                fuelConsumed: 0,
+                shieldDamageTaken: 0,
+                criticalHits: 0,
+                perfectLandings: 0
+            }
+        };
+
+        // Planets Data
+        const planets = [
+            {
+                id: '1',
+                name: 'Earth',
+                distance: 0,
+                size: 12742,
+                gravity: 1.0,
+                atmosphere: 'Nitrogen-Oxygen',
+                temperature: 15,
+                resources: 'Water, Minerals, Food',
+                discovered: true,
+                dangerLevel: 0,
+                specialFeatures: ['Home Base', 'Launch Facility', 'Space Station'],
+                image: '🌍',
+                hasRings: false,
+                hasAtmosphere: true,
+                orbitalPeriod: 365,
+                moons: 1
+            },
+            {
+                id: '2',
+                name: 'Mars',
+                distance: 78,
+                size: 6779,
+                gravity: 0.38,
+                atmosphere: 'Carbon Dioxide',
+                temperature: -63,
+                resources: 'Iron, Water Ice, Rare Minerals',
+                discovered: false,
+                dangerLevel: 2,
+                specialFeatures: ['Ancient Ruins', 'Dust Storms', 'Olympus Mons'],
+                image: '🔴',
+                hasRings: false,
+                hasAtmosphere: false,
+                orbitalPeriod: 687,
+                moons: 2
+            },
+            {
+                id: '3',
+                name: 'Jupiter',
+                distance: 628,
+                size: 139820,
+                gravity: 2.53,
+                atmosphere: 'Hydrogen-Helium',
+                temperature: -108,
+                resources: 'Hydrogen, Helium, Exotic Matter',
+                discovered: false,
+                dangerLevel: 5,
+                specialFeatures: ['Great Red Spot', 'Radiation Belts', 'Storm Systems'],
+                image: '🟠',
+                hasRings: false,
+                hasAtmosphere: true,
+                orbitalPeriod: 4333,
+                moons: 79
+            },
+            {
+                id: '4',
+                name: 'Saturn',
+                distance: 1275,
+                size: 116460,
+                gravity: 1.07,
+                atmosphere: 'Hydrogen-Helium',
+                temperature: -139,
+                resources: 'Hydrogen, Helium, Methane, Ring Materials',
+                discovered: false,
+                dangerLevel: 4,
+                specialFeatures: ['Ring System', 'Titan Moon', 'Hexagonal Storm'],
+                image: '🟡',
+                hasRings: true,
+                hasAtmosphere: true,
+                orbitalPeriod: 10759,
+                moons: 82
+            },
+            {
+                id: '5',
+                name: 'Venus',
+                distance: 41,
+                size: 12104,
+                gravity: 0.91,
+                atmosphere: 'Carbon Dioxide',
+                temperature: 464,
+                resources: 'Sulfuric Acid, Metals, Crystals',
+                discovered: false,
+                dangerLevel: 6,
+                specialFeatures: ['Volcanic Activity', 'Extreme Heat', 'Thick Atmosphere'],
+                image: '🟡',
+                hasRings: false,
+                hasAtmosphere: true,
+                orbitalPeriod: 225,
+                moons: 0
+            },
+            {
+                id: '6',
+                name: 'Europa',
+                distance: 628,
+                size: 3122,
+                gravity: 0.13,
+                atmosphere: 'Oxygen',
+                temperature: -160,
+                resources: 'Water Ice, Organic Compounds, Life Signs',
+                discovered: false,
+                dangerLevel: 3,
+                specialFeatures: ['Subsurface Ocean', 'Ice Crust', 'Geothermal Vents'],
+                image: '🔵',
+                hasRings: false,
+                hasAtmosphere: false,
+                orbitalPeriod: 3.5,
+                moons: 0
+            },
+            {
+                id: '7',
+                name: 'Titan',
+                distance: 1275,
+                size: 5150,
+                gravity: 0.14,
+                atmosphere: 'Nitrogen-Methane',
+                temperature: -179,
+                resources: 'Methane, Ethane, Organic Compounds',
+                discovered: false,
+                dangerLevel: 3,
+                specialFeatures: ['Thick Atmosphere', 'Liquid Lakes', 'Organic Chemistry'],
+                image: '🟠',
+                hasRings: false,
+                hasAtmosphere: true,
+                orbitalPeriod: 16,
+                moons: 0
+            },
+            {
+                id: '8',
+                name: 'Neptune',
+                distance: 4350,
+                size: 49244,
+                gravity: 1.13,
+                atmosphere: 'Hydrogen-Helium',
+                temperature: -201,
+                resources: 'Hydrogen, Helium, Diamond Rain',
+                discovered: false,
+                dangerLevel: 4,
+                specialFeatures: ['Great Dark Spot', 'Supersonic Winds', 'Diamond Formation'],
+                image: '🔵',
+                hasRings: true,
+                hasAtmosphere: true,
+                orbitalPeriod: 60190,
+                moons: 14
+            }
+        ];
+
+        // Initialize Game
+        function initGame() {
+            // Hide loading screen
+            setTimeout(() => {
+                document.getElementById('loading-screen').style.display = 'none';
+            }, 2000);
+
+            // Initialize 3D canvas
+            init3DCanvas();
+            
+            // Update UI
+            updateUI();
+            
+            // Start game loop
+            startGameLoop();
+        }
+
+        // Initialize 3D Canvas (Simplified WebGL)
+        function init3DCanvas() {
+            const canvas = document.getElementById('game-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            // Draw space background
+            drawSpaceBackground(ctx, canvas.width, canvas.height);
+            
+            // Draw planets
+            drawPlanets(ctx, canvas.width, canvas.height);
+            
+            // Draw spacecraft
+            drawSpacecraft(ctx, canvas.width, canvas.height);
+        }
+
+        // Draw space background
+        function drawSpaceBackground(ctx, width, height) {
+            // Create gradient background
+            const gradient = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, Math.max(width, height));
+            gradient.addColorStop(0, '#0a0a1a');
+            gradient.addColorStop(1, '#000000');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+            
+            // Draw stars
+            ctx.fillStyle = 'white';
+            for (let i = 0; i < 200; i++) {
+                const x = Math.random() * width;
+                const y = Math.random() * height;
+                const size = Math.random() * 2;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Draw planets
+        function drawPlanets(ctx, width, height) {
+            const centerX = width / 2;
+            const centerY = height / 2;
+            
+            // Draw sun
+            ctx.fillStyle = '#FFFF00';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 30, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw sun glow
+            const glowGradient = ctx.createRadialGradient(centerX, centerY, 30, centerX, centerY, 60);
+            glowGradient.addColorStop(0, 'rgba(255, 255, 0, 0.3)');
+            glowGradient.addColorStop(1, 'rgba(255, 255, 0, 0)');
+            ctx.fillStyle = glowGradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 60, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw planets
+            const planetPositions = [
+                { x: centerX + 100, y: centerY, size: 15, color: '#4169E1' }, // Earth
+                { x: centerX + 180, y: centerY, size: 12, color: '#CD5C5C' }, // Mars
+                { x: centerX + 280, y: centerY, size: 25, color: '#DAA520' }, // Jupiter
+                { x: centerX + 380, y: centerY, size: 20, color: '#F4A460' }, // Saturn
+            ];
+            
+            planetPositions.forEach(planet => {
+                ctx.fillStyle = planet.color;
+                ctx.beginPath();
+                ctx.arc(planet.x, planet.y, planet.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Add planet glow
+                const planetGlow = ctx.createRadialGradient(planet.x, planet.y, planet.size, planet.x, planet.y, planet.size + 10);
+                planetGlow.addColorStop(0, planet.color + '40');
+                planetGlow.addColorStop(1, planet.color + '00');
+                ctx.fillStyle = planetGlow;
+                ctx.beginPath();
+                ctx.arc(planet.x, planet.y, planet.size + 10, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        // Draw spacecraft
+        function drawSpacecraft(ctx, width, height) {
+            const centerX = width / 2 + 100;
+            const centerY = height / 2;
+            
+            // Draw spacecraft body
+            ctx.fillStyle = '#4A90E2';
+            ctx.fillRect(centerX - 10, centerY - 20, 20, 40);
+            
+            // Draw cockpit
+            ctx.fillStyle = '#87CEEB';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY - 10, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw engine
+            ctx.fillStyle = '#FF6B6B';
+            ctx.fillRect(centerX - 6, centerY + 15, 12, 10);
+            
+            // Draw wings
+            ctx.fillStyle = '#5A5A5A';
+            ctx.fillRect(centerX - 25, centerY - 5, 15, 10);
+            ctx.fillRect(centerX + 10, centerY - 5, 15, 10);
+            
+            // Draw engine thrust if launching
+            if (gameState.spacecraft.status === 'launching') {
+                ctx.fillStyle = '#FFA500';
+                ctx.beginPath();
+                ctx.moveTo(centerX - 6, centerY + 25);
+                ctx.lineTo(centerX, centerY + 40);
+                ctx.lineTo(centerX + 6, centerY + 25);
+                ctx.fill();
+            }
+        }
+
+        // Update UI elements
+        function updateUI() {
+            // Update player info
+            document.getElementById('player-name').textContent = gameState.player.name;
+            document.getElementById('player-rank').textContent = gameState.player.rank;
+            document.getElementById('player-level').textContent = gameState.player.level;
+            document.getElementById('player-xp').textContent = gameState.player.experience + ' XP';
+            document.getElementById('player-credits').textContent = gameState.player.credits;
+            document.getElementById('player-missions').textContent = gameState.player.missionsCompleted;
+            document.getElementById('player-planets').textContent = gameState.player.planetsDiscovered;
+            document.getElementById('player-distance').textContent = gameState.player.totalDistanceTraveled;
+            
+            // Update spacecraft info
+            document.getElementById('spacecraft-name').textContent = gameState.spacecraft.name;
+            document.getElementById('spacecraft-status').textContent = gameState.spacecraft.status.toUpperCase();
+            document.getElementById('hull-current').textContent = gameState.spacecraft.hull;
+            document.getElementById('hull-max').textContent = gameState.spacecraft.maxHull;
+            document.getElementById('shield-current').textContent = gameState.spacecraft.shield;
+            document.getElementById('shield-max').textContent = gameState.spacecraft.maxShield;
+            document.getElementById('fuel-current').textContent = gameState.spacecraft.fuel;
+            document.getElementById('fuel-max').textContent = gameState.spacecraft.maxFuel;
+            document.getElementById('engine-level').textContent = gameState.spacecraft.engine;
+            document.getElementById('cargo-level').textContent = gameState.spacecraft.cargo;
+            document.getElementById('weapons-level').textContent = gameState.spacecraft.weapons;
+            document.getElementById('scanner-level').textContent = gameState.spacecraft.scanner;
+            
+            // Update progress bars
+            const levelProgress = (gameState.player.experience % 1000) / 10;
+            document.getElementById('level-progress').style.width = levelProgress + '%';
+            
+            const hullProgress = (gameState.spacecraft.hull / gameState.spacecraft.maxHull) * 100;
+            document.getElementById('hull-progress').style.width = hullProgress + '%';
+            
+            const shieldProgress = (gameState.spacecraft.shield / gameState.spacecraft.maxShield) * 100;
+            document.getElementById('shield-progress').style.width = shieldProgress + '%';
+            
+            const fuelProgress = (gameState.spacecraft.fuel / gameState.spacecraft.maxFuel) * 100;
+            document.getElementById('fuel-progress').style.width = fuelProgress + '%';
+            
+            // Update game stats
+            const playTimeHours = Math.floor(gameState.gameStats.totalPlayTime / 60);
+            const playTimeMinutes = gameState.gameStats.totalPlayTime % 60;
+            document.getElementById('play-time').textContent = playTimeHours + 'h ' + playTimeMinutes + 'm';
+            document.getElementById('enemies-defeated').textContent = gameState.gameStats.enemiesDefeated;
+            document.getElementById('resources-collected').textContent = gameState.gameStats.resourcesCollected;
+            document.getElementById('discoveries-made').textContent = gameState.gameStats.discoveriesMade;
+            document.getElementById('distance-traveled').textContent = gameState.gameStats.distanceTraveled + 'M km';
+            document.getElementById('fuel-consumed').textContent = gameState.gameStats.fuelConsumed + ' units';
+            document.getElementById('shield-damage').textContent = gameState.gameStats.shieldDamageTaken;
+            document.getElementById('critical-hits').textContent = gameState.gameStats.criticalHits;
+        }
+
+        // Game loop
+        function startGameLoop() {
+            setInterval(() => {
+                // Update game stats
+                gameState.gameStats.totalPlayTime++;
+                
+                // Update UI every second
+                if (gameState.gameStats.totalPlayTime % 1 === 0) {
+                    updateUI();
+                }
+                
+                // Redraw canvas
+                const canvas = document.getElementById('game-canvas');
+                const ctx = canvas.getContext('2d');
+                drawSpaceBackground(ctx, canvas.width, canvas.height);
+                drawPlanets(ctx, canvas.width, canvas.height);
+                drawSpacecraft(ctx, canvas.width, canvas.height);
+            }, 1000);
+        }
+
+        // Game mode switching
+        function setGameMode(mode) {
+            gameState.gameMode = mode;
+            
+            // Update button states
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            if (mode === 'basic') {
+                document.querySelector('.mode-btn').classList.add('active');
+            } else {
+                document.querySelector('.mode-btn.advanced').classList.add('active');
+            }
+            
+            // Redraw canvas with new mode
+            init3DCanvas();
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Update graphics settings
+        function updateGraphics() {
+            gameState.graphics.quality = document.getElementById('quality-select').value;
+            gameState.graphics.shadows = document.getElementById('shadows-checkbox').checked;
+            gameState.graphics.particles = document.getElementById('particles-checkbox').checked;
+            
+            // Redraw canvas with new settings
+            init3DCanvas();
+        }
+
+        // Update audio settings
+        function updateAudio() {
+            gameState.audio.masterVolume = document.getElementById('master-volume').value;
+            gameState.audio.musicVolume = document.getElementById('music-volume').value;
+            gameState.audio.spatialAudio = document.getElementById('spatial-audio').checked;
+        }
+
+        // Update control settings
+        function updateControls() {
+            gameState.controls.mouseSensitivity = document.getElementById('mouse-sensitivity').value;
+            gameState.controls.invertY = document.getElementById('invert-y').checked;
+            gameState.controls.flightAssist = document.getElementById('flight-assist').checked;
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            const canvas = document.getElementById('game-canvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            init3DCanvas();
+        });
+
+        // Handle keyboard controls
+        document.addEventListener('keydown', (e) => {
+            switch(e.key.toLowerCase()) {
+                case ' ':
+                    // Launch spacecraft
+                    if (gameState.spacecraft.status === 'docked') {
+                        gameState.spacecraft.status = 'launching';
+                        setTimeout(() => {
+                            gameState.spacecraft.status = 'traveling';
+                        }, 2000);
+                        updateUI();
+                    }
+                    break;
+                case 'e':
+                    // Interact with planet
+                    break;
+                case 'c':
+                    // Toggle cloak
+                    gameState.spacecraft.cloaking = !gameState.spacecraft.cloaking;
+                    break;
+            }
+        });
+
+        // Initialize game when page loads
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>
