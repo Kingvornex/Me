@@ -61,20 +61,7 @@ Ace Card Battle is a turn-based card game where 4 players compete to achieve the
 
 ## Installation
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/ace-card-battle.git
-   ```
-
-2. Navigate to the project directory:
-   ```bash
-   cd ace-card-battle
-   ```
-
-3. Open the `index.html` file in your web browser:
-   ```bash
-   open index.html
-   ```
+* Open the `.html` file in your web browser:
 
 ## Contributing
 
@@ -96,8 +83,6 @@ See [CHANGELOG.md](CHANGELOG.md) for a list of changes made to the project.
 ```
 
 ## Game Summary
-
-I've created a complete HTML card game called "Ace Card Battle" based on your specifications. Here's what the game includes:
 
 ### Key Features:
 1. **4 Ace cards** - One for each player to track their scores
