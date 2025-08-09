@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coin Flip Empire</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(to bottom, #166534, #14532d);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .money-display {
+            color: #facc15;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .tabs {
+            display: flex;
+            background: #1f2937;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 0.75rem;
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .tab-button.active {
+            background: #374151;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .card-content {
+            padding: 1rem;
+        }
+
+        .game-table {
+            width: 100%;
+            height: 24rem;
+            background: #15803d;
+            border-radius: 0.5rem;
+            border: 4px solid #92400e;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .coin {
+            position: absolute;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.75rem;
+            color: white;
+            user-select: none;
+        }
+
+        .coin.bronze {
+            background: #ca8a04;
+        }
+
+        .coin.silver {
+            background: #9ca3af;
+        }
+
+        .coin.gold {
+            background: #facc15;
+        }
+
+        .coin.flipping {
+            animation: spin 1s linear;
+            transform: scale(1.2);
+        }
+
+        @keyframes spin {
+            from { transform: rotateY(0deg) scale(1.2); }
+            to { transform: rotateY(360deg) scale(1.2); }
+        }
+
+        .minion {
+            position: absolute;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            border: 2px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: white;
+            user-select: none;
+        }
+
+        .minion.basic {
+            background: #3b82f6;
+        }
+
+        .minion.advanced {
+            background: #8b5cf6;
+        }
+
+        .minion.master {
+            background: #ef4444;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .shop-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .shop-item:last-child {
+            border-bottom: none;
+        }
+
+        .shop-item-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .coin-preview {
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+        }
+
+        .minion-preview {
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            border: 1px solid white;
+        }
+
+        .shop-item-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .price {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #2563eb;
+        }
+
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+        }
+
+        .upgrade-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .upgrade-card {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .upgrade-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .upgrade-description {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+
+        .upgrade-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .money-display {
+                font-size: 1.5rem;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .game-table {
+                height: 20rem;
+            }
+            
+            .coin {
+                width: 2.5rem;
+                height: 2.5rem;
+            }
+            
+            .minion {
+                width: 1.5rem;
+                height: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Coin Flip Empire</h1>
+            <div class="money-display">💰 $<span id="money">100</span></div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('game')">Game</button>
+            <button class="tab-button" onclick="switchTab('shop')">Shop</button>
+            <button class="tab-button" onclick="switchTab('upgrades')">Upgrades</button>
+        </div>
+
+        <div id="game-tab" class="tab-content active">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Game Table</h2>
+                </div>
+                <div class="card-content">
+                    <div id="game-table" class="game-table">
+                        <!-- Coins and minions will be added here dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-coins">0</div>
+                    <div class="stat-label">Total Coins</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="total-minions">0</div>
+                    <div class="stat-label">Minions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="bronze-coins">0</div>
+                    <div class="stat-label">Bronze Coins</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="premium-coins">0</div>
+                    <div class="stat-label">Premium Coins</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="shop-tab" class="tab-content">
+            <div class="shop-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Buy Coins</h2>
+                    </div>
+                    <div class="card-content">
+                        <div class="shop-item">
+                            <div class="shop-item-info">
+                                <div class="coin-preview bronze"></div>
+                                <span>Bronze Coin</span>
+                            </div>
+                            <div class="shop-item-controls">
+                                <span class="price">$10</span>
+                                <button class="btn btn-primary btn-sm" onclick="buyCoin('bronze')">Buy</button>
+                            </div>
+                        </div>
+                        <div class="shop-item">
+                            <div class="shop-item-info">
+                                <div class="coin-preview silver"></div>
+                                <span>Silver Coin</span>
+                            </div>
+                            <div class="shop-item-controls">
+                                <span class="price">$50</span>
+                                <button class="btn btn-primary btn-sm" onclick="buyCoin('silver')">Buy</button>
+                            </div>
+                        </div>
+                        <div class="shop-item">
+                            <div class="shop-item-info">
+                                <div class="coin-preview gold"></div>
+                                <span>Gold Coin</span>
+                            </div>
+                            <div class="shop-item-controls">
+                                <span class="price">$250</span>
+                                <button class="btn btn-primary btn-sm" onclick="buyCoin('gold')">Buy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Buy Minions</h2>
+                    </div>
+                    <div class="card-content">
+                        <div class="shop-item">
+                            <div class="shop-item-info">
+                                <div class="minion-preview basic"></div>
+                                <span>Basic Minion</span>
+                            </div>
+                            <div class="shop-item-controls">
+                                <span class="price">$100</span>
+                                <button class="btn btn-primary btn-sm" onclick="buyMinion('basic')">Buy</button>
+                            </div>
+                        </div>
+                        <div class="shop-item">
+                            <div class="shop-item-info">
+                                <div class="minion-preview advanced"></div>
+                                <span>Advanced Minion</span>
+                            </div>
+                            <div class="shop-item-controls">
+                                <span class="price">$500</span>
+                                <button class="btn btn-primary btn-sm" onclick="buyMinion('advanced')">Buy</button>
+                            </div>
+                        </div>
+                        <div class="shop-item">
+                            <div class="shop-item-info">
+                                <div class="minion-preview master"></div>
+                                <span>Master Minion</span>
+                            </div>
+                            <div class="shop-item-controls">
+                                <span class="price">$2000</span>
+                                <button class="btn btn-primary btn-sm" onclick="buyMinion('master')">Buy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="upgrades-tab" class="tab-content">
+            <div id="upgrades-container" class="upgrade-grid">
+                <!-- Upgrades will be added here dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            money: 100,
+            coins: [],
+            minions: [],
+            upgrades: [],
+            tableSize: { width: 0, height: 0 }
+        };
+
+        // Game constants
+        const COIN_VALUES = {
+            bronze: 1,
+            silver: 5,
+            gold: 25
+        };
+
+        const COIN_COSTS = {
+            bronze: 10,
+            silver: 50,
+            gold: 250
+        };
+
+        const MINION_COSTS = {
+            basic: 100,
+            advanced: 500,
+            master: 2000
+        };
+
+        const MINION_SPEEDS = {
+            basic: 3000,
+            advanced: 1500,
+            master: 500
+        };
+
+        // Initialize game
+        function initGame() {
+            // Add initial coin
+            addCoin('bronze');
+            
+            // Set up upgrades
+            gameState.upgrades = [
+                {
+                    id: 'coin-value-bronze',
+                    name: 'Bronze Coin Value',
+                    description: 'Increase bronze coin value by 1',
+                    cost: 50,
+                    type: 'coin',
+                    target: 'bronze',
+                    effect: 'value+1'
+                },
+                {
+                    id: 'coin-value-silver',
+                    name: 'Silver Coin Value',
+                    description: 'Increase silver coin value by 5',
+                    cost: 250,
+                    type: 'coin',
+                    target: 'silver',
+                    effect: 'value+5'
+                },
+                {
+                    id: 'minion-speed-basic',
+                    name: 'Basic Minion Speed',
+                    description: 'Make basic minions 50% faster',
+                    cost: 200,
+                    type: 'minion',
+                    target: 'basic',
+                    effect: 'speed*0.5'
+                }
+            ];
+
+            updateTableSize();
+            renderUpgrades();
+            updateStats();
+            startMinionAI();
+            
+            // Update table size on resize
+            window.addEventListener('resize', updateTableSize);
+        }
+
+        function updateTableSize() {
+            const table = document.getElementById('game-table');
+            if (table) {
+                gameState.tableSize = {
+                    width: table.clientWidth,
+                    height: table.clientHeight
+                };
+            }
+        }
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        function addCoin(type) {
+            if (gameState.money < COIN_COSTS[type] && gameState.coins.length > 0) {
+                return false;
+            }
+
+            if (gameState.coins.length > 0) {
+                gameState.money -= COIN_COSTS[type];
+                updateMoneyDisplay();
+            }
+
+            const coin = {
+                id: Date.now().toString(),
+                x: Math.random() * (gameState.tableSize.width - 60),
+                y: Math.random() * (gameState.tableSize.height - 60),
+                type: type,
+                value: COIN_VALUES[type],
+                isFlipping: false,
+                flipResult: null
+            };
+
+            gameState.coins.push(coin);
+            renderCoin(coin);
+            updateStats();
+            return true;
+        }
+
+        function buyCoin(type) {
+            addCoin(type);
+        }
+
+        function addMinion(type) {
+            if (gameState.money < MINION_COSTS[type]) {
+                return false;
+            }
+
+            gameState.money -= MINION_COSTS[type];
+            updateMoneyDisplay();
+
+            const minion = {
+                id: Date.now().toString(),
+                type: type,
+                speed: MINION_SPEEDS[type],
+                targetCoinId: null
+            };
+
+            gameState.minions.push(minion);
+            renderMinion(minion);
+            updateStats();
+            return true;
+        }
+
+        function buyMinion(type) {
+            addMinion(type);
+        }
+
+        function renderCoin(coin) {
+            const table = document.getElementById('game-table');
+            const coinElement = document.createElement('div');
+            coinElement.className = `coin ${coin.type}`;
+            coinElement.id = `coin-${coin.id}`;
+            coinElement.style.left = coin.x + 'px';
+            coinElement.style.top = coin.y + 'px';
+            coinElement.textContent = coin.value;
+            coinElement.onclick = () => flipCoin(coin.id);
+            
+            table.appendChild(coinElement);
+        }
+
+        function renderMinion(minion) {
+            const table = document.getElementById('game-table');
+            const minionElement = document.createElement('div');
+            minionElement.className = `minion ${minion.type}`;
+            minionElement.id = `minion-${minion.id}`;
+            minionElement.style.left = Math.random() * (gameState.tableSize.width - 32) + 'px';
+            minionElement.style.top = Math.random() * (gameState.tableSize.height - 32) + 'px';
+            minionElement.textContent = '🤖';
+            
+            table.appendChild(minionElement);
+        }
+
+        function flipCoin(coinId) {
+            const coin = gameState.coins.find(c => c.id === coinId);
+            if (!coin || coin.isFlipping) return;
+
+            const coinElement = document.getElementById(`coin-${coinId}`);
+            coinElement.classList.add('flipping');
+            coin.isFlipping = true;
+
+            const isHeads = Math.random() > 0.5;
+            const wonMoney = isHeads ? coin.value : 0;
+
+            setTimeout(() => {
+                coin.isFlipping = false;
+                coin.flipResult = isHeads ? 'heads' : 'tails';
+                coin.x = Math.random() * (gameState.tableSize.width - 60);
+                coin.y = Math.random() * (gameState.tableSize.height - 60);
+
+                coinElement.classList.remove('flipping');
+                coinElement.style.left = coin.x + 'px';
+                coinElement.style.top = coin.y + 'px';
+                coinElement.textContent = isHeads ? 'H' : 'T';
+
+                if (wonMoney > 0) {
+                    gameState.money += wonMoney;
+                    updateMoneyDisplay();
+                }
+
+                // Reset coin display after 2 seconds
+                setTimeout(() => {
+                    coin.flipResult = null;
+                    coinElement.textContent = coin.value;
+                }, 2000);
+            }, 1000);
+        }
+
+        function startMinionAI() {
+            setInterval(() => {
+                gameState.minions.forEach(minion => {
+                    if (!minion.targetCoinId) {
+                        // Find available coin
+                        const availableCoin = gameState.coins.find(coin => !coin.isFlipping);
+                        if (availableCoin) {
+                            minion.targetCoinId = availableCoin.id;
+                        }
+                    }
+
+                    // Flip the target coin
+                    if (minion.targetCoinId) {
+                        const targetCoin = gameState.coins.find(c => c.id === minion.targetCoinId);
+                        if (targetCoin && !targetCoin.isFlipping) {
+                            flipCoin(targetCoin.id);
+                            minion.targetCoinId = null;
+                        }
+                    }
+                });
+            }, 1000);
+        }
+
+        function renderUpgrades() {
+            const container = document.getElementById('upgrades-container');
+            container.innerHTML = '';
+
+            if (gameState.upgrades.length === 0) {
+                container.innerHTML = '<div class="empty-state">No upgrades available at the moment.</div>';
+                return;
+            }
+
+            gameState.upgrades.forEach(upgrade => {
+                const upgradeCard = document.createElement('div');
+                upgradeCard.className = 'upgrade-card';
+                upgradeCard.innerHTML = `
+                    <h3 class="upgrade-title">${upgrade.name}</h3>
+                    <p class="upgrade-description">${upgrade.description}</p>
+                    <div class="upgrade-controls">
+                        <span class="badge">${upgrade.type}</span>
+                        <button class="btn btn-primary" onclick="buyUpgrade('${upgrade.id}')">
+                            Buy $${upgrade.cost}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(upgradeCard);
+            });
+        }
+
+        function buyUpgrade(upgradeId) {
+            const upgrade = gameState.upgrades.find(u => u.id === upgradeId);
+            if (!upgrade || gameState.money < upgrade.cost) return;
+
+            gameState.money -= upgrade.cost;
+            updateMoneyDisplay();
+
+            // Apply upgrade effect
+            if (upgrade.type === 'coin') {
+                gameState.coins.forEach(coin => {
+                    if (coin.type === upgrade.target) {
+                        if (upgrade.effect === 'value+1') {
+                            coin.value += 1;
+                        } else if (upgrade.effect === 'value+5') {
+                            coin.value += 5;
+                        }
+                        // Update coin display
+                        const coinElement = document.getElementById(`coin-${coin.id}`);
+                        if (coinElement && !coin.flipResult) {
+                            coinElement.textContent = coin.value;
+                        }
+                    }
+                });
+            } else if (upgrade.type === 'minion') {
+                gameState.minions.forEach(minion => {
+                    if (minion.type === upgrade.target) {
+                        if (upgrade.effect === 'speed*0.5') {
+                            minion.speed *= 0.5;
+                        }
+                    }
+                });
+            }
+
+            // Remove purchased upgrade
+            gameState.upgrades = gameState.upgrades.filter(u => u.id !== upgradeId);
+            renderUpgrades();
+        }
+
+        function updateMoneyDisplay() {
+            document.getElementById('money').textContent = gameState.money;
+        }
+
+        function updateStats() {
+            document.getElementById('total-coins').textContent = gameState.coins.length;
+            document.getElementById('total-minions').textContent = gameState.minions.length;
+            document.getElementById('bronze-coins').textContent = gameState.coins.filter(c => c.type === 'bronze').length;
+            document.getElementById('premium-coins').textContent = gameState.coins.filter(c => c.type === 'silver' || c.type === 'gold').length;
+        }
+
+        // Start the game when page loads
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>
