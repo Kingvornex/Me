@@ -1,0 +1,1678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battle Grid Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #1a1a1a;
+        }
+        .game-canvas {
+            border: 2px solid #4a5568;
+            border-radius: 8px;
+            background-color: #2d3748;
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .debug-log {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        .spawn-notification {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.9; }
+            50% { opacity: 0.6; }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold text-center mb-6 text-blue-400">Battle Grid Game</h1>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            <!-- Left Panel - Game Controls -->
+            <div class="space-y-4">
+                <!-- Game Controls -->
+                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                    <h2 class="text-lg font-semibold mb-3 text-green-400">Game Controls</h2>
+                    <div class="space-y-2">
+                        <button id="startBtn" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-medium transition-colors">
+                            Start Game
+                        </button>
+                        <button id="pauseBtn" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded font-medium transition-colors" disabled>
+                            Pause
+                        </button>
+                        <button id="resetBtn" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-medium transition-colors">
+                            Reset Game
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Player Info -->
+                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                    <h2 class="text-lg font-semibold mb-3 text-blue-400">Player Info</h2>
+                    <div id="playerInfo" class="space-y-2 text-sm">
+                        <div class="text-gray-400">No player selected</div>
+                    </div>
+                </div>
+
+                <!-- Instructions -->
+                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                    <h2 class="text-lg font-semibold mb-3 text-purple-400">How to Play</h2>
+                    <div class="text-xs text-gray-300 space-y-1">
+                        <p>• Click to select your character (blue)</p>
+                        <p>• Click to move (blue effect)</p>
+                        <p>• Click monsters to attack</p>
+                        <p>• Use Q/W/E/R for abilities</p>
+                        <p>• Bots move automatically and fight</p>
+                        <p>• Towers attack enemies automatically</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center - Game Canvas -->
+            <div class="lg:col-span-2 flex flex-col relative">
+                <!-- Spawn Notifications - Absolute positioned to prevent layout shifts -->
+                <div id="spawnNotifications" class="absolute top-0 left-0 right-0 z-10 mb-2 space-y-1 pointer-events-none">
+                    <!-- Notifications will be added here -->
+                </div>
+                
+                <div class="flex-1 flex items-center justify-center bg-gray-900 rounded-lg mt-8">
+                    <canvas id="gameCanvas" width="1600" height="1000" class="game-canvas"></canvas>
+                </div>
+                
+                <!-- Game Stats -->
+                <div class="mt-4 flex justify-between text-sm text-gray-400">
+                    <span>FPS: <span id="fps">0</span></span>
+                    <span>Frame Time: <span id="frameTime">0</span>ms</span>
+                    <span>Selected: <span id="selectedPlayer">None</span></span>
+                </div>
+            </div>
+
+            <!-- Right Panel - Debug and Shop -->
+            <div class="space-y-4">
+                <!-- Item Shop -->
+                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                    <h2 class="text-lg font-semibold mb-3 text-yellow-400">Item Shop</h2>
+                    <div class="space-y-2 max-h-64 overflow-y-auto">
+                        <div class="text-xs text-gray-400">Click items to purchase (when game is running)</div>
+                        <div id="itemShop" class="space-y-2">
+                            <!-- Items will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Debug Logs -->
+                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                    <h3 class="text-white font-semibold mb-2">Debug Logs</h3>
+                    <div class="text-gray-300 text-xs space-y-1 max-h-32 overflow-y-auto debug-log" id="debugLogs">
+                        <div class="text-gray-500">No debug logs yet</div>
+                    </div>
+                    <button id="exportLogsBtn" class="mt-2 text-xs bg-gray-700 hover:bg-gray-600 w-full px-3 py-1 rounded">
+                        Export All Logs
+                    </button>
+                </div>
+
+                <!-- Changelog -->
+                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                    <h3 class="text-white font-semibold mb-2">Changelog</h3>
+                    <div class="text-gray-300 text-xs space-y-2 max-h-40 overflow-y-auto">
+                        <div class="border-l-2 border-blue-500 pl-2">
+                            <div class="text-blue-400 font-semibold">v1.1.0 - Current Version</div>
+                            <ul class="list-disc list-inside space-y-1 mt-1">
+                                <li>✅ Implemented smooth movement system for all players and bots</li>
+                                <li>✅ Fixed player controls to respond properly to clicks</li>
+                                <li>✅ Fixed abilities (Q/W/E/R) not executing correctly</li>
+                                <li>✅ Fixed minion wave notifications causing UI layout shifts</li>
+                                <li>✅ Added anti-stuck mechanism for bots to prevent freezing</li>
+                                <li>✅ Improved bot AI with better strategic positioning</li>
+                                <li>✅ Enhanced visual feedback for all interactions</li>
+                                <li>✅ Fixed React hook errors causing crashes</li>
+                            </ul>
+                        </div>
+                        <div class="border-l-2 border-gray-500 pl-2">
+                            <div class="text-gray-400 font-semibold">v1.0.0 - Initial Release</div>
+                            <ul class="list-disc list-inside space-y-1 mt-1">
+                                <li>🎮 Basic game framework with canvas rendering</li>
+                                <li>👤 Human player control (blue team)</li>
+                                <li>🤖 Bot AI system (red team)</li>
+                                <li>🏰 Tower defense system</li>
+                                <li>⚔️ Combat and projectile system</li>
+                                <li>🌳 Jungle monster camps</li>
+                                <li>🛒 Item shop system</li>
+                                <li>📊 Debug logging and notifications</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game Constants
+        const GAME_WIDTH = 1600;
+        const GAME_HEIGHT = 1000;
+        const TILE_SIZE = 40;
+
+        // Game State
+        let gameState = {
+            isRunning: false,
+            isPaused: false,
+            players: [],
+            towers: [],
+            minions: [],
+            projectiles: [],
+            jungleCamps: []
+        };
+
+        // UI State
+        let selectedPlayer = null;
+        let debugLogs = [];
+        let spawnNotifications = [];
+        let abilityEffects = [];
+        let fps = 0;
+        let frameTime = 0;
+        let lastFrameTime = 0;
+        let animationId = null;
+
+        // Canvas and Context
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Item Database
+        const itemDatabase = [
+            // Damage items
+            { id: 'sword', name: 'Long Sword', cost: 350, damage: 10, description: 'Basic weapon', category: 'damage' },
+            { id: 'bow', name: 'Recurve Bow', cost: 1000, damage: 25, attackSpeed: 0.15, description: 'Increases attack damage and speed', category: 'damage' },
+            { id: 'bf_sword', name: 'B.F. Sword', cost: 1300, damage: 40, description: 'Powerful weapon', category: 'damage' },
+            
+            // Defense items
+            { id: 'armor', name: 'Chain Vest', cost: 800, armor: 30, description: 'Increases armor', category: 'defense' },
+            { id: 'vest', name: 'Warden\'s Mail', cost: 1000, armor: 40, health: 200, description: 'Grants armor and health', category: 'defense' },
+            { id: 'spirit', name: 'Spirit Visage', cost: 1200, health: 300, magicResist: 25, description: 'Magic resistance and health', category: 'defense' },
+            
+            // Utility items
+            { id: 'crystal', name: 'Faerie Charm', cost: 250, mana: 50, description: 'Increases mana pool', category: 'utility' },
+            { id: 'tear', name: 'Tear of the Goddess', cost: 400, mana: 250, description: 'Large mana increase', category: 'utility' },
+            { id: 'rod', name: 'Blasting Wand', cost: 850, damage: 20, mana: 100, description: 'Ability power and mana', category: 'utility' },
+            
+            // Movement items
+            { id: 'boots', name: 'Boots of Speed', cost: 300, movementSpeed: 25, description: 'Increases movement speed', category: 'movement' },
+            { id: 'swift', name: 'Swift Boots', cost: 900, movementSpeed: 50, attackSpeed: 0.1, description: 'Enhanced movement and attack speed', category: 'movement' },
+            
+            // Jungle items
+            { id: 'machete', name: 'Hunter\'s Machete', cost: 300, damage: 8, description: 'Jungle starting item', category: 'jungle' },
+            { id: 'talisman', name: 'Talisman of Ascension', cost: 1200, health: 200, mana: 150, description: 'Jungle support item', category: 'jungle' }
+        ];
+
+        // Utility Functions
+        function addDebugLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logMessage = `[${timestamp}] ${message}`;
+            console.log(logMessage);
+            debugLogs.push(logMessage);
+            if (debugLogs.length > 50) debugLogs.shift(); // Keep last 50 logs
+            updateDebugLogsDisplay();
+        }
+
+        function addSpawnNotification(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const notification = `[${timestamp}] ${message}`;
+            spawnNotifications.push(notification);
+            if (spawnNotifications.length > 5) spawnNotifications.shift(); // Keep last 5 notifications
+            addDebugLog(`🎯 ${message}`);
+            updateSpawnNotificationsDisplay();
+            
+            // Auto-remove notification after 3 seconds
+            setTimeout(() => {
+                const index = spawnNotifications.indexOf(notification);
+                if (index > -1) {
+                    spawnNotifications.splice(index, 1);
+                    updateSpawnNotificationsDisplay();
+                }
+            }, 3000);
+        }
+
+        function updateDebugLogsDisplay() {
+            const debugLogsContainer = document.getElementById('debugLogs');
+            if (debugLogs.length > 0) {
+                debugLogsContainer.innerHTML = debugLogs.slice(-10).map(log => 
+                    `<div class="font-mono text-xs">${log}</div>`
+                ).join('');
+            } else {
+                debugLogsContainer.innerHTML = '<div class="text-gray-500">No debug logs yet</div>';
+            }
+        }
+
+        function updateSpawnNotificationsDisplay() {
+            const container = document.getElementById('spawnNotifications');
+            container.innerHTML = spawnNotifications.map(notification => 
+                `<div class="bg-green-800 text-green-100 text-xs px-3 py-1 rounded-full opacity-90 spawn-notification mx-auto w-fit">
+                    ${notification}
+                </div>`
+            ).join('');
+        }
+
+        function updatePlayerInfoDisplay() {
+            const playerInfoContainer = document.getElementById('playerInfo');
+            if (selectedPlayer) {
+                const player = gameState.players.find(p => p.id === selectedPlayer);
+                if (player) {
+                    playerInfoContainer.innerHTML = `
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="font-semibold text-blue-300">${player.role} (Level ${player.level})</span>
+                                <span class="text-xs px-2 py-1 rounded ${player.team === 'blue' ? 'bg-blue-600' : 'bg-red-600'}">${player.team}</span>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>Health:</span>
+                                    <span class="text-gray-300">${Math.ceil(player.health)}/${player.maxHealth}</span>
+                                </div>
+                                <div class="w-full bg-gray-700 rounded-full h-2">
+                                    <div class="bg-red-500 h-2 rounded-full" style="width: ${(player.health / player.maxHealth) * 100}%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>Mana:</span>
+                                    <span class="text-gray-300">${Math.ceil(player.mana)}/${player.maxMana}</span>
+                                </div>
+                                <div class="w-full bg-gray-700 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: ${(player.mana / player.maxMana) * 100}%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>EXP:</span>
+                                    <span>${Math.floor((player.experience / player.experienceToNext) * 100)}%</span>
+                                </div>
+                                <div class="w-full bg-gray-700 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: ${(player.experience / player.experienceToNext) * 100}%"></div>
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-400">
+                                <div>Gold: ${player.gold}</div>
+                                <div>AD: ${player.stats.attackDamage} | AS: ${player.stats.attackSpeed}</div>
+                                <div>Armor: ${player.stats.armor} | MR: ${player.stats.magicResist}</div>
+                                <div>MS: ${player.stats.movementSpeed}</div>
+                            </div>
+                            <div class="space-y-1">
+                                ${player.abilities.map(ability => `
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span class="font-mono bg-gray-700 px-2 py-1 rounded">${ability.id.toUpperCase()}</span>
+                                        <span class="text-gray-300">${ability.name}</span>
+                                        <span class="text-yellow-400">${ability.currentCooldown > 0 ? ability.currentCooldown + 's' : 'Ready'}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    playerInfoContainer.innerHTML = '<div class="text-gray-400">Player not found</div>';
+                }
+            } else {
+                playerInfoContainer.innerHTML = '<div class="text-gray-400">No player selected</div>';
+            }
+        }
+
+        function updateItemShopDisplay() {
+            const itemShopContainer = document.getElementById('itemShop');
+            if (gameState.isRunning && selectedPlayer) {
+                const player = gameState.players.find(p => p.id === selectedPlayer);
+                if (player) {
+                    itemShopContainer.innerHTML = itemDatabase.map(item => `
+                        <div class="bg-gray-700 p-2 rounded border border-gray-600">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="font-medium text-sm">${item.name}</span>
+                                <span class="text-yellow-400 text-xs">${item.cost}g</span>
+                            </div>
+                            <div class="text-xs text-gray-400 mb-2">${item.description}</div>
+                            <div class="flex flex-wrap gap-1 mb-2">
+                                ${item.damage ? `<span class="text-xs bg-red-600 px-1 rounded">+${item.damage} AD</span>` : ''}
+                                ${item.health ? `<span class="text-xs bg-green-600 px-1 rounded">+${item.health} HP</span>` : ''}
+                                ${item.mana ? `<span class="text-xs bg-blue-600 px-1 rounded">+${item.mana} MP</span>` : ''}
+                                ${item.armor ? `<span class="text-xs bg-gray-600 px-1 rounded">+${item.armor} Armor</span>` : ''}
+                                ${item.attackSpeed ? `<span class="text-xs bg-purple-600 px-1 rounded">+${item.attackSpeed} AS</span>` : ''}
+                                ${item.movementSpeed ? `<span class="text-xs bg-cyan-600 px-1 rounded">+${item.movementSpeed} MS</span>` : ''}
+                            </div>
+                            <button onclick="purchaseItem('${selectedPlayer}', '${item.id}')" 
+                                    class="w-full text-xs bg-blue-600 hover:bg-blue-700 px-2 py-1 rounded transition-colors"
+                                    ${player.gold < item.cost ? 'disabled' : ''}>
+                                Purchase
+                            </button>
+                        </div>
+                    `).join('');
+                } else {
+                    itemShopContainer.innerHTML = '<div class="text-gray-400 text-xs">Select a player first</div>';
+                }
+            } else {
+                itemShopContainer.innerHTML = '<div class="text-gray-400 text-xs">Start game and select player to purchase items</div>';
+            }
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('fps').textContent = fps;
+            document.getElementById('frameTime').textContent = frameTime.toFixed(1);
+            document.getElementById('selectedPlayer').textContent = selectedPlayer || 'None';
+        }
+
+        // Game Functions
+        function initGame() {
+            const towers = [
+                // Blue team towers
+                { id: 'blue-top-1', x: 300, y: 200, health: 1000, maxHealth: 1000, team: 'blue', lane: 'top', damage: 50, range: 150 },
+                { id: 'blue-top-2', x: 600, y: 200, health: 1000, maxHealth: 1000, team: 'blue', lane: 'top', damage: 50, range: 150 },
+                { id: 'blue-mid-1', x: 300, y: 500, health: 1000, maxHealth: 1000, team: 'blue', lane: 'middle', damage: 50, range: 150 },
+                { id: 'blue-mid-2', x: 600, y: 500, health: 1000, maxHealth: 1000, team: 'blue', lane: 'middle', damage: 50, range: 150 },
+                { id: 'blue-bot-1', x: 300, y: 800, health: 1000, maxHealth: 1000, team: 'blue', lane: 'bottom', damage: 50, range: 150 },
+                { id: 'blue-bot-2', x: 600, y: 800, health: 1000, maxHealth: 1000, team: 'blue', lane: 'bottom', damage: 50, range: 150 },
+                
+                // Red team towers
+                { id: 'red-top-1', x: 1300, y: 800, health: 1000, maxHealth: 1000, team: 'red', lane: 'top', damage: 50, range: 150 },
+                { id: 'red-top-2', x: 1000, y: 800, health: 1000, maxHealth: 1000, team: 'red', lane: 'top', damage: 50, range: 150 },
+                { id: 'red-mid-1', x: 1300, y: 500, health: 1000, maxHealth: 1000, team: 'red', lane: 'middle', damage: 50, range: 150 },
+                { id: 'red-mid-2', x: 1000, y: 500, health: 1000, maxHealth: 1000, team: 'red', lane: 'middle', damage: 50, range: 150 },
+                { id: 'red-bot-1', x: 1300, y: 200, health: 1000, maxHealth: 1000, team: 'red', lane: 'bottom', damage: 50, range: 150 },
+                { id: 'red-bot-2', x: 1000, y: 200, health: 1000, maxHealth: 1000, team: 'red', lane: 'bottom', damage: 50, range: 150 }
+            ];
+
+            const jungleCamps = [
+                // Blue side jungle camps
+                {
+                    id: 'blue-wolves',
+                    x: 200,
+                    y: 150,
+                    respawnTime: 60,
+                    lastKilled: 0,
+                    campType: 'wolves',
+                    monsters: [
+                        { id: 'wolf-alpha', x: 200, y: 150, health: 300, maxHealth: 300, damage: 15, armor: 5, goldReward: 40, expReward: 60, monsterType: 'medium' },
+                        { id: 'wolf-1', x: 180, y: 130, health: 150, maxHealth: 150, damage: 10, armor: 3, goldReward: 20, expReward: 30, monsterType: 'small' },
+                        { id: 'wolf-2', x: 220, y: 130, health: 150, maxHealth: 150, damage: 10, armor: 3, goldReward: 20, expReward: 30, monsterType: 'small' }
+                    ]
+                },
+                {
+                    id: 'blue-golems',
+                    x: 200,
+                    y: 850,
+                    respawnTime: 60,
+                    lastKilled: 0,
+                    campType: 'golems',
+                    monsters: [
+                        { id: 'golem-big', x: 200, y: 850, health: 400, maxHealth: 400, damage: 20, armor: 10, goldReward: 50, expReward: 80, monsterType: 'large' },
+                        { id: 'golem-small', x: 180, y: 870, health: 200, maxHealth: 200, damage: 12, armor: 6, goldReward: 25, expReward: 40, monsterType: 'small' }
+                    ]
+                },
+                {
+                    id: 'blue-buff',
+                    x: 350,
+                    y: 100,
+                    respawnTime: 120,
+                    lastKilled: 0,
+                    campType: 'blue_buff',
+                    monsters: [
+                        { id: 'blue-buff', x: 350, y: 100, health: 600, maxHealth: 600, damage: 25, armor: 8, goldReward: 60, expReward: 100, buff: 'blue_buff', monsterType: 'large' },
+                        { id: 'blue-buff-minion', x: 330, y: 80, health: 200, maxHealth: 200, damage: 12, armor: 4, goldReward: 20, expReward: 30, monsterType: 'small' }
+                    ]
+                },
+                
+                // Red side jungle camps
+                {
+                    id: 'red-wolves',
+                    x: 1400,
+                    y: 850,
+                    respawnTime: 60,
+                    lastKilled: 0,
+                    campType: 'wolves',
+                    monsters: [
+                        { id: 'red-wolf-alpha', x: 1400, y: 850, health: 300, maxHealth: 300, damage: 15, armor: 5, goldReward: 40, expReward: 60, monsterType: 'medium' },
+                        { id: 'red-wolf-1', x: 1380, y: 870, health: 150, maxHealth: 150, damage: 10, armor: 3, goldReward: 20, expReward: 30, monsterType: 'small' },
+                        { id: 'red-wolf-2', x: 1420, y: 870, health: 150, maxHealth: 150, damage: 10, armor: 3, goldReward: 20, expReward: 30, monsterType: 'small' }
+                    ]
+                },
+                {
+                    id: 'red-golems',
+                    x: 1400,
+                    y: 150,
+                    respawnTime: 60,
+                    lastKilled: 0,
+                    campType: 'golems',
+                    monsters: [
+                        { id: 'red-golem-big', x: 1400, y: 150, health: 400, maxHealth: 400, damage: 20, armor: 10, goldReward: 50, expReward: 80, monsterType: 'large' },
+                        { id: 'red-golem-small', x: 1380, y: 130, health: 200, maxHealth: 200, damage: 12, armor: 6, goldReward: 25, expReward: 40, monsterType: 'small' }
+                    ]
+                },
+                {
+                    id: 'red-buff',
+                    x: 1250,
+                    y: 900,
+                    respawnTime: 120,
+                    lastKilled: 0,
+                    campType: 'red_buff',
+                    monsters: [
+                        { id: 'red-buff', x: 1250, y: 900, health: 600, maxHealth: 600, damage: 25, armor: 8, goldReward: 60, expReward: 100, buff: 'red_buff', monsterType: 'large' },
+                        { id: 'red-buff-minion', x: 1230, y: 880, health: 200, maxHealth: 200, damage: 12, armor: 4, goldReward: 20, expReward: 30, monsterType: 'small' }
+                    ]
+                },
+                
+                // Epic monsters
+                {
+                    id: 'dragon',
+                    x: 800,
+                    y: 350,
+                    respawnTime: 300,
+                    lastKilled: 0,
+                    campType: 'dragon',
+                    monsters: [
+                        { id: 'dragon', x: 800, y: 350, health: 2000, maxHealth: 2000, damage: 50, armor: 15, goldReward: 150, expReward: 200, buff: 'dragon_buff', monsterType: 'epic' }
+                    ]
+                },
+                {
+                    id: 'baron',
+                    x: 800,
+                    y: 650,
+                    respawnTime: 420,
+                    lastKilled: 0,
+                    campType: 'baron',
+                    monsters: [
+                        { id: 'baron', x: 800, y: 650, health: 5000, maxHealth: 5000, damage: 100, armor: 25, goldReward: 300, expReward: 400, buff: 'baron_buff', monsterType: 'epic' }
+                    ]
+                }
+            ];
+
+            const players = [
+                // Human player (blue team)
+                {
+                    id: 'player-1',
+                    x: 100,
+                    y: 500,
+                    health: 500,
+                    maxHealth: 500,
+                    mana: 200,
+                    maxMana: 200,
+                    role: 'carry',
+                    team: 'blue',
+                    level: 1,
+                    experience: 0,
+                    experienceToNext: 100,
+                    gold: 500,
+                    items: [],
+                    abilities: [
+                        { id: 'q', name: 'Power Shot', damage: 80, cooldown: 5, currentCooldown: 0, range: 600, manaCost: 30, type: 'skillshot' },
+                        { id: 'w', name: 'Dash', damage: 0, cooldown: 10, currentCooldown: 0, range: 300, manaCost: 40, type: 'targeted' },
+                        { id: 'e', name: 'Multi-shot', damage: 60, cooldown: 8, currentCooldown: 0, range: 400, manaCost: 50, type: 'aoe' },
+                        { id: 'r', name: 'Ultimate', damage: 200, cooldown: 60, currentCooldown: 0, range: 800, manaCost: 100, type: 'skillshot' }
+                    ],
+                    stats: {
+                        attackDamage: 30,
+                        attackSpeed: 0.65,
+                        movementSpeed: 100,
+                        armor: 15,
+                        magicResist: 10
+                    },
+                    velocity: { x: 0, y: 0 },
+                    targetPosition: null
+                },
+                // Bot players (red team)
+                {
+                    id: 'bot-1',
+                    x: 1500,
+                    y: 500,
+                    health: 500,
+                    maxHealth: 500,
+                    mana: 200,
+                    maxMana: 200,
+                    role: 'tank',
+                    team: 'red',
+                    level: 1,
+                    experience: 0,
+                    experienceToNext: 100,
+                    gold: 500,
+                    items: [],
+                    abilities: [
+                        { id: 'q', name: 'Taunt', damage: 30, cooldown: 8, currentCooldown: 0, range: 300, manaCost: 40, type: 'targeted' },
+                        { id: 'w', name: 'Shield', damage: 0, cooldown: 12, currentCooldown: 0, range: 0, manaCost: 60, type: 'aoe' },
+                        { id: 'e', name: 'Slam', damage: 70, cooldown: 6, currentCooldown: 0, range: 200, manaCost: 35, type: 'aoe' },
+                        { id: 'r', name: 'Ultimate', damage: 150, cooldown: 45, currentCooldown: 0, range: 400, manaCost: 80, type: 'aoe' }
+                    ],
+                    stats: {
+                        attackDamage: 25,
+                        attackSpeed: 0.55,
+                        movementSpeed: 80,
+                        armor: 25,
+                        magicResist: 15
+                    },
+                    velocity: { x: 0, y: 0 },
+                    targetPosition: null
+                },
+                {
+                    id: 'bot-2',
+                    x: 1500,
+                    y: 400,
+                    health: 400,
+                    maxHealth: 400,
+                    mana: 250,
+                    maxMana: 250,
+                    role: 'assassin',
+                    team: 'red',
+                    level: 1,
+                    experience: 0,
+                    experienceToNext: 100,
+                    gold: 500,
+                    items: [],
+                    abilities: [
+                        { id: 'q', name: 'Shadow Strike', damage: 60, cooldown: 4, currentCooldown: 0, range: 400, manaCost: 25, type: 'skillshot' },
+                        { id: 'w', name: 'Blink', damage: 0, cooldown: 15, currentCooldown: 0, range: 500, manaCost: 50, type: 'targeted' },
+                        { id: 'e', name: 'Poison', damage: 40, cooldown: 7, currentCooldown: 0, range: 300, manaCost: 30, type: 'aoe' },
+                        { id: 'r', name: 'Death Mark', damage: 180, cooldown: 50, currentCooldown: 0, range: 600, manaCost: 90, type: 'skillshot' }
+                    ],
+                    stats: {
+                        attackDamage: 35,
+                        attackSpeed: 0.75,
+                        movementSpeed: 120,
+                        armor: 12,
+                        magicResist: 8
+                    },
+                    velocity: { x: 0, y: 0 },
+                    targetPosition: null
+                }
+            ];
+
+            gameState = {
+                isRunning: true,
+                isPaused: false,
+                players,
+                towers,
+                minions: [],
+                projectiles: [],
+                jungleCamps
+            };
+
+            // Auto-select the human player
+            selectedPlayer = players[0].id;
+
+            // Add spawn notifications
+            players.forEach(player => {
+                addSpawnNotification(`${player.role} ${player.team} spawned at (${player.x}, ${player.y})`);
+            });
+
+            towers.forEach(tower => {
+                addSpawnNotification(`${tower.team} ${tower.lane} tower spawned`);
+            });
+
+            jungleCamps.forEach(camp => {
+                addSpawnNotification(`${camp.campType} camp spawned`);
+            });
+
+            addDebugLog('🎮 Game started!');
+            addDebugLog('👤 Human players: ' + players.filter(p => p.team === 'blue').length);
+            addDebugLog('🤖 Bot players: ' + players.filter(p => p.team === 'red').length);
+            addDebugLog('📍 Initial positions: ' + players.map(p => `${p.id}: (${p.x}, ${p.y})`).join(', '));
+            addDebugLog('🎯 Player ' + players[0].id + ' auto-selected for control');
+
+            updateUI();
+        }
+
+        function updateUI() {
+            updatePlayerInfoDisplay();
+            updateItemShopDisplay();
+            updateStatsDisplay();
+        }
+
+        function updateSmoothMovement(player, deltaTime) {
+            const updatedPlayer = { ...player };
+            const maxSpeed = player.stats.movementSpeed * 0.02;
+            const acceleration = 0.08;
+            const friction = 0.92;
+            
+            // Initialize velocity if not present
+            if (!updatedPlayer.velocity) {
+                updatedPlayer.velocity = { x: 0, y: 0 };
+            }
+            
+            // Handle player movement towards target
+            if (updatedPlayer.targetPosition) {
+                const dx = updatedPlayer.targetPosition.x - updatedPlayer.x;
+                const dy = updatedPlayer.targetPosition.y - updatedPlayer.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance > 5) {
+                    const desiredVelX = (dx / distance) * maxSpeed;
+                    const desiredVelY = (dy / distance) * maxSpeed;
+                    
+                    updatedPlayer.velocity.x += (desiredVelX - updatedPlayer.velocity.x) * acceleration;
+                    updatedPlayer.velocity.y += (desiredVelY - updatedPlayer.velocity.y) * acceleration;
+                } else {
+                    updatedPlayer.targetPosition = null;
+                    updatedPlayer.velocity.x *= friction;
+                    updatedPlayer.velocity.y *= friction;
+                }
+            } else {
+                updatedPlayer.velocity.x *= friction;
+                updatedPlayer.velocity.y *= friction;
+            }
+            
+            // Apply velocity to position
+            const speedMultiplier = player.team === 'blue' ? 50.0 : 0.1;
+            updatedPlayer.x += updatedPlayer.velocity.x * deltaTime * speedMultiplier;
+            updatedPlayer.y += updatedPlayer.velocity.y * deltaTime * speedMultiplier;
+            
+            // Keep within bounds
+            updatedPlayer.x = Math.max(30, Math.min(1570, updatedPlayer.x));
+            updatedPlayer.y = Math.max(30, Math.min(970, updatedPlayer.y));
+            
+            // Stop very slow movement
+            if (Math.abs(updatedPlayer.velocity.x) < 0.05) updatedPlayer.velocity.x = 0;
+            if (Math.abs(updatedPlayer.velocity.y) < 0.05) updatedPlayer.velocity.y = 0;
+            
+            return updatedPlayer;
+        }
+
+        function createAbilityEffect(x, y, type, color = '#ffffff') {
+            const effect = {
+                id: `effect-${Date.now()}-${Math.random()}`,
+                x,
+                y,
+                radius: type === 'explosion' ? 50 : type === 'dash' ? 30 : 40,
+                color,
+                duration: type === 'explosion' ? 500 : type === 'dash' ? 300 : 400,
+                startTime: Date.now(),
+                type
+            };
+            
+            abilityEffects.push(effect);
+        }
+
+        function drawAbilityEffects() {
+            const currentTime = Date.now();
+            
+            abilityEffects.forEach(effect => {
+                const elapsed = currentTime - effect.startTime;
+                const progress = elapsed / effect.duration;
+                
+                if (progress >= 1) return;
+                
+                ctx.save();
+                ctx.globalAlpha = 1 - progress;
+                
+                switch (effect.type) {
+                    case 'explosion':
+                        ctx.fillStyle = effect.color;
+                        ctx.beginPath();
+                        ctx.arc(effect.x, effect.y, effect.radius * progress, 0, Math.PI * 2);
+                        ctx.fill();
+                        break;
+                        
+                    case 'damage':
+                        ctx.strokeStyle = effect.color;
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.arc(effect.x, effect.y, effect.radius, 0, Math.PI * 2);
+                        ctx.stroke();
+                        break;
+                        
+                    case 'heal':
+                        ctx.fillStyle = effect.color;
+                        ctx.beginPath();
+                        ctx.arc(effect.x, effect.y, effect.radius * (1 - progress), 0, Math.PI * 2);
+                        ctx.fill();
+                        break;
+                        
+                    case 'dash':
+                        ctx.strokeStyle = effect.color;
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.arc(effect.x, effect.y, effect.radius, 0, Math.PI * 2);
+                        ctx.stroke();
+                        break;
+                }
+                
+                ctx.restore();
+            });
+            
+            // Clean up expired effects
+            abilityEffects = abilityEffects.filter(effect => {
+                const elapsed = Date.now() - effect.startTime;
+                return elapsed < effect.duration;
+            });
+        }
+
+        function drawMap() {
+            // Draw background
+            ctx.fillStyle = '#1a472a';
+            ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+            // Draw lanes
+            ctx.fillStyle = '#2d5a3d';
+            
+            // Top lane
+            ctx.fillRect(0, 150, GAME_WIDTH, 100);
+            
+            // Middle lane
+            ctx.fillRect(0, 450, GAME_WIDTH, 100);
+            
+            // Bottom lane
+            ctx.fillRect(0, 750, GAME_WIDTH, 100);
+
+            // Draw jungle areas
+            ctx.fillStyle = '#0f3d1f';
+            
+            // Blue side jungle
+            ctx.fillRect(0, 0, 400, 300);
+            ctx.fillRect(0, 700, 400, 300);
+            
+            // Red side jungle
+            ctx.fillRect(1200, 0, 400, 300);
+            ctx.fillRect(1200, 700, 400, 300);
+
+            // Draw river
+            ctx.fillStyle = '#1e4d7c';
+            ctx.fillRect(400, 300, 800, 400);
+
+            // Draw bases
+            ctx.fillStyle = '#2d4a7c';
+            ctx.fillRect(0, 0, 200, GAME_HEIGHT); // Blue base
+            ctx.fillRect(1400, 0, 200, GAME_HEIGHT); // Red base
+
+            // Draw lane dividers
+            ctx.strokeStyle = '#3a5f3a';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([10, 10]);
+            
+            // Top lane divider
+            ctx.beginPath();
+            ctx.moveTo(200, 200);
+            ctx.lineTo(1400, 800);
+            ctx.stroke();
+            
+            // Middle lane divider
+            ctx.beginPath();
+            ctx.moveTo(200, 500);
+            ctx.lineTo(1400, 500);
+            ctx.stroke();
+            
+            // Bottom lane divider
+            ctx.beginPath();
+            ctx.moveTo(200, 800);
+            ctx.lineTo(1400, 200);
+            ctx.stroke();
+            
+            ctx.setLineDash([]);
+        }
+
+        function drawTower(tower) {
+            // Tower base
+            ctx.fillStyle = tower.team === 'blue' ? '#4a90e2' : '#e24a4a';
+            ctx.fillRect(tower.x - 20, tower.y - 20, 40, 40);
+            
+            // Tower top
+            ctx.beginPath();
+            ctx.moveTo(tower.x - 25, tower.y - 20);
+            ctx.lineTo(tower.x, tower.y - 40);
+            ctx.lineTo(tower.x + 25, tower.y - 20);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Health bar
+            const healthPercent = tower.health / tower.maxHealth;
+            ctx.fillStyle = '#333';
+            ctx.fillRect(tower.x - 25, tower.y - 50, 50, 6);
+            ctx.fillStyle = healthPercent > 0.5 ? '#4ade80' : healthPercent > 0.25 ? '#facc15' : '#ef4444';
+            ctx.fillRect(tower.x - 25, tower.y - 50, 50 * healthPercent, 6);
+            
+            // Tower info
+            ctx.fillStyle = '#fff';
+            ctx.font = '10px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${tower.team} ${tower.lane}`, tower.x, tower.y + 35);
+            ctx.fillText(`${Math.ceil(tower.health)}/${tower.maxHealth}`, tower.x, tower.y + 45);
+        }
+
+        function drawMinion(minion) {
+            // Minion body
+            ctx.fillStyle = minion.team === 'blue' ? '#60a5fa' : '#f87171';
+            ctx.beginPath();
+            ctx.arc(minion.x, minion.y, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Health bar
+            const healthPercent = minion.health / minion.maxHealth;
+            ctx.fillStyle = '#333';
+            ctx.fillRect(minion.x - 12, minion.y - 18, 24, 3);
+            ctx.fillStyle = healthPercent > 0.5 ? '#4ade80' : healthPercent > 0.25 ? '#facc15' : '#ef4444';
+            ctx.fillRect(minion.x - 12, minion.y - 18, 24 * healthPercent, 3);
+        }
+
+        function drawProjectile(projectile) {
+            ctx.fillStyle = projectile.team === 'blue' ? '#3b82f6' : '#dc2626';
+            ctx.beginPath();
+            ctx.arc(projectile.x, projectile.y, 4, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Add glow effect for ability projectiles
+            if (projectile.type === 'ability') {
+                ctx.shadowColor = projectile.team === 'blue' ? '#3b82f6' : '#dc2626';
+                ctx.shadowBlur = 10;
+                ctx.beginPath();
+                ctx.arc(projectile.x, projectile.y, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        function drawJungleMonster(monster) {
+            // Monster body based on type
+            switch (monster.monsterType) {
+                case 'small':
+                    ctx.fillStyle = '#8b5cf6';
+                    ctx.beginPath();
+                    ctx.arc(monster.x, monster.y, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                case 'medium':
+                    ctx.fillStyle = '#a855f7';
+                    ctx.beginPath();
+                    ctx.arc(monster.x, monster.y, 10, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                case 'large':
+                    ctx.fillStyle = '#9333ea';
+                    ctx.beginPath();
+                    ctx.arc(monster.x, monster.y, 14, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                case 'epic':
+                    ctx.fillStyle = '#7c3aed';
+                    ctx.beginPath();
+                    ctx.arc(monster.x, monster.y, 20, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Add special effect for epic monsters
+                    ctx.strokeStyle = '#fbbf24';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(monster.x, monster.y, 25, 0, Math.PI * 2);
+                    ctx.stroke();
+                    break;
+            }
+            
+            // Health bar
+            const healthPercent = monster.health / monster.maxHealth;
+            ctx.fillStyle = '#333';
+            ctx.fillRect(monster.x - 20, monster.y - 30, 40, 4);
+            ctx.fillStyle = healthPercent > 0.5 ? '#4ade80' : healthPercent > 0.25 ? '#facc15' : '#ef4444';
+            ctx.fillRect(monster.x - 20, monster.y - 30, 40 * healthPercent, 4);
+        }
+
+        function drawPlayer(player) {
+            // Selection indicator
+            if (player.id === selectedPlayer) {
+                ctx.strokeStyle = '#00ff00';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, 25, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                // Pulsing selection effect
+                const pulseSize = 20 + Math.sin(Date.now() * 0.005) * 5;
+                ctx.strokeStyle = '#00ff00';
+                ctx.lineWidth = 2;
+                ctx.globalAlpha = 0.5;
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, pulseSize, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+            }
+            
+            // Player body
+            ctx.fillStyle = player.team === 'blue' ? '#3b82f6' : '#dc2626';
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, 18, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Player border
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, 18, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // Role indicator
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(player.role[0].toUpperCase(), player.x, player.y + 5);
+            
+            // Bot/Player label
+            ctx.font = '10px Arial';
+            if (player.team === 'red') {
+                ctx.fillText('BOT', player.x, player.y - 30);
+            } else {
+                ctx.fillText('YOU', player.x, player.y - 30);
+            }
+            
+            // Health bar
+            const healthPercent = player.health / player.maxHealth;
+            ctx.fillStyle = '#333';
+            ctx.fillRect(player.x - 25, player.y - 35, 50, 6);
+            ctx.fillStyle = healthPercent > 0.5 ? '#4ade80' : healthPercent > 0.25 ? '#facc15' : '#ef4444';
+            ctx.fillRect(player.x - 25, player.y - 35, 50 * healthPercent, 6);
+            
+            // Health text
+            ctx.fillStyle = '#fff';
+            ctx.font = '8px Arial';
+            ctx.fillText(`${Math.ceil(player.health)}/${player.maxHealth}`, player.x, player.y - 40);
+            
+            // Mana bar
+            const manaPercent = player.mana / player.maxMana;
+            ctx.fillStyle = '#333';
+            ctx.fillRect(player.x - 25, player.y - 28, 50, 4);
+            ctx.fillStyle = '#3b82f6';
+            ctx.fillRect(player.x - 25, player.y - 28, 50 * manaPercent, 4);
+        }
+
+        function updateProjectiles() {
+            gameState.projectiles = gameState.projectiles.map(projectile => {
+                const dx = projectile.targetX - projectile.x;
+                const dy = projectile.targetY - projectile.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < projectile.speed) {
+                    return null; // Remove projectile when it reaches target
+                }
+                
+                return {
+                    ...projectile,
+                    x: projectile.x + (dx / distance) * projectile.speed,
+                    y: projectile.y + (dy / distance) * projectile.speed
+                };
+            }).filter(Boolean);
+
+            // Check for projectile collisions
+            gameState.projectiles = gameState.projectiles.filter(projectile => {
+                // Check collision with players
+                for (const player of gameState.players) {
+                    if (player.team !== projectile.team) {
+                        const distance = Math.sqrt(Math.pow(player.x - projectile.x, 2) + Math.pow(player.y - projectile.y, 2));
+                        if (distance < 20) {
+                            // Apply damage to player
+                            player.health = Math.max(0, player.health - projectile.damage);
+                            
+                            // Check if player died
+                            if (player.health <= 0) {
+                                addSpawnNotification(`${player.role} ${player.team} was destroyed!`);
+                                createAbilityEffect(player.x, player.y, 'explosion', '#ff0000');
+                                gameState.players = gameState.players.filter(p => p.id !== player.id);
+                            }
+                            
+                            return false; // Remove projectile
+                        }
+                    }
+                }
+                
+                // Check collision with towers
+                for (const tower of gameState.towers) {
+                    if (tower.team !== projectile.team) {
+                        const distance = Math.sqrt(Math.pow(tower.x - projectile.x, 2) + Math.pow(tower.y - projectile.y, 2));
+                        if (distance < 30) {
+                            tower.health = Math.max(0, tower.health - projectile.damage);
+                            
+                            // Check if tower was destroyed
+                            if (tower.health <= 0) {
+                                addSpawnNotification(`${tower.team} ${tower.lane} tower destroyed!`);
+                                createAbilityEffect(tower.x, tower.y, 'explosion', '#ff6600');
+                                gameState.towers = gameState.towers.filter(t => t.id !== tower.id);
+                            }
+                            
+                            return false; // Remove projectile
+                        }
+                    }
+                }
+                
+                // Check collision with minions
+                for (const minion of gameState.minions) {
+                    if (minion.team !== projectile.team) {
+                        const distance = Math.sqrt(Math.pow(minion.x - projectile.x, 2) + Math.pow(minion.y - projectile.y, 2));
+                        if (distance < 12) {
+                            minion.health = Math.max(0, minion.health - projectile.damage);
+                            
+                            // Check if minion died
+                            if (minion.health <= 0) {
+                                gameState.minions = gameState.minions.filter(m => m.id !== minion.id);
+                            }
+                            
+                            return false; // Remove projectile
+                        }
+                    }
+                }
+                
+                return true; // Keep projectile
+            });
+        }
+
+        function updateMinions() {
+            // Move minions
+            gameState.minions.forEach(minion => {
+                if (minion.team === 'blue') {
+                    minion.x += minion.speed;
+                    
+                    // Lane-specific movement patterns
+                    if (minion.lane === 'top') {
+                        minion.y += 0.2;
+                    } else if (minion.lane === 'bottom') {
+                        minion.y -= 0.2;
+                    }
+                    // Middle lane moves straight
+                } else {
+                    minion.x -= minion.speed;
+                    
+                    // Lane-specific movement patterns
+                    if (minion.lane === 'top') {
+                        minion.y -= 0.2;
+                    } else if (minion.lane === 'bottom') {
+                        minion.y += 0.2;
+                    }
+                    // Middle lane moves straight
+                }
+            });
+            
+            // Remove minions that reach the enemy base
+            gameState.minions = gameState.minions.filter(minion => {
+                if (minion.team === 'blue' && minion.x > 1400) return false;
+                if (minion.team === 'red' && minion.x < 200) return false;
+                return true;
+            });
+        }
+
+        function updateBots() {
+            gameState.players = gameState.players.map(player => {
+                // Only process bot players (red team)
+                if (player.team !== 'red') return player;
+
+                // Debug: Log bot AI processing
+                if (Math.random() < 0.01) {
+                    addDebugLog(`🤖 Processing AI for ${player.id} (${player.role}) at (${Math.round(player.x)}, ${Math.round(player.y)})`);
+                }
+
+                // Find nearest enemy (human player or blue minions)
+                const enemies = [
+                    ...gameState.players.filter(p => p.team === 'blue'),
+                    ...gameState.minions.filter(m => m.team === 'blue')
+                ];
+                
+                let nearestEnemy = null;
+                let nearestDistance = Infinity;
+                
+                enemies.forEach(enemy => {
+                    const distance = Math.sqrt(Math.pow(enemy.x - player.x, 2) + Math.pow(enemy.y - player.y, 2));
+                    if (distance < nearestDistance) {
+                        nearestDistance = distance;
+                        nearestEnemy = enemy;
+                    }
+                });
+
+                // Find nearest jungle monster for farming
+                let nearestMonster = null;
+                let nearestMonsterDistance = Infinity;
+                
+                gameState.jungleCamps.forEach(camp => {
+                    camp.monsters.forEach(monster => {
+                        const distance = Math.sqrt(Math.pow(monster.x - player.x, 2) + Math.pow(monster.y - player.y, 2));
+                        if (distance < nearestMonsterDistance) {
+                            nearestMonsterDistance = distance;
+                            nearestMonster = { monster, camp };
+                        }
+                    });
+                });
+
+                // Bot decision making with smooth movement
+                let updatedPlayer = { ...player };
+                let actionTaken = false;
+                
+                // Initialize velocity and target if not present
+                if (!updatedPlayer.velocity) {
+                    updatedPlayer.velocity = { x: 0, y: 0 };
+                }
+                
+                // Anti-stuck mechanism
+                const hasBeenStuck = updatedPlayer.targetPosition && 
+                    Math.abs(updatedPlayer.x - updatedPlayer.targetPosition.x) < 10 && 
+                    Math.abs(updatedPlayer.y - updatedPlayer.targetPosition.y) < 10;
+                
+                if (hasBeenStuck || Math.random() < 0.02) {
+                    updatedPlayer.targetPosition = null;
+                    addDebugLog(`🤖 ${player.id} resetting target to prevent stuck`);
+                }
+                
+                const moveSpeed = player.stats.movementSpeed * 0.08;
+
+                // Priority 1: Attack nearby enemies
+                if (nearestEnemy && nearestDistance < 300) {
+                    if (Math.random() < 0.4) {
+                        addDebugLog(`🤖 ${player.id} attacking enemy at distance ${nearestDistance}`);
+                        
+                        const dx = nearestEnemy.x - player.x;
+                        const dy = nearestEnemy.y - player.y;
+                        const attackDistance = Math.max(100, nearestDistance - 120);
+                        
+                        updatedPlayer.targetPosition = {
+                            x: player.x + (dx / nearestDistance) * attackDistance,
+                            y: player.y + (dy / nearestDistance) * attackDistance
+                        };
+                        actionTaken = true;
+                        
+                        if (Math.random() < 0.1) {
+                            createAbilityEffect(player.x, player.y, 'damage', '#ff4444');
+                        }
+                    }
+                }
+
+                // Priority 2: Farm jungle monsters
+                if (!actionTaken && nearestMonster && nearestMonsterDistance < 400 && player.health < player.maxHealth * 0.8) {
+                    if (Math.random() < 0.25) {
+                        addDebugLog(`🤖 ${player.id} farming monster at distance ${nearestMonsterDistance}`);
+                        
+                        const dx = nearestMonster.monster.x - player.x;
+                        const dy = nearestMonster.monster.y - player.y;
+                        const farmDistance = Math.max(80, nearestMonsterDistance - 100);
+                        
+                        updatedPlayer.targetPosition = {
+                            x: player.x + (dx / nearestMonsterDistance) * farmDistance,
+                            y: player.y + (dy / nearestMonsterDistance) * farmDistance
+                        };
+                        actionTaken = true;
+                    }
+                }
+
+                // Priority 3: Strategic movement
+                if (!actionTaken) {
+                    if (Math.random() < 0.15) {
+                        let targetX = 800;
+                        let targetY = 500;
+                        
+                        switch (player.role) {
+                            case 'tank':
+                                targetX = player.team === 'red' ? 1100 : 500;
+                                break;
+                            case 'assassin':
+                                targetX = player.team === 'red' ? 1000 : 600;
+                                targetY = player.y + (Math.random() - 0.5) * 200;
+                                break;
+                            default:
+                                targetX = 800;
+                                targetY = 500;
+                        }
+                        
+                        targetX += (Math.random() - 0.5) * 300;
+                        targetY += (Math.random() - 0.5) * 300;
+                        
+                        targetX = Math.max(100, Math.min(1500, targetX));
+                        targetY = Math.max(100, Math.min(900, targetY));
+                        
+                        const dx = targetX - player.x;
+                        const dy = targetY - player.y;
+                        const distanceToTarget = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distanceToTarget > 150) {
+                            addDebugLog(`🤖 ${player.id} moving strategically`);
+                            updatedPlayer.targetPosition = { x: targetX, y: targetY };
+                        } else {
+                            const angle = Math.atan2(dy, dx) + (Math.random() - 0.5) * Math.PI;
+                            const patrolDistance = 100 + Math.random() * 100;
+                            updatedPlayer.targetPosition = {
+                                x: player.x + Math.cos(angle) * patrolDistance,
+                                y: player.y + Math.sin(angle) * patrolDistance
+                            };
+                            addDebugLog(`🤖 ${player.id} patrolling smoothly`);
+                        }
+                    }
+                }
+
+                // Apply smooth movement
+                const finalPlayer = updateSmoothMovement(updatedPlayer, 16.67);
+                
+                // Use abilities
+                if (Math.random() < 0.05) {
+                    const availableAbilities = finalPlayer.abilities.filter(a => a.currentCooldown === 0 && finalPlayer.mana >= a.manaCost);
+                    if (availableAbilities.length > 0) {
+                        const ability = availableAbilities[Math.floor(Math.random() * availableAbilities.length)];
+                        addDebugLog(`🤖 ${finalPlayer.id} using ability: ${ability.name}`);
+                        
+                        createAbilityEffect(finalPlayer.x, finalPlayer.y, 'explosion', ability.type === 'aoe' ? '#ff9900' : '#0099ff');
+                        
+                        return {
+                            ...finalPlayer,
+                            mana: finalPlayer.mana - ability.manaCost,
+                            abilities: finalPlayer.abilities.map(a => 
+                                a.id === ability.id ? { ...a, currentCooldown: ability.cooldown } : a
+                            )
+                        };
+                    }
+                }
+
+                return finalPlayer;
+            });
+        }
+
+        function updateTowers() {
+            gameState.towers.forEach(tower => {
+                if (Math.random() < 0.3) { // 30% chance to attack each frame
+                    // Find nearest enemy
+                    const enemies = [
+                        ...gameState.players.filter(p => p.team !== tower.team),
+                        ...gameState.minions.filter(m => m.team !== tower.team)
+                    ];
+                    
+                    let nearestEnemy = null;
+                    let nearestDistance = Infinity;
+                    
+                    enemies.forEach(enemy => {
+                        const distance = Math.sqrt(Math.pow(enemy.x - tower.x, 2) + Math.pow(enemy.y - tower.y, 2));
+                        if (distance < nearestDistance && distance < tower.range) {
+                            nearestDistance = distance;
+                            nearestEnemy = enemy;
+                        }
+                    });
+                    
+                    if (nearestEnemy) {
+                        // Create projectile
+                        gameState.projectiles.push({
+                            id: `projectile-${Date.now()}`,
+                            x: tower.x,
+                            y: tower.y,
+                            targetX: nearestEnemy.x,
+                            targetY: nearestEnemy.y,
+                            speed: 15,
+                            damage: tower.damage,
+                            team: tower.team,
+                            type: 'basic'
+                        });
+                    }
+                }
+            });
+        }
+
+        function updateCooldowns() {
+            gameState.players.forEach(player => {
+                player.abilities.forEach(ability => {
+                    if (ability.currentCooldown > 0) {
+                        ability.currentCooldown--;
+                    }
+                });
+            });
+        }
+
+        function spawnMinions() {
+            const newMinions = [
+                // Blue team minions
+                { id: `blue-minion-${Date.now()}`, x: 100, y: 200, health: 100, maxHealth: 100, team: 'blue', lane: 'top', damage: 10, speed: 1 },
+                { id: `blue-minion-${Date.now() + 1}`, x: 100, y: 500, health: 100, maxHealth: 100, team: 'blue', lane: 'middle', damage: 10, speed: 1 },
+                { id: `blue-minion-${Date.now() + 2}`, x: 100, y: 800, health: 100, maxHealth: 100, team: 'blue', lane: 'bottom', damage: 10, speed: 1 },
+                
+                // Red team minions
+                { id: `red-minion-${Date.now() + 3}`, x: 1500, y: 800, health: 100, maxHealth: 100, team: 'red', lane: 'top', damage: 10, speed: 1 },
+                { id: `red-minion-${Date.now() + 4}`, x: 1500, y: 500, health: 100, maxHealth: 100, team: 'red', lane: 'middle', damage: 10, speed: 1 },
+                { id: `red-minion-${Date.now() + 5}`, x: 1500, y: 200, health: 100, maxHealth: 100, team: 'red', lane: 'bottom', damage: 10, speed: 1 }
+            ];
+            
+            gameState.minions.push(...newMinions);
+            addSpawnNotification('Minion wave spawned!');
+        }
+
+        function purchaseItem(playerId, itemId) {
+            const item = itemDatabase.find(i => i.id === itemId);
+            if (!item) return;
+
+            const player = gameState.players.find(p => p.id === playerId);
+            if (!player || player.gold < item.cost) return;
+
+            player.gold -= item.cost;
+            player.items.push(item);
+            
+            // Apply item stats
+            if (item.damage) player.stats.attackDamage += item.damage;
+            if (item.health) {
+                player.maxHealth += item.health;
+                player.health += item.health;
+            }
+            if (item.mana) {
+                player.maxMana += item.mana;
+                player.mana += item.mana;
+            }
+            if (item.armor) player.stats.armor += item.armor;
+            if (item.attackSpeed) player.stats.attackSpeed += item.attackSpeed;
+            if (item.movementSpeed) player.stats.movementSpeed += item.movementSpeed;
+            if (item.magicResist) player.stats.magicResist += item.magicResist;
+            
+            addDebugLog(`🛒 ${player.id} purchased ${item.name}`);
+            updateUI();
+        }
+
+        function attackMonster(player, monster, camp) {
+            const damage = Math.max(1, 50 - monster.armor);
+            monster.health = Math.max(0, monster.health - damage);
+            
+            if (monster.health <= 0) {
+                // Remove monster from camp
+                const monsterIndex = camp.monsters.indexOf(monster);
+                if (monsterIndex > -1) {
+                    camp.monsters.splice(monsterIndex, 1);
+                }
+                
+                // Give rewards to player
+                player.gold += monster.goldReward;
+                gainExperience(player.id, monster.expReward);
+                
+                addSpawnNotification(`${player.id} defeated ${monster.id}!`);
+                createAbilityEffect(monster.x, monster.y, 'explosion', '#ff9900');
+                
+                // Check if camp is cleared
+                if (camp.monsters.length === 0) {
+                    camp.lastKilled = Date.now();
+                    addSpawnNotification(`${camp.campType} camp cleared!`);
+                }
+            } else {
+                // Create attack effect
+                createAbilityEffect(monster.x, monster.y, 'damage', '#ff4444');
+            }
+        }
+
+        function gainExperience(playerId, exp) {
+            const player = gameState.players.find(p => p.id === playerId);
+            if (!player) return;
+            
+            player.experience += exp;
+            
+            // Level up
+            while (player.experience >= player.experienceToNext) {
+                player.experience -= player.experienceToNext;
+                player.level += 1;
+                player.experienceToNext = Math.floor(player.experienceToNext * 1.5);
+                
+                // Level up bonuses
+                player.maxHealth += 50;
+                player.health = player.maxHealth;
+                player.maxMana += 25;
+                player.mana = player.maxMana;
+                player.stats.attackDamage += 5;
+                player.stats.armor += 2;
+                player.stats.magicResist += 1;
+                
+                addSpawnNotification(`${player.id} reached level ${player.level}!`);
+            }
+        }
+
+        function handleCanvasClick(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+            const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+            addDebugLog(`🖱️ Canvas clicked at (${Math.round(x)}, ${Math.round(y)})`);
+            
+            // Check if clicking on a player to select
+            let playerSelected = false;
+            for (const player of gameState.players) {
+                const distance = Math.sqrt(Math.pow(player.x - x, 2) + Math.pow(player.y - y, 2));
+                if (distance < 25) {
+                    selectedPlayer = player.id;
+                    playerSelected = true;
+                    addDebugLog(`👤 Selected player: ${player.id}`);
+                    
+                    createAbilityEffect(player.x, player.y, 'heal', '#00ff00');
+                    updateUI();
+                    break;
+                }
+            }
+
+            // If no player was selected and we have a selected player, handle movement/attack
+            if (!playerSelected && selectedPlayer) {
+                const player = gameState.players.find(p => p.id === selectedPlayer);
+                if (!player) return;
+
+                // Check for nearby jungle monsters to attack
+                let monsterAttacked = false;
+                for (const camp of gameState.jungleCamps) {
+                    for (const monster of camp.monsters) {
+                        const distance = Math.sqrt(Math.pow(monster.x - player.x, 2) + Math.pow(monster.y - player.y, 2));
+                        const clickDistance = Math.sqrt(Math.pow(monster.x - x, 2) + Math.pow(monster.y - y, 2));
+                        
+                        if (clickDistance < 25 || distance < 60) {
+                            attackMonster(player, monster, camp);
+                            monsterAttacked = true;
+                            
+                            addDebugLog(`👤 ${player.id} attacking ${monster.id}`);
+                            break;
+                        }
+                    }
+                    if (monsterAttacked) break;
+                }
+
+                // If no monster was attacked, move player to clicked position
+                if (!monsterAttacked) {
+                    createAbilityEffect(x, y, 'dash', '#00ccff');
+                    
+                    player.targetPosition = { x, y };
+                    if (!player.velocity) {
+                        player.velocity = { x: 0, y: 0 };
+                    }
+                    
+                    addDebugLog(`👤 Moving ${selectedPlayer} to (${Math.round(x)}, ${Math.round(y)})`);
+                }
+            }
+        }
+
+        function handleKeyPress(e) {
+            if (!selectedPlayer) return;
+
+            const player = gameState.players.find(p => p.id === selectedPlayer);
+            if (!player) return;
+
+            const abilityKey = e.key.toLowerCase();
+            const ability = player.abilities.find(a => a.id === abilityKey);
+            
+            if (ability && ability.currentCooldown === 0 && player.mana >= ability.manaCost) {
+                addDebugLog(`🎯 ${player.id} using ability: ${ability.name}`);
+                
+                // Use ability
+                player.mana -= ability.manaCost;
+                ability.currentCooldown = ability.cooldown;
+                
+                // Create projectile for skillshot abilities
+                if (ability.type === 'skillshot') {
+                    const targetX = player.x + (player.team === 'blue' ? 200 : -200);
+                    const targetY = player.y;
+                    
+                    createAbilityEffect(player.x, player.y, 'explosion', ability.type === 'aoe' ? '#ff9900' : '#0099ff');
+                    
+                    gameState.projectiles.push({
+                        id: `projectile-${Date.now()}`,
+                        x: player.x,
+                        y: player.y,
+                        targetX,
+                        targetY,
+                        speed: 8,
+                        damage: ability.damage,
+                        team: player.team,
+                        type: 'ability'
+                    });
+                } else {
+                    createAbilityEffect(player.x, player.y, 
+                        ability.type === 'aoe' ? 'explosion' : ability.type === 'heal' ? 'heal' : 'damage', 
+                        ability.type === 'aoe' ? '#ff9900' : ability.type === 'heal' ? '#00ff00' : '#0099ff');
+                }
+                
+                updateUI();
+            }
+        }
+
+        function gameLoop() {
+            if (!gameState.isRunning || gameState.isPaused) {
+                return;
+            }
+
+            const currentTime = performance.now();
+            const deltaTime = lastFrameTime > 0 ? currentTime - lastFrameTime : 16.67;
+            lastFrameTime = currentTime;
+            frameTime = deltaTime;
+
+            // Update FPS counter
+            if (Math.floor(currentTime / 1000) !== Math.floor((currentTime - deltaTime) / 1000)) {
+                fps = Math.round(1000 / deltaTime);
+            }
+
+            // Clear canvas
+            ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+            // Draw game map
+            drawMap();
+
+            // Draw towers
+            gameState.towers.forEach(tower => drawTower(tower));
+
+            // Draw jungle monsters
+            gameState.jungleCamps.forEach(camp => {
+                camp.monsters.forEach(monster => drawJungleMonster(monster));
+            });
+
+            // Draw minions
+            gameState.minions.forEach(minion => drawMinion(minion));
+
+            // Draw projectiles
+            gameState.projectiles.forEach(projectile => drawProjectile(projectile));
+
+            // Draw players
+            gameState.players.forEach(player => drawPlayer(player));
+
+            // Draw ability effects
+            drawAbilityEffects();
+
+            // Update game state
+            updateProjectiles();
+            updateMinions();
+            updateBots();
+            updateTowers();
+            updateCooldowns();
+
+            // Apply smooth movement to all players
+            gameState.players = gameState.players.map(player => 
+                updateSmoothMovement(player, deltaTime / 1000)
+            );
+
+            updateStatsDisplay();
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        function startGame() {
+            if (!gameState.isRunning) {
+                initGame();
+                
+                // Start minion spawn timer
+                setInterval(spawnMinions, 5000); // Spawn minions every 5 seconds
+                
+                // Start cooldown update timer
+                setInterval(() => {
+                    if (gameState.isRunning && !gameState.isPaused) {
+                        updateCooldowns();
+                        updateUI();
+                    }
+                }, 1000);
+                
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('pauseBtn').disabled = false;
+                
+                lastFrameTime = performance.now();
+                gameLoop();
+                
+                addDebugLog('🎮 Game started!');
+            }
+        }
+
+        function pauseGame() {
+            gameState.isPaused = !gameState.isPaused;
+            const pauseBtn = document.getElementById('pauseBtn');
+            
+            if (gameState.isPaused) {
+                pauseBtn.textContent = 'Resume';
+                pauseBtn.className = pauseBtn.className.replace('bg-yellow-600 hover:bg-yellow-700', 'bg-green-600 hover:bg-green-700');
+                addDebugLog('⏸️ Game paused');
+            } else {
+                pauseBtn.textContent = 'Pause';
+                pauseBtn.className = pauseBtn.className.replace('bg-green-600 hover:bg-green-700', 'bg-yellow-600 hover:bg-yellow-700');
+                addDebugLog('▶️ Game resumed');
+                lastFrameTime = performance.now();
+                gameLoop();
+            }
+        }
+
+        function resetGame() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            
+            gameState = {
+                isRunning: false,
+                isPaused: false,
+                players: [],
+                towers: [],
+                minions: [],
+                projectiles: [],
+                jungleCamps: []
+            };
+            
+            selectedPlayer = null;
+            debugLogs = [];
+            spawnNotifications = [];
+            abilityEffects = [];
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('pauseBtn').textContent = 'Pause';
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+            
+            updateUI();
+            updateDebugLogsDisplay();
+            updateSpawnNotificationsDisplay();
+            
+            addDebugLog('🔄 Game reset');
+        }
+
+        function exportDebugLogs() {
+            const logText = debugLogs.join('\n');
+            const blob = new Blob([logText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `battle-grid-debug-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            addDebugLog('📄 Debug logs exported');
+        }
+
+        // Event Listeners
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('pauseBtn').addEventListener('click', pauseGame);
+        document.getElementById('resetBtn').addEventListener('click', resetGame);
+        document.getElementById('exportLogsBtn').addEventListener('click', exportDebugLogs);
+        canvas.addEventListener('click', handleCanvasClick);
+        document.addEventListener('keydown', handleKeyPress);
+
+        // Initialize UI
+        updateUI();
+        updateDebugLogsDisplay();
+        updateSpawnNotificationsDisplay();
+        addDebugLog('🎮 Battle Grid Game loaded. Click Start Game to begin!');
+    </script>
+</body>
+</html>
