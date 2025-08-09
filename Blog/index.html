@@ -676,4 +676,718 @@
                     <p>Accuracy: <span id="typing-accuracy">100</span>%</p>
                 </div>
                 <div id="typing-result" class="typing-result"></div>
-                <button id="typing-start-button" class="start-button" onclick="initTypingGame()">S
+                <button id="typing-start-button" class="start-button" onclick="initTypingGame()">Start Challenge</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js Background -->
+    <div id="three-background" class="three-background"></div>
+
+    <!-- Particles Container -->
+    <div id="particles-container" class="particles-container"></div>
+
+    <script>
+        // Initialize variables
+        let konamiCode = [];
+        let clickCount = 0;
+        let snakeGame = null;
+        let memoryGame = null;
+        let typingGame = null;
+        let assistantMood = 'happy';
+        let isSpeaking = false;
+        
+        // Blog posts data
+        const blogPosts = [
+            {
+                title: "Welcome to My Crazy Blog!",
+                date: "June 15, 2023",
+                content: "This is not your ordinary blog. It's filled with hidden surprises, mini-games, and interactive elements. Explore and discover all the secrets!"
+            },
+            {
+                title: "The Art of Easter Eggs",
+                date: "June 20, 2023",
+                content: "Easter eggs are hidden features or messages in software. They're like little secrets waiting to be discovered. Can you find all the ones on this blog?"
+            },
+            {
+                title: "Why Mini-Games Make Everything Better",
+                date: "June 25, 2023",
+                content: "Mini-games add an element of fun and interactivity to any experience. They break the monotony and engage users in a unique way."
+            },
+            {
+                title: "The Magic of ASMR",
+                date: "July 1, 2023",
+                content: "ASMR (Autonomous Sensory Meridian Response) is a relaxing, often sedative sensation that begins on the scalp and moves down the back of the neck and upper spine."
+            },
+            {
+                title: "My Top 5 Hidden Features",
+                date: "July 5, 2023",
+                content: "1. Konami code, 2. 5-click easter egg, 3. Secret page, 4. Interactive assistant, 5. Hidden mini-games. Can you find them all?"
+            }
+        ];
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBlogPosts();
+            initThreeBackground();
+            initAssistant();
+            initKonamiCode();
+            
+            // Welcome message after a delay
+            setTimeout(() => {
+                assistantSpeak("Welcome to my crazy blog! I'm your assistant. Click me for help!");
+            }, 2000);
+        });
+
+        // Load blog posts
+        function loadBlogPosts() {
+            const blogContainer = document.getElementById('blog-content');
+            blogContainer.innerHTML = '';
+            
+            blogPosts.forEach(post => {
+                const postElement = document.createElement('div');
+                postElement.className = 'blog-post';
+                postElement.innerHTML = `
+                    <h3>${post.title}</h3>
+                    <div class="date">${post.date}</div>
+                    <p>${post.content}</p>
+                `;
+                blogContainer.appendChild(postElement);
+            });
+        }
+
+        // Initialize Three.js background
+        function initThreeBackground() {
+            const container = document.getElementById('three-background');
+            
+            // Create scene
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0);
+            container.appendChild(renderer.domElement);
+
+            // Create floating objects
+            const objects = [];
+            const geometries = [
+                new THREE.BoxGeometry(1, 1, 1),
+                new THREE.SphereGeometry(0.7, 16, 16),
+                new THREE.ConeGeometry(0.7, 1.5, 32),
+                new THREE.TorusGeometry(0.7, 0.2, 16, 100)
+            ];
+
+            const colors = [0xff6b6b, 0x4ecdc4, 0xffe66d, 0x6a0572, 0x1a535c];
+
+            for (let i = 0; i < 20; i++) {
+                const geometry = geometries[Math.floor(Math.random() * geometries.length)];
+                const material = new THREE.MeshBasicMaterial({ 
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    wireframe: true
+                });
+                
+                const object = new THREE.Mesh(geometry, material);
+                object.position.x = (Math.random() - 0.5) * 20;
+                object.position.y = (Math.random() - 0.5) * 20;
+                object.position.z = (Math.random() - 0.5) * 20;
+                
+                object.rotation.x = Math.random() * Math.PI;
+                object.rotation.y = Math.random() * Math.PI;
+                
+                scene.add(object);
+                objects.push(object);
+            }
+
+            camera.position.z = 5;
+
+            // Animation
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                objects.forEach(object => {
+                    object.rotation.x += 0.005;
+                    object.rotation.y += 0.005;
+                    
+                    // Floating movement
+                    object.position.y += Math.sin(Date.now() * 0.001 + object.position.x) * 0.005;
+                });
+                
+                renderer.render(scene, camera);
+            }
+
+            animate();
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        // Initialize assistant
+        function initAssistant() {
+            // Track mouse movement for eye direction
+            document.addEventListener('mousemove', function(e) {
+                const assistant = document.querySelector('.assistant-character');
+                if (!assistant) return;
+                
+                const rect = assistant.getBoundingClientRect();
+                const assistantCenterX = rect.left + rect.width / 2;
+                const assistantCenterY = rect.top + rect.height / 2;
+                
+                const angle = Math.atan2(e.clientY - assistantCenterY, e.clientX - assistantCenterX);
+                const distance = Math.min(8, Math.hypot(e.clientX - assistantCenterX, e.clientY - assistantCenterY) / 20);
+                
+                const pupil1 = document.getElementById('pupil1');
+                const pupil2 = document.getElementById('pupil2');
+                
+                if (pupil1 && pupil2) {
+                    const x = Math.cos(angle) * distance;
+                    const y = Math.sin(angle) * distance;
+                    pupil1.style.transform = `translate(${x}px, ${y}px)`;
+                    pupil2.style.transform = `translate(${x}px, ${y}px)`;
+                }
+            });
+        }
+
+        // Assistant click handler
+        function assistantClick() {
+            const messages = [
+                { text: "Need help? Try clicking around or typing the Konami code!", mood: 'curious' },
+                { text: "Did you know there are hidden games? Check the navigation!", mood: 'excited' },
+                { text: "Feeling sleepy? I can help you relax with my calming voice.", mood: 'sleepy' },
+                { text: "This blog is full of surprises! Keep exploring!", mood: 'happy' }
+            ];
+            
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            assistantSpeak(randomMessage.text, randomMessage.mood);
+        }
+
+        // Assistant speak function
+        function assistantSpeak(text, mood = 'happy') {
+            // Update mood
+            assistantMood = mood;
+            updateAssistantMood();
+            
+            // Show speech bubble
+            const speechBubble = document.getElementById('speech-bubble');
+            const speechText = document.getElementById('speech-text');
+            
+            speechText.textContent = text;
+            speechBubble.style.display = 'block';
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                speechBubble.style.display = 'none';
+            }, 5000);
+            
+            // Use Web Speech API if available
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // ASMR-like voice settings
+                utterance.rate = 0.85; // Slower speech
+                utterance.pitch = 1.05; // Slightly higher pitch
+                utterance.volume = 0.8; // Softer volume
+                
+                // Show speaking indicator
+                const speakingIndicator = document.getElementById('speaking-indicator');
+                speakingIndicator.style.display = 'flex';
+                isSpeaking = true;
+                
+                utterance.onend = function() {
+                    speakingIndicator.style.display = 'none';
+                    isSpeaking = false;
+                };
+                
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Update assistant appearance based on mood
+        function updateAssistantMood() {
+            const assistantHead = document.querySelector('.assistant-head');
+            const assistantBody = document.querySelector('.assistant-body');
+            const mouth = document.querySelector('.mouth');
+            
+            // Reset classes
+            assistantHead.className = 'assistant-head';
+            assistantBody.className = 'assistant-body';
+            mouth.className = 'mouth';
+            
+            // Apply mood-specific styles
+            switch(assistantMood) {
+                case 'happy':
+                    assistantHead.style.background = '#FFD700';
+                    assistantBody.style.background = '#FFD700';
+                    mouth.style.borderRadius = '0 0 10px 10px';
+                    mouth.style.height = '8px';
+                    break;
+                case 'curious':
+                    assistantHead.style.background = '#87CEEB';
+                    assistantBody.style.background = '#87CEEB';
+                    mouth.style.borderRadius = '0';
+                    mouth.style.height = '4px';
+                    mouth.style.width = '16px';
+                    break;
+                case 'excited':
+                    assistantHead.style.background = '#FF6347';
+                    assistantBody.style.background = '#FF6347';
+                    mouth.style.borderRadius = '0 0 12px 12px';
+                    mouth.style.height = '12px';
+                    mouth.style.width = '24px';
+                    break;
+                case 'sleepy':
+                    assistantHead.style.background = '#9370DB';
+                    assistantBody.style.background = '#9370DB';
+                    mouth.style.borderRadius = '0';
+                    mouth.style.height = '2px';
+                    mouth.style.width = '16px';
+                    break;
+            }
+        }
+
+        // Initialize Konami code detection
+        function initKonamiCode() {
+            document.addEventListener('keydown', function(e) {
+                konamiCode.push(e.key);
+                if (konamiCode.length > 10) konamiCode.shift();
+                
+                // Check for Konami code: ↑↑↓↓←→←→BA
+                const konami = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 
+                               'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 
+                               'b', 'a'];
+                
+                if (konamiCode.join(',') === konami.join(',')) {
+                    showSecretPage();
+                    triggerParticles();
+                    assistantSpeak("Wow! You found the Konami code! You're amazing!", 'excited');
+                }
+            });
+        }
+
+        // Show secret page
+        function showSecretPage() {
+            document.getElementById('blog-content').style.display = 'none';
+            document.getElementById('secret-page').style.display = 'block';
+        }
+
+        // Close secret page
+        function closeSecretPage() {
+            document.getElementById('blog-content').style.display = 'grid';
+            document.getElementById('secret-page').style.display = 'none';
+        }
+
+        // Easter egg click handler
+        function handleEasterEggClick() {
+            clickCount++;
+            
+            if (clickCount === 5) {
+                const message = document.createElement('div');
+                message.className = 'easter-egg-message';
+                message.innerHTML = `
+                    🎉 You found an easter egg! 🎉
+                    <p>Try typing the Konami code (↑↑↓↓←→←→BA) for another surprise!</p>
+                `;
+                document.body.appendChild(message);
+                
+                setTimeout(() => {
+                    document.body.removeChild(message);
+                    clickCount = 0;
+                }, 3000);
+                
+                triggerParticles();
+                assistantSpeak("You found the hidden easter egg! Great job!", 'excited');
+            }
+        }
+
+        // Trigger particle effects
+        function triggerParticles() {
+            const container = document.getElementById('particles-container');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < 100; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * window.innerWidth + 'px';
+                particle.style.top = Math.random() * window.innerHeight + 'px';
+                
+                container.appendChild(particle);
+                
+                // Animate particle
+                setTimeout(() => {
+                    particle.style.transform = `scale(${Math.random() * 3 + 1})`;
+                    particle.style.opacity = '0';
+                }, 10);
+                
+                // Remove particle after animation
+                setTimeout(() => {
+                    if (container.contains(particle)) {
+                        container.removeChild(particle);
+                    }
+                }, 2000);
+            }
+        }
+
+        // Game functions
+        function openGame(gameType) {
+            document.getElementById(`${gameType}-modal`).style.display = 'flex';
+            
+            if (gameType === 'snake') {
+                initSnakeGame();
+            } else if (gameType === 'memory') {
+                initMemoryGame();
+            } else if (gameType === 'typing') {
+                initTypingGame();
+            }
+        }
+
+        function closeGame(gameType) {
+            document.getElementById(`${gameType}-modal`).style.display = 'none';
+            
+            if (gameType === 'snake' && snakeGame) {
+                clearInterval(snakeGame.interval);
+            } else if (gameType === 'typing' && typingGame) {
+                clearInterval(typingGame.timer);
+            }
+        }
+
+        // Snake Game
+        function initSnakeGame() {
+            const board = document.getElementById('snake-board');
+            const scoreElement = document.getElementById('snake-score');
+            const speedElement = document.getElementById('snake-speed');
+            const gameOverElement = document.getElementById('snake-game-over');
+            const finalScoreElement = document.getElementById('snake-final-score');
+            const startButton = document.getElementById('snake-start-button');
+            
+            // Clear previous game
+            board.innerHTML = '';
+            gameOverElement.style.display = 'none';
+            startButton.style.display = 'none';
+            
+            // Game variables
+            const gridSize = 20;
+            const cellSize = 20;
+            let snake = [{x: 10, y: 10}];
+            let food = {x: 5, y: 5};
+            let direction = 'RIGHT';
+            let score = 0;
+            let speed = 150;
+            let gameActive = true;
+            
+            // Create board cells
+            for (let i = 0; i < gridSize * gridSize; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                board.appendChild(cell);
+            }
+            
+            // Generate random food position
+            function generateFood() {
+                food = {
+                    x: Math.floor(Math.random() * gridSize),
+                    y: Math.floor(Math.random() * gridSize)
+                };
+                
+                // Make sure food doesn't appear on snake
+                const isOnSnake = snake.some(segment => 
+                    segment.x === food.x && segment.y === food.y
+                );
+                
+                if (isOnSnake) {
+                    generateFood();
+                }
+            }
+            
+            // Draw game
+            function draw() {
+                // Clear board
+                const cells = board.querySelectorAll('.cell');
+                cells.forEach(cell => {
+                    cell.className = 'cell';
+                });
+                
+                // Draw snake
+                snake.forEach((segment, index) => {
+                    const cellIndex = segment.y * gridSize + segment.x;
+                    if (cells[cellIndex]) {
+                        cells[cellIndex].classList.add(index === 0 ? 'head' : 'body');
+                    }
+                });
+                
+                // Draw food
+                const foodIndex = food.y * gridSize + food.x;
+                if (cells[foodIndex]) {
+                    cells[foodIndex].classList.add('food');
+                }
+            }
+            
+            // Move snake
+            function moveSnake() {
+                if (!gameActive) return;
+                
+                const head = {...snake[0]};
+                
+                // Move head based on direction
+                switch (direction) {
+                    case 'UP': head.y -= 1; break;
+                    case 'DOWN': head.y += 1; break;
+                    case 'LEFT': head.x -= 1; break;
+                    case 'RIGHT': head.x += 1; break;
+                }
+                
+                // Check collision with walls
+                if (head.x < 0 || head.x >= gridSize || head.y < 0 || head.y >= gridSize) {
+                    endGame();
+                    return;
+                }
+                
+                // Check collision with self
+                if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                    endGame();
+                    return;
+                }
+                
+                snake.unshift(head);
+                
+                // Check if food is eaten
+                if (head.x === food.x && head.y === food.y) {
+                    score += 10;
+                    scoreElement.textContent = score;
+                    generateFood();
+                    
+                    // Increase speed every 50 points
+                    if (score > 0 && score % 50 === 0) {
+                        speed = Math.max(speed - 10, 50);
+                        speedElement.textContent = Math.round((150 - speed) / 10) + 1;
+                        
+                        // Restart interval with new speed
+                        clearInterval(snakeGame.interval);
+                        snakeGame.interval = setInterval(moveSnake, speed);
+                    }
+                } else {
+                    snake.pop();
+                }
+                
+                draw();
+            }
+            
+            // End game
+            function endGame() {
+                gameActive = false;
+                clearInterval(snakeGame.interval);
+                finalScoreElement.textContent = score;
+                gameOverElement.style.display = 'block';
+            }
+            
+            // Handle keyboard input
+            document.addEventListener('keydown', function handleKeyDown(e) {
+                if (!gameActive) {
+                    document.removeEventListener('keydown', handleKeyDown);
+                    return;
+                }
+                
+                switch (e.key) {
+                    case 'ArrowUp':
+                        if (direction !== 'DOWN') direction = 'UP';
+                        break;
+                    case 'ArrowDown':
+                        if (direction !== 'UP') direction = 'DOWN';
+                        break;
+                    case 'ArrowLeft':
+                        if (direction !== 'RIGHT') direction = 'LEFT';
+                        break;
+                    case 'ArrowRight':
+                        if (direction !== 'LEFT') direction = 'RIGHT';
+                        break;
+                }
+            });
+            
+            // Initialize game
+            generateFood();
+            draw();
+            snakeGame = {
+                interval: setInterval(moveSnake, speed)
+            };
+        }
+
+        // Memory Game
+        function initMemoryGame() {
+            const board = document.getElementById('memory-board');
+            const movesElement = document.getElementById('memory-moves');
+            const matchesElement = document.getElementById('memory-matches');
+            
+            // Clear previous game
+            board.innerHTML = '';
+            
+            // Game variables
+            const emojis = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼'];
+            const cards = [...emojis, ...emojis];
+            let flippedCards = [];
+            let matchedPairs = 0;
+            let moves = 0;
+            
+            // Shuffle cards
+            for (let i = cards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cards[i], cards[j]] = [cards[j], cards[i]];
+            }
+            
+            // Create card elements
+            cards.forEach((emoji, index) => {
+                const card = document.createElement('div');
+                card.className = 'memory-card';
+                card.dataset.emoji = emoji;
+                card.dataset.index = index;
+                
+                card.addEventListener('click', function() {
+                    // Ignore if already flipped or matched
+                    if (card.classList.contains('flipped') || 
+                        card.classList.contains('matched') || 
+                        flippedCards.length >= 2) {
+                        return;
+                    }
+                    
+                    // Flip card
+                    card.classList.add('flipped');
+                    card.textContent = emoji;
+                    flippedCards.push(card);
+                    
+                    // Check for match when two cards are flipped
+                    if (flippedCards.length === 2) {
+                        moves++;
+                        movesElement.textContent = moves;
+                        
+                        if (flippedCards[0].dataset.emoji === flippedCards[1].dataset.emoji) {
+                            // Match found
+                            flippedCards.forEach(card => {
+                                card.classList.add('matched');
+                            });
+                            matchedPairs++;
+                            matchesElement.textContent = matchedPairs;
+                            flippedCards = [];
+                            
+                            // Check for game completion
+                            if (matchedPairs === emojis.length) {
+                                setTimeout(() => {
+                                    assistantSpeak(`Congratulations! You completed the memory game in ${moves} moves!`, 'excited');
+                                }, 500);
+                            }
+                        } else {
+                            // No match, flip back after delay
+                            setTimeout(() => {
+                                flippedCards.forEach(card => {
+                                    card.classList.remove('flipped');
+                                    card.textContent = '';
+                                });
+                                flippedCards = [];
+                            }, 1000);
+                        }
+                    }
+                });
+                
+                board.appendChild(card);
+            });
+        }
+
+        // Typing Game
+        function initTypingGame() {
+            const textElement = document.getElementById('typing-text');
+            const inputElement = document.getElementById('typing-input');
+            const timeElement = document.getElementById('typing-time');
+            const wpmElement = document.getElementById('typing-wpm');
+            const accuracyElement = document.getElementById('typing-accuracy');
+            const resultElement = document.getElementById('typing-result');
+            const startButton = document.getElementById('typing-start-button');
+            
+            // Sample texts
+            const texts = [
+                "The quick brown fox jumps over the lazy dog.",
+                "Programming is the process of creating a set of instructions that tell a computer how to perform a task.",
+                "The only way to learn a new programming language is by writing programs in it.",
+                "Code is like humor. When you have to explain it, it's bad.",
+                "First, solve the problem. Then, write the code."
+            ];
+            
+            // Game variables
+            let text = texts[Math.floor(Math.random() * texts.length)];
+            let startTime = null;
+            let timerInterval = null;
+            let errors = 0;
+            
+            // Reset game
+            textElement.textContent = text;
+            inputElement.value = '';
+            inputElement.disabled = true;
+            timeElement.textContent = '0';
+            wpmElement.textContent = '0';
+            accuracyElement.textContent = '100';
+            resultElement.textContent = '';
+            startButton.style.display = 'inline-block';
+            
+            // Start game
+            startButton.addEventListener('click', function() {
+                inputElement.disabled = false;
+                inputElement.focus();
+                startButton.style.display = 'none';
+                startTime = Date.now();
+                errors = 0;
+                
+                // Start timer
+                timerInterval = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    timeElement.textContent = elapsed;
+                    
+                    // Calculate WPM and accuracy
+                    const words = inputElement.value.trim().split(/\s+/).length;
+                    const wpm = Math.round(words / (elapsed / 60));
+                    wpmElement.textContent = wpm;
+                }, 1000);
+                
+                typingGame = {
+                    timer: timerInterval
+                };
+            });
+            
+            // Handle input
+            inputElement.addEventListener('input', function() {
+                const inputValue = inputElement.value;
+                
+                // Check for errors
+                errors = 0;
+                for (let i = 0; i < inputValue.length; i++) {
+                    if (inputValue[i] !== text[i]) {
+                        errors++;
+                    }
+                }
+                
+                // Calculate accuracy
+                const accuracy = inputValue.length > 0 
+                    ? Math.round(((inputValue.length - errors) / inputValue.length) * 100) 
+                    : 100;
+                accuracyElement.textContent = accuracy;
+                
+                // Check if completed
+                if (inputValue === text) {
+                    clearInterval(timerInterval);
+                    inputElement.disabled = true;
+                    
+                    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    const words = text.trim().split(/\s+/).length;
+                    const wpm = Math.round(words / (elapsed / 60));
+                    
+                    resultElement.innerHTML = `
+                        <p>Completed in ${elapsed} seconds!</p>
+                        <p>WPM: ${wpm}</p>
+                        <p>Accuracy: ${accuracy}%</p>
+                    `;
+                    
+                    assistantSpeak(`Great job! You typed at ${wpm} words per minute with ${accuracy}% accuracy!`, 'happy');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
