@@ -410,7 +410,7 @@
           card.setAttribute('role', 'listitem');
           card.innerHTML = `
             <strong><a href="${filePath}" target="_blank" rel="noopener">${proj.title || filePath}</a></strong>
-            <p>${proj.desc || ''}</p>
+            <p>${filePath}</p><p>${proj.desc || ''}</p>
             <div class="tags">${(proj.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('')}</div>
           `;
           container.appendChild(card);
