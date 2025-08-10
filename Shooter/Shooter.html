@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alien Shooting Range</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #0a0e27 0%, #1a1f3a 100%);
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background: url('https://sfile.chatglm.cn/images-ppt/b190cebd1664.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        #crosshair {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            pointer-events: none;
+            z-index: 100;
+            transform: translate(-50%, -50%);
+            background-image: url('https://sfile.chatglm.cn/images-ppt/3d39960405ba.jpg');
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        
+        .enemy {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            transition: transform 0.1s;
+            user-select: none;
+            animation: float 3s infinite ease-in-out;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .alien {
+            background-image: url('https://sfile.chatglm.cn/images-ppt/dab4506b30a8.jpg');
+        }
+        
+        .monster {
+            background-image: url('https://sfile.chatglm.cn/images-ppt/006b312885e9.jpg');
+        }
+        
+        .robot {
+            background-image: url('https://sfile.chatglm.cn/images-ppt/e83c15d19b5b.jpg');
+        }
+        
+        .mutant {
+            background-image: url('https://sfile.chatglm.cn/images-ppt/8d932af9d429.png');
+        }
+        
+        #hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background-image: url('https://sfile.chatglm.cn/images-ppt/20cb45d67999.jpg');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+        }
+        
+        #score, #health, #wave {
+            margin: 5px 0;
+            font-size: 18px;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+        }
+        
+        #health-bar, #score-bar {
+            width: 150px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00ffff;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        
+        #health-fill {
+            height: 100%;
+            background: linear-gradient(to right, #ff0000, #ffff00);
+            width: 100%;
+            transition: width 0.3s;
+        }
+        
+        #game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+            z-index: 200;
+            border: 2px solid #ff0000;
+          background-image: url('https://sfile.chatglm.cn/images-ppt/09900781f277.jpg');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+        }
+        
+        #game-over h2 {
+            color: #ff0000;
+            margin-bottom: 20px;
+            font-size: 36px;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+        }
+        
+        #restart-btn {
+            background: linear-gradient(to right, #4ade80, #22c55e);
+            color: black;
+            border: none;
+            padding: 12px 25px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+        }
+        
+        #restart-btn:hover {
+            background: linear-gradient(to right, #22c55e, #16a34a);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.8);
+        }
+        
+        #start-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 200;
+            border: 2px solid #4ade80;
+            background-image: url('https://sfile.chatglm.cn/images-ppt/09900781f277.jpg');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+        }
+        
+        #start-screen h1 {
+            color: #4ade80;
+            margin-bottom: 20px;
+            font-size: 42px;
+            text-shadow: 0 0 10px rgba(74, 222, 128, 0.8);
+        }
+        
+        #start-btn {
+            background: linear-gradient(to right, #4ade80, #22c55e);
+            color: black;
+            border: none;
+            padding: 15px 30px;
+            font-size: 22px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+            box-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+        }
+        
+        #start-btn:hover {
+            background: linear-gradient(to right, #22c55e, #16a34a);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.8);
+        }
+        
+        .instructions {
+            margin: 20px 0;
+            line-height: 1.6;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(74, 222, 128, 0.5);
+        }
+        
+        .instructions p {
+            margin: 8px 0;
+        }
+        
+        .enemy-preview {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            margin: 0 5px;
+            vertical-align: middle;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        .alien-preview {
+            background-image: url('https://sfile.chatglm.cn/images-ppt/dab4506b30a8.jpg');
+        }
+        
+        .monster-preview {
+            background-image: url('https://sfile.chatglm.cn/images-ppt/006b312885e9.jpg');
+        }
+        
+        .robot-preview {
+            background-image: url('https://sfile.chatglm.cn/images-ppt/e83c15d19b5b.jpg');
+        }
+        
+        .mutant-preview {
+            background-image: url('https://sfile.chatglm.cn/images-ppt/8d932af9d429.png');
+        }
+        
+        .hit-effect {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,0,0.8) 0%, rgba(255,165,0,0) 70%);
+          pointer-events: none;
+            z-index: 50;
+            animation: hit 0.3s forwards;
+        }
+        
+        @keyframes hit {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+        
+        .damage-indicator {
+            position: absolute;
+            color: #ffff00;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+            pointer-events: none;
+            z-index: 60;
+            animation: damage 1s forwards;
+        }
+        
+        @keyframes damage {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-50px); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="crosshair"></div>
+        
+        <div id="hud">
+            <div id="score">Score: 0</div>
+            <div id="health">Health: 100</div>
+            <div id="health-bar">
+                <div id="health-fill"></div>
+            </div>
+            <div id="wave">Wave: 1</div>
+        </div>
+        
+        <div id="start-screen">
+            <h1>Alien Shooting Range</h1>
+            <div class="instructions">
+                <p><div class="enemy-preview alien-preview"></div> Aliens: 10 points</p>
+                <p><div class="enemy-preview monster-preview"></div> Monsters: 15 points</p>
+                <p><div class="enemy-preview robot-preview"></div> Robots: 20 points</p>
+                <p><div class="enemy-preview mutant-preview"></div> Mutants: 25 points</p>
+                <p>Move your mouse to aim, click to shoot!</p>
+                <p>Don't let them reach you!</p>
+            </div>
+            <button id="start-btn">Start Game</button>
+        </div>
+        
+        <div id="game-over">
+            <h2>Game Over</h2>
+            <p>Your score: <span id="final-score">0</span></p>
+            <button id="restart-btn">Play Again</button>
+        </div>
+    </div>
+    
+    <script>
+        const gameContainer = document.getElementById('game-container');
+        const crosshair = document.getElementById('crosshair');
+        const scoreElement = document.getElementById('score');
+        const healthElement = document.getElementById('health');
+        const healthFillElement = document.getElementById('health-fill');
+        const waveElement = document.getElementById('wave');
+        const gameOverScreen = document.getElementById('game-over');
+        const finalScoreElement = document.getElementById('final-score');
+        const startScreen = document.getElementById('start-screen');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        
+        let score = 0;
+        let health = 100;
+        let wave = 1;
+        let gameActive = false;
+        let enemies = [];
+        let enemySpawnRate = 2000; // milliseconds
+        let enemySpeed = 1;
+        let spawnTimer;
+        
+        // Enemy types with their properties
+        const enemyTypes = [
+            { type: 'alien', points: 10, health: 1 },
+            { type: 'monster', points: 15, health: 2 },
+            { type: 'robot', points: 20, health: 3 },
+            { type: 'mutant', points: 25, health: 4 }
+        ];
+        
+        // Mouse movement for crosshair
+        document.addEventListener('mousemove', (e) => {
+            crosshair.style.left = ${e.clientX}px;
+            crosshair.style.top = ${e.clientY}px;
+        });
+        
+        // Start game
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', restartGame);
+        
+        function startGame() {
+            startScreen.style.display = 'none';
+            gameActive = true;
+          damageIndicator.textContent = '-10';
+                    damageIndicator.style.left = ${clickX}px;
+                    damageIndicator.style.top = ${clickY}px;
+                    gameContainer.appendChild(damageIndicator);
+                    
+                    // Remove damage indicator after animation
+                    setTimeout(() => {
+                        gameContainer.removeChild(damageIndicator);
+                    }, 1000);
+                    
+                    if (newHealth <= 0) {
+                        // Enemy destroyed
+                        score += parseInt(enemy.dataset.points);
+                        updateUI();
+                        removeEnemy(enemy);
+                    } else {
+                        // Enemy damaged but not destroyed
+                        enemy.dataset.health = newHealth;
+                        enemy.style.opacity = newHealth / parseInt(enemy.dataset.health) * 0.7 + 0.3;
+                    }
+                }
+            });
+            
+            // Increase difficulty every 500 points
+            if (score > 0 && score % 500 === 0) {
+                wave++;
+                enemySpawnRate = Math.max(500, enemySpawnRate - 200);
+                enemySpeed += 0.3;
+                updateUI();
+            }
+        });
+        
+        function removeEnemy(enemy) {
+            const index = enemies.indexOf(enemy);
+            if (index > -1) {
+                enemies.splice(index, 1);
+            }
+            gameContainer.removeChild(enemy);
+        }
+        
+        function clearEnemies() {
+            enemies.forEach(enemy => {
+                gameContainer.removeChild(enemy);
+            });
+            enemies = [];
+            clearTimeout(spawnTimer);
+        }
+        
+        function updateUI() {
+            scoreElement.textContent = Score: ${score};
+            healthElement.textContent = Health: ${health};
+            healthFillElement.style.width = ${health}%;
+            waveElement.textContent = Wave: ${wave};
+        }
+        
+        function endGame() {
+            gameActive = false;
+            clearEnemies();
+            finalScoreElement.textContent = score;
+            gameOverScreen.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
