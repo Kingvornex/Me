@@ -29,7 +29,7 @@
 ,
   "Blog/crazy blog old.html": {"title": "Crazy Interactive Blog", "desc": "A mobile-friendly blog interface designed for fast loading and smooth reading experience.", "tags": ["Blog","Mobile","HTML Template","Responsive","Reading"]}
 ,
-  "Blog/index.html": {"title": "Crazy Interactive Blog", "desc": "", "tags": []}
+  "Blog/index.html": {"title": "Crazy Interactive Blog", "desc": "A mobile-friendly blog interface designed for fast loading and smooth reading experience.", "tags": ["Blog","Mobile","HTML Template","Responsive","Reading"]}
 ,
   "Spaceship-web/spacecraft-simulator-2d.html": {"title": "2D Space Craft Simulator", "desc": "An action-packed space shooter game where you pilot a spaceship and destroy enemy fleets.", "tags": ["Space Shooter","Spaceship","Arcade Game","HTML Game","Action"]}
 ,
