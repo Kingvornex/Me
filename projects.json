@@ -3,7 +3,7 @@
 ,
   "Snake-web/snake old.html": {"title": "Snake Game", "desc": "", "tags": []}
 ,
-  "Snake-web/index.html": {"title": "Neon Snake", "desc": "", "tags": []}
+  "Snake-web/index.html": {"title": "Neon Snake", "desc": "A classic snake game where you eat food, grow longer, and avoid hitting walls or yourself.", "tags": ["Snake","Arcade Game","Classic","HTML Game"]}
 ,
   "Coinflipper-web/coin-flip-game.html": {"title": "Coin Flip Empire", "desc": "", "tags": []}
 ,
