@@ -2,201 +2,410 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Kingvornex | GitHub Developer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kingvornex | Open.MP & SA-MP Developer Portfolio</title>
+  <meta name="description" content="Kingvornex - Open.MP & SA-MP contributor. Explore projects, repos, and skills in multiplayer game scripting." />
+  <meta name="keywords" content="Kingvornex, Open.MP, SA-MP, filterscripts, multiplayer game, scripting, pawn" />
+  <meta name="author" content="Kingvornex" />
+  <meta property="og:title" content="Kingvornex | Open.MP & SA-MP Developer Portfolio" />
+  <meta property="og:description" content="Open.MP & SA-MP multiplayer scripting developer portfolio." />
+  <meta property="og:image" content="https://avatars.githubusercontent.com/u/161863111?v=4" />
+  <meta property="og:url" content="https://github.com/Kingvornex" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Kingvornex | Open.MP & SA-MP Developer Portfolio" />
+  <meta name="twitter:description" content="Explore multiplayer game scripting projects and repositories by Kingvornex." />
+  <meta name="twitter:image" content="https://avatars.githubusercontent.com/u/161863111?v=4" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Kingvornex",
+    "url": "https://github.com/Kingvornex",
+    "image": "https://avatars.githubusercontent.com/u/161863111?v=4",
+    "jobTitle": "Open.MP & SA-MP Developer",
+    "description": "Contributor to Open.MP and SA-MP scripting community, specializing in multiplayer game systems.",
+    "sameAs": [
+      "https://github.com/Kingvornex"
+    ]
+  }
+  </script>
+
   <style>
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background-color: #0d1117;
+    /* Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body, html {
+      margin: 0; padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0d1117;
       color: #c9d1d9;
-      margin: 0;
-      padding: 0;
-      line-height: 1.6;
+      scroll-behavior: smooth;
+      overflow-x: hidden;
     }
-    header {
-      text-align: center;
-      padding: 50px 20px;
-      background: linear-gradient(180deg, #161b22, #0d1117);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+
+    /* Scroll Snap Container */
+    main {
+      scroll-snap-type: y mandatory;
+      height: 100vh;
+      overflow-y: scroll;
+      scroll-behavior: smooth;
     }
-    header img {
-      width: 130px;
-      height: 130px;
-      object-fit: cover;
-      border-radius: 50%;
-      border: 3px solid #30363d;
+    section {
+      scroll-snap-align: start;
+      height: 100vh;
+      padding: 60px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+      border-radius: 12px;
+      box-shadow:
+        0 0 15px rgba(88, 166, 255, 0.2),
+        inset 0 0 60px rgba(88, 166, 255, 0.05);
+      background: rgba(13, 17, 23, 0.8);
+      border: 1.5px solid rgba(88, 166, 255, 0.4);
+      backdrop-filter: blur(8px);
       transition: transform 0.3s ease;
     }
-    header img:hover {
-      transform: scale(1.08);
+    section:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow:
+        0 0 25px rgba(88, 166, 255, 0.6),
+        inset 0 0 80px rgba(88, 166, 255, 0.15);
     }
-    h1 {
-      margin: 15px 0 5px;
-      font-size: 32px;
-      font-weight: 600;
+
+    /* Left fixed vertical nav */
+    nav {
+      position: fixed;
+      top: 50%;
+      left: 30px;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      z-index: 9999;
     }
-    p.bio {
-      color: #8b949e;
-      font-size: 16px;
-      margin-bottom: 10px;
-    }
-    .link-btn {
-      display: inline-block;
-      margin-top: 10px;
-      padding: 10px 18px;
-      background-color: #238636;
-      color: white;
-      font-weight: 500;
-      border-radius: 6px;
-      text-decoration: none;
-      transition: background 0.3s;
-    }
-    .link-btn:hover {
-      background-color: #2ea043;
-    }
-    .container {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
-    .section {
-      margin-bottom: 40px;
-    }
-    .section h2 {
-      border-bottom: 1px solid #30363d;
-      padding-bottom: 6px;
-      margin-bottom: 18px;
-      font-size: 22px;
-      font-weight: 600;
-    }
-    a {
+    nav a {
       color: #58a6ff;
       text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding-left: 10px;
+      position: relative;
+      transition: color 0.3s ease;
     }
-    a:hover {
-      text-decoration: underline;
+    nav a::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: transparent;
+      transition: background-color 0.3s ease;
     }
-    ul.repos {
-      list-style: none;
-      padding-left: 0;
+    nav a.active::before {
+      background: #58a6ff;
+      box-shadow: 0 0 8px #58a6ff;
     }
-    ul.repos li {
-      background-color: #161b22;
-      padding: 15px;
-      margin-bottom: 12px;
-      border: 1px solid #30363d;
-      border-radius: 8px;
-      transition: transform 0.2s ease, border-color 0.3s ease;
+    nav a:hover {
+      color: #79c0ff;
     }
-    ul.repos li:hover {
-      transform: translateY(-3px);
-      border-color: #58a6ff;
+
+    /* Hero Section */
+    header#hero {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 60px;
+      padding: 0 40px;
+      max-width: 1100px;
+      margin: auto;
+      height: 100%;
     }
-    ul.skills {
-      list-style: square;
-      padding-left: 20px;
-    }
-    footer {
+    /* Profile Left */
+    .profile {
+      flex: 1;
       text-align: center;
-      padding: 20px;
-      background-color: #161b22;
-      font-size: 14px;
+    }
+    .profile img {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: 4px solid #58a6ff;
+      box-shadow: 0 0 30px rgba(88, 166, 255, 0.7);
+      transition: transform 0.3s ease;
+    }
+    .profile img:hover {
+      transform: scale(1.05);
+    }
+    .profile h1 {
+      margin-top: 20px;
+      font-size: 3rem;
+      font-weight: 700;
+    }
+    .profile p {
+      margin-top: 12px;
+      font-size: 1.1rem;
       color: #8b949e;
-      border-top: 1px solid #30363d;
+      line-height: 1.4;
+      max-width: 320px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .btn-cta {
+      display: inline-block;
+      margin-top: 25px;
+      padding: 14px 32px;
+      background: #238636;
+      border-radius: 10px;
+      color: white;
+      font-weight: 600;
+      font-size: 1.1rem;
+      text-decoration: none;
+      box-shadow: 0 0 15px #238636aa;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    .btn-cta:hover {
+      background: #2ea043;
+      box-shadow: 0 0 25px #2ea043cc;
+    }
+
+    /* Content Right */
+    .content {
+      flex: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 50px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+    .content section {
+      background: none;
+      border: none;
+      box-shadow: none;
+      backdrop-filter: none;
+      padding: 0;
+      max-height: none;
+      transform: none;
+      transition: none;
+    }
+    .content h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #58a6ff;
+      border-bottom: 2px solid #238636;
+      padding-bottom: 6px;
+      margin-bottom: 15px;
+    }
+    .content p, .content li {
+      font-size: 1rem;
+      color: #c9d1d9;
+      line-height: 1.5;
+    }
+    ul {
+      list-style-type: disc;
+      margin-left: 20px;
+    }
+    /* Cards for repos and projects */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
+      gap: 20px;
+    }
+    .card {
+      background: rgba(13,17,23,0.7);
+      border-radius: 12px;
+      border: 1.5px solid #238636;
+      padding: 20px;
+      box-shadow: 0 0 15px #23863688;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+      cursor: pointer;
+      perspective: 800px;
+    }
+    .card:hover {
+      transform: rotateY(8deg) translateY(-8px);
+      box-shadow: 0 0 30px #2ea043cc;
+    }
+    .card strong a {
+      color: #58a6ff;
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 1.1rem;
+    }
+    .card strong a:hover {
+      text-decoration: underline;
+      color: #79c0ff;
+    }
+    .card p {
+      margin-top: 8px;
+      font-size: 0.95rem;
+      color: #a9b8c2;
+    }
+
+    /* Footer */
+    footer {
+      padding: 30px 20px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #8b949e;
+      background: #12171f;
+      border-top: 1px solid #238636;
+    }
+
+    /* Scrollbar for content */
+    .content::-webkit-scrollbar {
+      width: 6px;
+    }
+    .content::-webkit-scrollbar-thumb {
+      background-color: #238636cc;
+      border-radius: 3px;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      main {
+        scroll-snap-type: none;
+        overflow-y: visible;
+      }
+      section {
+        height: auto;
+        margin: 20px 10px;
+      }
+      header#hero {
+        flex-direction: column;
+        gap: 40px;
+        padding: 40px 20px;
+      }
+      .content {
+        max-height: none;
+        padding-right: 0;
+      }
+      nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: auto;
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 10px 0;
+        background: rgba(13,17,23,0.95);
+        border-top: 1px solid #238636;
+      }
+      nav a::before {
+        display: none;
+      }
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <img src="https://avatars.githubusercontent.com/u/161863111?v=4" alt="Kingvornex Avatar">
-    <h1>Kingvornex</h1>
-    <p class="bio">Open.MP Contributor • Scripting SA-MP Systems • Focused on Filterscripts and Game Features</p>
-    <a class="link-btn" href="https://github.com/Kingvornex" target="_blank">Visit GitHub Profile →</a>
-  </header>
+<nav>
+  <a href="#hero" class="nav-link active">Home</a>
+  <a href="#about" class="nav-link">About</a>
+  <a href="#repos" class="nav-link">Repositories</a>
+  <a href="#projects" class="nav-link">Projects</a>
+  <a href="#skills" class="nav-link">Skills</a>
+</nav>
 
-  <div class="container">
-    <div class="section">
-      <h2>About</h2>
-      <p>Kingvornex is an active contributor to the SA-MP (San Andreas Multiplayer) open-source community, focusing on projects related to <strong>Open.MP</strong>, game filterscripts, and advanced vehicle or player interaction systems. With dozens of repositories, he aims to enhance multiplayer gameplay through innovative, efficient scripting.</p>
+<main>
+
+  <section id="hero" aria-label="Introduction">
+    <div class="profile" role="region" aria-labelledby="profile-name">
+      <img src="https://avatars.githubusercontent.com/u/161863111?v=4" alt="Kingvornex profile picture" />
+      <h1 id="profile-name">Kingvornex</h1>
+      <p>Open.MP Contributor • Scripting SA-MP Systems • Focused on Filterscripts and Game Features</p>
+      <a href="https://github.com/Kingvornex" target="_blank" rel="noopener" class="btn-cta" aria-label="Visit Kingvornex GitHub Profile">Visit GitHub Profile →</a>
     </div>
 
-    <div class="section">
-      <h2>Popular Repositories</h2>
-      <ul class="repos">
-        <li>
-          <strong><a href="https://github.com/Kingvornex/Open.mp-actor-robbery" target="_blank">Open.mp-actor-robbery</a></strong><br>
-          Actor-based robbery system for Open.MP with realism and flexibility.
-        </li>
-        <li>
-          <strong><a href="https://github.com/Kingvornex/OPEN.MP-VEHICLE-TUNE-MENU" target="_blank">OPEN.MP-VEHICLE-TUNE-MENU</a></strong><br>
-          Vehicle tuning UI for Open.MP — built using dialogs and PVars.
-        </li>
-        <li>
-          <strong><a href="https://github.com/Kingvornex/SA-MP-Open.MP-Vehicle-Streamer-FilterScript" target="_blank">Vehicle Streamer FS</a></strong><br>
-          Filterscript for streaming and managing dynamic vehicles with optimizations.
-        </li>
-        <li>
-          <strong><a href="https://github.com/Kingvornex/SA-MP-OPEN-MP-OBJECT-MOVER" target="_blank">Object Mover</a></strong><br>
-          Smooth object movement script using timers and interpolation.
-        </li>
-      </ul>
-    </div>
+    <div class="content" role="main" tabindex="0">
+      <section id="about" aria-labelledby="about-heading">
+        <h2 id="about-heading">About</h2>
+        <p>Kingvornex is an active contributor to the SA-MP (San Andreas Multiplayer) open-source community, focusing on projects related to <strong>Open.MP</strong>, game filterscripts, and advanced vehicle or player interaction systems. With dozens of repositories, he aims to enhance multiplayer gameplay through innovative, efficient scripting.</p>
+      </section>
 
-    <div class="section">
-  <h2>Projects</h2>
-  <ul class="repos">
-    <li>
-      <strong><a href="Ace-match/Ace%20Card%20Battle.html" target="_blank">Ace Card Battle</a></strong><br>
-      A fun card battle game built with HTML, CSS, and JavaScript.
-    </li>
-    <li>
-      <strong><a href="Blog/Mobile.html" target="_blank">Mobile Blog</a></strong><br>
-      Mobile-friendly blog layout example.
-    </li>
-    <li>
-      <strong><a href="Coinflipper-web/index.html" target="_blank">Coin Flipper</a></strong><br>
-      Flip a virtual coin with simple animations.
-    </li>
-    <li>
-      <strong><a href="Hokm-web/hokm_html_game_fixed.html" target="_blank">Hokm Card Game</a></strong><br>
-      An online playable Hokm game in HTML.
-    </li>
-    <li>
-      <strong><a href="MOBA-web/index.html" target="_blank">MOBA Web</a></strong><br>
-      Multiplayer Online Battle Arena browser game.
-    </li>
-    <li>
-      <strong><a href="Modern-RPG/Crime%20City%20RPG.html" target="_blank">Crime City RPG</a></strong><br>
-      Modern RPG concept set in a crime-filled city.
-    </li>
-    <li>
-      <strong><a href="Snake-web/index.html" target="_blank">Snake Web</a></strong><br>
-      Classic snake game in HTML5.
-    </li>
-    <li>
-      <strong><a href="Spaceship-web/index.html" target="_blank">Spaceship Web</a></strong><br>
-      Simple HTML5 spaceship shooter.
-    </li>
-  </ul>
-    </div>
+      <section id="repos" aria-labelledby="repos-heading">
+        <h2 id="repos-heading">Popular Repositories</h2>
+        <div class="cards-grid" role="list">
+          <article class="card" role="listitem">
+            <strong><a href="https://github.com/Kingvornex/Open.mp-actor-robbery" target="_blank" rel="noopener">Open.mp-actor-robbery</a></strong>
+            <p>Actor-based robbery system for Open.MP with realism and flexibility.</p>
+          </article>
+          <article class="card" role="listitem">
+            <strong><a href="https://github.com/Kingvornex/OPEN.MP-VEHICLE-TUNE-MENU" target="_blank" rel="noopener">OPEN.MP-VEHICLE-TUNE-MENU</a></strong>
+            <p>Vehicle tuning UI for Open.MP — built using dialogs and PVars.</p>
+          </article>
+          <article class="card" role="listitem">
+            <strong><a href="https://github.com/Kingvornex/SA-MP-Open.MP-Vehicle-Streamer-FilterScript" target="_blank" rel="noopener">Vehicle Streamer FS</a></strong>
+            <p>Filterscript for streaming and managing dynamic vehicles with optimizations.</p>
+          </article>
+          <article class="card" role="listitem">
+            <strong><a href="https://github.com/Kingvornex/SA-MP-OPEN-MP-OBJECT-MOVER" target="_blank" rel="noopener">Object Mover</a></strong>
+            <p>Smooth object movement script using timers and interpolation.</p>
+          </article>
+        </div>
+      </section>
 
-    <div class="section">
-      <h2>Skills</h2>
-      <ul class="skills">
-        <li>PAWN (SA-MP scripting)</li>
-        <li>Open.MP API</li>
-        <li>Game mechanics and filterscript design</li>
-        <li>UI using dialogs</li>
-        <li>Optimization for multiplayer environments</li>
-      </ul>
-    </div>
-  </div>
+      <section id="projects" aria-labelledby="projects-heading">
+        <h2 id="projects-heading">Projects</h2>
+        <div class="cards-grid" role="list">
+          <article class="card" role="listitem"><a href="Ace-match/Ace%20Card%20Battle.html" target="_blank" rel="noopener">Ace Card Battle</a> — A fun card battle game built with HTML, CSS, and JavaScript.</article>
+          <article class="card" role="listitem"><a href="Blog/Mobile.html" target="_blank" rel="noopener">Mobile Blog</a> — Mobile-friendly blog layout example.</article>
+          <article class="card" role="listitem"><a href="Coinflipper-web/index.html" target="_blank" rel="noopener">Coin Flipper</a> — Flip a virtual coin with simple animations.</article>
+          <article class="card" role="listitem"><a href="Hokm-web/hokm_html_game_fixed.html" target="_blank" rel="noopener">Hokm Card Game</a> — An online playable Hokm game in HTML.</article>
+          <article class="card" role="listitem"><a href="MOBA-web/index.html" target="_blank" rel="noopener">MOBA Web</a> — Multiplayer Online Battle Arena browser game.</article>
+          <article class="card" role="listitem"><a href="Modern-RPG/Crime%20City%20RPG.html" target="_blank" rel="noopener">Crime City RPG</a> — Modern RPG concept set in a crime-filled city.</article>
+          <article class="card" role="listitem"><a href="Snake-web/index.html" target="_blank" rel="noopener">Snake Web</a> — Classic snake game in HTML5.</article>
+          <article class="card" role="listitem"><a href="Spaceship-web/index.html" target="_blank" rel="noopener">Spaceship Web</a> — Simple HTML5 spaceship shooter.</article>
+        </div>
+      </section>
 
-  <footer>
-    Made with ♥ <a href="https://github.com/Kingvornex">Kingvornex</a>
-  </footer>
+      <section id="skills" aria-labelledby="skills-heading">
+        <h2 id="skills-heading">Skills</h2>
+        <ul>
+          <li>PAWN (SA-MP scripting)</li>
+          <li>Open.MP API</li>
+          <li>Game mechanics and filterscript design</li>
+          <li>UI using dialogs</li>
+          <li>Optimization for multiplayer environments</li>
+        </ul>
+      </section>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  © <span id="year"></span> Kingvornex — Built with ♥ for gamers & developers
+</footer>
+
+<script>
+  // Year update
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Active nav highlight on scroll
+  const sections = document.querySelectorAll('main section');
+  const navLinks = document.querySelectorAll('nav a');
+
+  function activateNav() {
+    let index = sections.length;
+    while(--index && window.scrollY + 150 < sections[index].offsetTop) {}
+    navLinks.forEach(link => link.classList.remove('active'));
+    navLinks[index].classList.add('active');
+  }
+
+  activateNav();
+  window.addEventListener('scroll', activateNav);
+</script>
 
 </body>
-  
 </html>
