@@ -356,18 +356,9 @@
       </section>
 
       <section id="projects" aria-labelledby="projects-heading">
-        <h2 id="projects-heading">Projects</h2>
-        <div class="cards-grid" role="list">
-          <article class="card" role="listitem"><a href="Ace-match/Ace%20Card%20Battle.html" target="_blank" rel="noopener">Ace Card Battle</a> — A fun card battle game built with HTML, CSS, and JavaScript.</article>
-          <article class="card" role="listitem"><a href="Blog/Mobile.html" target="_blank" rel="noopener">Mobile Blog</a> — Mobile-friendly blog layout example.</article>
-          <article class="card" role="listitem"><a href="Coinflipper-web/index.html" target="_blank" rel="noopener">Coin Flipper</a> — Flip a virtual coin with simple animations.</article>
-          <article class="card" role="listitem"><a href="Hokm-web/hokm_html_game_fixed.html" target="_blank" rel="noopener">Hokm Card Game</a> — An online playable Hokm game in HTML.</article>
-          <article class="card" role="listitem"><a href="MOBA-web/index.html" target="_blank" rel="noopener">MOBA Web</a> — Multiplayer Online Battle Arena browser game.</article>
-          <article class="card" role="listitem"><a href="Modern-RPG/Crime%20City%20RPG.html" target="_blank" rel="noopener">Crime City RPG</a> — Modern RPG concept set in a crime-filled city.</article>
-          <article class="card" role="listitem"><a href="Snake-web/index.html" target="_blank" rel="noopener">Snake Web</a> — Classic snake game in HTML5.</article>
-          <article class="card" role="listitem"><a href="Spaceship-web/index.html" target="_blank" rel="noopener">Spaceship Web</a> — Simple HTML5 spaceship shooter.</article>
-        </div>
-      </section>
+  <h2 id="projects-heading">Projects</h2>
+  <div class="cards-grid" id="projects-container" role="list"></div>
+</section>
 
       <section id="skills" aria-labelledby="skills-heading">
         <h2 id="skills-heading">Skills</h2>
@@ -405,6 +396,27 @@
 
   activateNav();
   window.addEventListener('scroll', activateNav);
+
+  fetch('projects.json')
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById('projects-container');
+      Object.keys(data)
+        .sort()
+        .forEach(filePath => {
+          const proj = data[filePath];
+          const card = document.createElement('article');
+          card.className = 'card';
+          card.setAttribute('role', 'listitem');
+          card.innerHTML = `
+            <strong><a href="${filePath}" target="_blank" rel="noopener">${proj.title || filePath}</a></strong>
+            <p>${proj.desc || ''}</p>
+            <div class="tags">${(proj.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('')}</div>
+          `;
+          container.appendChild(card);
+        });
+    })
+    .catch(err => console.error('Error loading projects.json:', err));
 </script>
 
 </body>
