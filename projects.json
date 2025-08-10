@@ -31,7 +31,7 @@
 ,
   "Blog/index.html": {"title": "Crazy Interactive Blog", "desc": "", "tags": []}
 ,
-  "Spaceship-web/spacecraft-simulator-2d.html": {"title": "2D Space Craft Simulator", "desc": "", "tags": []}
+  "Spaceship-web/spacecraft-simulator-2d.html": {"title": "2D Space Craft Simulator", "desc": "An action-packed space shooter game where you pilot a spaceship and destroy enemy fleets.", "tags": ["Space Shooter","Spaceship","Arcade Game","HTML Game","Action"]}
 ,
   "Spaceship-web/index.html": {"title": "3D Space Craft Simulator", "desc": "An action-packed space shooter game where you pilot a spaceship and destroy enemy fleets.", "tags": ["Space Shooter","Spaceship","Arcade Game","HTML Game","Action"]}
 ,
