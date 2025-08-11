@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Satisfactory Bubble Pop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            cursor: crosshair;
+        }
+
+        #gameContainer {
+            width: 100%;
+            max-width: 800px;
+            height: 100vh;
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        #ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .scorePanel, .comboPanel, .levelPanel {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 15px 25px;
+            border-radius: 15px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            pointer-events: auto;
+        }
+
+        .scorePanel h3, .comboPanel h3, .levelPanel h3 {
+            font-size: 14px;
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+
+        .scoreValue, .comboValue, .levelValue {
+            font-size: 28px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .comboPanel {
+            transform: scale(1);
+            transition: transform 0.3s ease;
+        }
+
+        .comboPanel.active {
+            transform: scale(1.2);
+            background: rgba(255, 215, 0, 0.3);
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1.2); }
+            50% { transform: scale(1.3); }
+        }
+
+        #startScreen, #gameOverScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 20;
+        }
+
+        #gameOverScreen {
+            display: none;
+        }
+
+        h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            margin-top: 20px;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .instructions {
+            text-align: center;
+            margin-top: 20px;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        .floatingScore {
+            position: absolute;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            pointer-events: none;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+        }
+
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        @media (max-width: 600px) {
+            #ui {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .scorePanel, .comboPanel, .levelPanel {
+                padding: 10px 15px;
+            }
+            
+            .scoreValue, .comboValue, .levelValue {
+                font-size: 20px;
+            }
+            
+            h1 {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        
+        <div id="ui">
+            <div class="scorePanel">
+                <h3>SCORE</h3>
+                <div class="scoreValue">0</div>
+            </div>
+            
+            <div class="comboPanel">
+                <h3>COMBO</h3>
+                <div class="comboValue">x1</div>
+            </div>
+            
+            <div class="levelPanel">
+                <h3>LEVEL</h3>
+                <div class="levelValue">1</div>
+            </div>
+        </div>
+        
+        <div id="startScreen">
+            <h1>🫧 Bubble Pop 🫧</h1>
+            <button class="button" onclick="startGame()">Start Game</button>
+            <div class="instructions">
+                <p>Click the bubbles to pop them!</p>
+                <p>Chain pops for combo multipliers</p>
+                <p>Golden bubbles = Bonus points!</p>
+            </div>
+        </div>
+        
+        <div id="gameOverScreen">
+            <h1>Game Over!</h1>
+            <div class="scorePanel" style="margin: 20px 0;">
+                <h3>Final Score</h3>
+                <div class="scoreValue" id="finalScore">0</div>
+            </div>
+            <button class="button" onclick="restartGame()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gameContainer = document.getElementById('gameContainer');
+        
+        let gameRunning = false;
+        let score = 0;
+        let combo = 1;
+        let comboTimer = null;
+        let level = 1;
+        let bubbles = [];
+        let particles = [];
+        let lastBubbleTime = 0;
+        let bubbleInterval = 2000;
+        
+        // Audio context for sound effects
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function resizeCanvas() {
+            canvas.width = gameContainer.clientWidth;
+            canvas.height = gameContainer.clientHeight;
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        class Bubble {
+            constructor() {
+                this.radius = Math.random() * 30 + 20;
+                this.x = Math.random() * (canvas.width - this.radius * 2) + this.radius;
+                this.y = canvas.height + this.radius;
+                this.speed = Math.random() * 2 + 1 + (level * 0.5);
+                this.wobble = Math.random() * Math.PI * 2;
+                this.wobbleSpeed = Math.random() * 0.05 + 0.02;
+                this.color = this.getRandomColor();
+                this.popped = false;
+                this.opacity = 1;
+            }
+            
+            getRandomColor() {
+                const colors = [
+                    { r: 255, g: 107, b: 107 }, // Red
+                    { r: 78, g: 205, b: 196 },  // Teal
+                    { r: 255, g: 206, b: 84 },  // Yellow
+                    { r: 199, g: 244, b: 100 }, // Green
+                    { r: 255, g: 159, b: 243 }, // Pink
+                    { r: 255, g: 215, b: 0 }    // Gold (special)
+                ];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+            
+            update() {
+                if (!this.popped) {
+                    this.y -= this.speed;
+                    this.wobble += this.wobbleSpeed;
+                    this.x += Math.sin(this.wobble) * 0.5;
+                } else {
+                    this.opacity -= 0.05;
+                    this.radius += 2;
+                }
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                
+                // Bubble gradient
+                const gradient = ctx.createRadialGradient(
+                    this.x - this.radius/3, this.y - this.radius/3, 0,
+                    this.x, this.y, this.radius
+                );
+                gradient.addColorStop(0, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0.8)`);
+                gradient.addColorStop(0.7, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0.4)`);
+                gradient.addColorStop(1, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0.2)`);
+                
+                // Draw bubble
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                
+                // Highlight
+                ctx.beginPath();
+                ctx.arc(this.x - this.radius/3, this.y - this.radius/3, this.radius/3, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.fill();
+                
+                ctx.restore();
+            }
+            
+            isClicked(x, y) {
+                const distance = Math.sqrt((x - this.x) ** 2 + (y - this.y) ** 2);
+                return distance < this.radius;
+            }
+            
+            getPoints() {
+                // Golden bubbles give 5x points
+                const basePoints = this.color.r === 255 && this.color.g === 215 && this.color.b === 0 ? 50 : 10;
+                return basePoints * combo;
+            }
+        }
+        
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 8;
+                this.vy = (Math.random() - 0.5) * 8;
+                this.radius = Math.random() * 5 + 2;
+                this.color = color;
+                this.opacity = 1;
+                this.gravity = 0.2;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += this.gravity;
+                this.opacity -= 0.02;
+                this.radius *= 0.98;
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgb(${this.color.r}, ${this.color.g}, ${this.color.b})`;
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+        
+        function createParticles(x, y, color) {
+            for (let i = 0; i < 15; i++) {
+                particles.push(new Particle(x, y, color));
+            }
+        }
+        
+        function playPopSound() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+        
+        function showFloatingScore(x, y, points) {
+            const floatingScore = document.createElement('div');
+            floatingScore.className = 'floatingScore';
+            floatingScore.textContent = `+${points}`;
+            floatingScore.style.left = x + 'px';
+            floatingScore.style.top = y + 'px';
+            gameContainer.appendChild(floatingScore);
+            
+            setTimeout(() => floatingScore.remove(), 1000);
+        }
+        
+        function updateCombo() {
+            const comboPanel = document.querySelector('.comboPanel');
+            const comboValue = document.querySelector('.comboValue');
+            
+            comboValue.textContent = `x${combo}`;
+            
+            if (combo > 1) {
+                comboPanel.classList.add('active');
+            } else {
+                comboPanel.classList.remove('active');
+            }
+        }
+        
+        function updateScore(points) {
+            score += points;
+            document.querySelector('.scoreValue').textContent = score;
+            
+            // Level up every 500 points
+            const newLevel = Math.floor(score / 500) + 1;
+            if (newLevel > level) {
+                level = newLevel;
+                document.querySelector('.levelValue').textContent = level;
+                bubbleInterval = Math.max(500, 2000 - (level * 200));
+            }
+        }
+        
+        function handleClick(e) {
+            if (!gameRunning) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            let bubblePopped = false;
+            
+            for (let i = bubbles.length - 1; i >= 0; i--) {
+                const bubble = bubbles[i];
+                if (!bubble.popped && bubble.isClicked(x, y)) {
+                    bubble.popped = true;
+                    const points = bubble.getPoints();
+                    updateScore(points);
+                    createParticles(bubble.x, bubble.y, bubble.color);
+                    playPopSound();
+                    showFloatingScore(e.clientX - rect.left, e.clientY - rect.top, points);
+                    
+                    // Update combo
+                    combo = Math.min(combo + 1, 10);
+                    updateCombo();
+                    
+                    // Reset combo timer
+                    clearTimeout(comboTimer);
+                    comboTimer = setTimeout(() => {
+                        combo = 1;
+                        updateCombo();
+                    }, 2000);
+                    
+                    bubblePopped = true;
+                    break;
+                }
+            }
+            
+            if (!bubblePopped) {
+                // Missed click - reset combo
+                combo = 1;
+                updateCombo();
+                clearTimeout(comboTimer);
+            }
+        }
+        
+        canvas.addEventListener('click', handleClick);
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const clickEvent = new MouseEvent('click', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(clickEvent);
+        });
+        
+        function spawnBubble() {
+            bubbles.push(new Bubble());
+        }
+        
+        function gameLoop(currentTime) {
+            if (!gameRunning) return;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Spawn bubbles
+            if (currentTime - lastBubbleTime > bubbleInterval) {
+                spawnBubble();
+                lastBubbleTime = currentTime;
+            }
+            
+            // Update and draw bubbles
+            bubbles = bubbles.filter(bubble => {
+                bubble.update();
+                bubble.draw();
+                return bubble.y > -bubble.radius && bubble.opacity > 0;
+            });
+            
+            // Update and draw particles
+            particles = particles.filter(particle => {
+                particle.update();
+                particle.draw();
+                return particle.opacity > 0;
+            });
+            
+            // Check if any bubble reached the top
+            const bubbleAtTop = bubbles.some(bubble => !bubble.popped && bubble.y - bubble.radius < 0);
+            if (bubbleAtTop) {
+                endGame();
+                return;
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            gameRunning = true;
+            score = 0;
+            combo = 1;
+            level = 1;
+            bubbles = [];
+            particles = [];
+            bubbleInterval = 2000;
+            lastBubbleTime = 0;
+            
+            document.querySelector('.scoreValue').textContent = score;
+            document.querySelector('.comboValue').textContent = `x${combo}`;
+            document.querySelector('.levelValue').textContent = level;
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function endGame() {
+            gameRunning = false;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOverScreen').style.display = 'flex';
+        }
+        
+        function restartGame() {
+            document.getElementById('gameOverScreen').style.display = 'none';
+            startGame();
+        }
+    </script>
+</body>
+</html>
