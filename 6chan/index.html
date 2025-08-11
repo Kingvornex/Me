@@ -1,0 +1,1677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- SEO Meta Tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6chan - Next Generation Imageboard Platform | Join the Conversation</title>
+    <meta name="description" content="6chan is the next-generation imageboard platform featuring advanced thread management, real-time discussions, and modern UI. Join millions of users in engaging conversations across technology, gaming, art, and more.">
+    <meta name="keywords" content="imageboard, forum, discussion, technology, gaming, art, science, community, threads, posts, social media">
+    <meta name="author" content="6chan Team">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://6chan.com/">
+    
+    <!-- Open Graph Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="6chan - Next Generation Imageboard Platform">
+    <meta property="og:description" content="Join the next-generation imageboard platform with advanced features and real-time discussions.">
+    <meta property="og:url" content="https://6chan.com/">
+    <meta property="og:site_name" content="6chan">
+    <meta property="og:image" content="https://sfile.chatglm.cn/images-ppt/d83e1142eab4.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="en_US">
+    
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@6chan">
+    <meta name="twitter:creator" content="@6chan">
+    <meta name="twitter:title" content="6chan - Next Generation Imageboard Platform">
+    <meta name="twitter:description" content="Join the next-generation imageboard platform with advanced features and real-time discussions.">
+    <meta name="twitter:image" content="https://sfile.chatglm.cn/images-ppt/39712e35ca67.jpeg">
+    
+    <!-- Additional SEO Tags -->
+    <meta name="theme-color" content="#6366f1">
+    <meta name="msapplication-TileColor" content="#6366f1">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://sfile.chatglm.cn/images-ppt/96be635911c7.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://sfile.chatglm.cn/images-ppt/96be635911c7.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://sfile.chatglm.cn/images-ppt/96be635911c7.png">
+    <link rel="shortcut icon" href="https://sfile.chatglm.cn/images-ppt/96be635911c7.png">
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "6chan",
+        "alternateName": "6chan - Next Generation Imageboard",
+        "description": "Next-generation imageboard platform with advanced features and real-time discussions",
+        "url": "https://6chan.com/",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://6chan.com/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        },
+        "author": {
+            "@type": "Organization",
+            "name": "6chan Team",
+            "url": "https://6chan.com/about"
+        },
+        "inLanguage": "en",
+        "isAccessibleForFree": true,
+        "license": "https://6chan.com/terms"
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://6chan.com/"
+            }
+        ]
+    }
+    </script>
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Core Variables */
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #64748b;
+            --border: #475569;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        /* Reset & Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        /* Skip to content for accessibility */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--primary);
+            color: white;
+            padding: 8px;
+            text-decoration: none;
+            border-radius: 0 0 4px 0;
+            z-index: 100;
+        }
+        .skip-link:focus {
+            top: 0;
+        }
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            border-bottom: 2px solid var(--primary);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .nav-section {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        .board-nav {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            list-style: none;
+        }
+        .board-nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            border: 1px solid transparent;
+        }
+        .board-nav a:hover,
+        .board-nav a:focus {
+            background-color: var(--bg-tertiary);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+        .board-nav .current-board {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-weight: 600;
+        }
+        .search-box {
+            position: relative;
+        }
+        .search-box input {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 0.5rem 2.5rem 0.5rem 1rem;
+            color: var(--text-primary);
+            width: 200px;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            width: 250px;
+        }
+        .search-box button {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.25rem;
+        }
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        /* Breadcrumb */
+        .breadcrumb {
+            margin-bottom: 2rem;
+            font-size: 0.875rem;
+        }
+        .breadcrumb a {
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+        .breadcrumb a:hover {
+            color: var(--primary);
+        }
+        .breadcrumb span {
+            color: var(--text-muted);
+            margin: 0 0.5rem;
+        }
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            margin-bottom: 4rem;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+        /* Section Styles */
+        .section {
+            margin-bottom: 4rem;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .section-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.3s ease;
+        }
+        .section-link:hover {
+            color: var(--primary);
+        }
+        /* Announcements */
+        .announcements {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        .announcement-item {
+            padding: 1rem;
+            border-left: 4px solid var(--primary);
+            margin-bottom: 1rem;
+            background-color: var(--bg-primary);
+            border-radius: 0 8px 8px 0;
+        }
+        .announcement-item:last-child {
+            margin-bottom: 0;
+        }
+        .announcement-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        .announcement-date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        /* Boards Grid */
+        .boards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        .board-card {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+        .board-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-lg);
+        }
+        .board-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        .board-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .board-stats {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        /* Thread Lists */
+        .thread-list {
+            display: grid;
+            gap: 1rem;
+        }
+        .thread-card {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .thread-card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-lg);
+        }
+        .thread-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .thread-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .thread-title:hover {
+            color: var(--secondary);
+        }
+        .thread-meta {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .thread-author {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        .thread-stats {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .thread-content {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        .thread-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        .tag {
+            background-color: var(--bg-primary);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            text-decoration: none;
+            border: 1px solid var(--primary);
+        }
+        .tag:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+        .thread-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .thread-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.75rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .action-btn:hover {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .thread-date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        /* Featured Threads */
+        .featured-thread {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+        .featured-thread .thread-title {
+            color: white;
+        }
+        .featured-thread .thread-author {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .featured-thread .thread-content {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .featured-thread .tag {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        .featured-thread .action-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        .featured-thread .action-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        .featured-thread .thread-date {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+        .tab {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+        }
+        .tab:hover,
+        .tab:focus {
+            color: var(--primary);
+        }
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        /* Stats Section */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border-top: 1px solid var(--border);
+            padding: 3rem 0 2rem;
+            margin-top: 4rem;
+        }
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .footer-section h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+        .footer-section ul {
+            list-style: none;
+        }
+        .footer-section a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            line-height: 2;
+            transition: color 0.3s ease;
+        }
+        .footer-section a:hover {
+            color: var(--primary);
+        }
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .nav-section {
+                width: 100%;
+                justify-content: center;
+            }
+            .search-box input {
+                width: 150px;
+            }
+            .search-box input:focus {
+                width: 180px;
+            }
+            .main-content {
+                padding: 1rem;
+            }
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .hero p {
+                font-size: 1rem;
+            }
+            .section-title {
+                font-size: 1.5rem;
+            }
+            .boards-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+            .stat-value {
+                font-size: 2rem;
+            }
+        }
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--bg-tertiary);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        /* Focus Styles */
+        *:focus {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+        *:focus:not(:focus-visible) {
+            outline: none;
+        }
+        *:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip to main content -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <!-- Header -->
+    <header class="header" role="banner">
+        <div class="header-content">
+            <a href="/" class="logo" aria-label="6chan homepage">
+                <i class="fas fa-cube" aria-hidden="true"></i>
+                6chan
+            </a>
+            
+            <nav class="nav-section" aria-label="Main navigation">
+                <ul class="board-nav">
+                    <li><a href="/tech" class="current-board" aria-current="page">/tech/</a></li>
+                    <li><a href="/gaming">/gaming/</a></li>
+                    <li><a href="/anime">/anime/</a></li>
+                    <li><a href="/art">/art/</a></li>
+                    <li><a href="/science">/science/</a></li>
+                    <li><a href="/random">/random/</a></li>
+                </ul>
+            </nav>
+            
+            <div class="search-box" role="search">
+                <input type="search" 
+                       id="search-input" 
+                       placeholder="Search threads..." 
+                       aria-label="Search threads"
+                       autocomplete="off">
+                <button type="submit" aria-label="Submit search">
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+        </nav>
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>Welcome to 6chan</h1>
+            <p>The next-generation imageboard platform with advanced features, real-time discussions, and a modern community experience.</p>
+            <div class="cta-buttons">
+                <a href="/create-thread" class="btn">
+                    <i class="fas fa-plus"></i>
+                    Create Thread
+                </a>
+                <a href="/explore" class="btn btn-secondary">
+                    <i class="fas fa-compass"></i>
+                    Explore
+                </a>
+            </div>
+        </section>
+        <!-- Announcements Section -->
+        <section class="section" aria-labelledby="announcements-heading">
+            <h2 class="section-title" id="announcements-heading">Announcements</h2>
+            <div class="announcements">
+                <article class="announcement-item">
+                    <h3 class="announcement-title">Welcome to 6chan 2.0 - Major Update Released!</h3>
+                    <p class="announcement-date">December 15, 2024</p>
+                    <p>We're excited to announce the biggest update to 6chan yet! Featuring improved performance, new features, and enhanced user experience.</p>
+                </article>
+                <article class="announcement-item">
+                    <h3 class="announcement-title">New Board: /ai/ - Artificial Intelligence Discussions</h3>
+                    <p class="announcement-date">December 10, 2024</p>
+                    <p>Join our newest board dedicated to AI discussions, machine learning, and the future of technology.</p>
+                </article>
+                <article class="announcement-item">
+                    <h3 class="announcement-title">Community Guidelines Updated</h3>
+                    <p class="announcement-date">December 5, 2024</p>
+                    <p>We've updated our community guidelines to ensure a better experience for all users. Please review the changes.</p>
+                </article>
+            </div>
+        </section>
+        <!-- Stats Section -->
+        <section class="stats-grid" aria-labelledby="stats-heading">
+            <h2 class="sr-only" id="stats-heading">Platform Statistics</h2>
+            <div class="stat-card">
+                <div class="stat-value">2.5M+</div>
+                <div class="stat-label">Active Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">15K+</div>
+                <div class="stat-label">Daily Threads</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">150K+</div>
+                <div class="stat-label">Daily Posts</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">50+</div>
+                <div class="stat-label">Active Boards</div>
+            </div>
+        </section>
+        <!-- Boards Section -->
+        <section class="section" aria-labelledby="boards-heading">
+            <div class="section-header">
+                <h2 class="section-title" id="boards-heading">Popular Boards</h2>
+                <a href="/boards" class="section-link">View all boards →</a>
+            </div>
+            <div class="boards-grid">
+                <a href="/tech" class="board-card">
+                    <div class="board-icon">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <h3 class="board-name">/tech/</h3>
+                    <p class="board-stats">Technology & Programming</p>
+                    <p class="board-stats">1.2M threads</p>
+                </a>
+                <a href="/gaming" class="board-card">
+                    <div class="board-icon">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <h3 class="board-name">/gaming/</h3>
+                    <p class="board-stats">Video Games & Esports</p>
+                    <p class="board-stats">890K threads</p>
+                </a>
+                <a href="/anime" class="board-card">
+                    <div class="board-icon">
+                        <i class="fas fa-tv"></i>
+                    </div>
+                    <h3 class="board-name">/anime/</h3>
+                    <p class="board-stats">Anime & Manga</p>
+                    <p class="board-stats">756K threads</p>
+                </a>
+                <a href="/art" class="board-card">
+                    <div class="board-icon">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <h3 class="board-name">/art/</h3>
+                    <p class="board-stats">Art & Design</p>
+                    <p class="board-stats">432K threads</p>
+                </a>
+                <a href="/science" class="board-card">
+                    <div class="board-icon">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <h3 class="board-name">/science/</h3>
+                    <p class="board-stats">Science & Mathematics</p>
+                    <p class="board-stats">567K threads</p>
+                </a>
+                <a href="/music" class="board-card">
+                    <div class="board-icon">
+                        <i class="fas fa-music"></i>
+                    </div>
+                    <h3 class="board-name">/music/</h3>
+                    <p class="board-stats">Music & Audio</p>
+                    <p class="board-stats">345K threads</p>
+                </a>
+            </div>
+        </section>
+        <!-- Trending Threads Section -->
+        <section class="section" aria-labelledby="trending-heading">
+            <div class="section-header">
+                <h2 class="section-title" id="trending-heading">Trending Threads</h2>
+                <a href="/trending" class="section-link">View all trending →</a>
+            </div>
+            <div class="thread-list">
+                <article class="thread-card featured-thread">
+                    <div class="thread-header">
+                        <div>
+                            <a href="/thread/123456" class="thread-title">The Future of AI: Where We're Headed in 2025</a>
+                            <div class="thread-meta">
+                                <span class="thread-author">by TechVisionary</span>
+                                <div class="thread-stats">
+                                    <span><i class="fas fa-arrow-up"></i> 2.5k</span>
+                                    <span><i class="fas fa-comment"></i> 342</span>
+                                    <span><i class="fas fa-eye"></i> 15k</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="thread-content">
+                        Artificial Intelligence is evolving at an unprecedented pace. Let's discuss the latest developments, breakthrough technologies, and what we can expect in the coming year...
+                    </div>
+                    <div class="thread-tags">
+                        <a href="/tag/ai" class="tag">AI</a>
+                        <a href="/tag/technology" class="tag">Technology</a>
+                        <a href="/tag/future" class="tag">Future</a>
+                    </div>
+                    <div class="thread-footer">
+                        <div class="thread-actions">
+                            <a href="/thread/123456" class="action-btn">
+                                <i class="fas fa-arrow-up"></i>
+                                Upvote
+                            </a>
+                            <a href="/thread/123456#reply" class="action-btn">
+                                <i class="fas fa-reply"></i>
+                                Reply
+                            </a>
+                            <a href="/thread/123456" class="action-btn">
+                                <i class="fas fa-share"></i>
+                                Share
+                            </a>
+                        </div>
+                        <div class="thread-date">2 hours ago</div>
+                    </div>
+                </article>
+                <article class="thread-card">
+                    <div class="thread-header">
+                        <div>
+                            <a href="/thread/123457" class="thread-title">Best Programming Languages to Learn in 2024</a>
+                            <div class="thread-meta">
+                                <span class="thread-author">by CodeMaster</span>
+                                <div class="thread-stats">
+                                    <span><i class="fas fa-arrow-up"></i> 1.8k</span>
+                                    <span><i class="fas fa-comment"></i> 267</span>
+                                    <span><i class="fas fa-eye"></i> 12k</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="thread-content">
+                        With the tech landscape constantly changing, it's important to stay updated with the most in-demand programming languages. Here's my comprehensive guide...
+                    </div>
+                    <div class="thread-tags">
+                        <a href="/tag/programming" class="tag">Programming</a>
+                        <a href="/tag/career" class="tag">Career</a>
+                        <a href="/tag/2024" class="tag">2024</a>
+                    </div>
+                    <div class="thread-footer">
+                        <div class="thread-actions">
+                            <a href="/thread/123457" class="action-btn">
+                                <i class="fas fa-arrow-up"></i>
+                                Upvote
+                            </a>
+                            <a href="/thread/123457#reply" class="action-btn">
+                                <i class="fas fa-reply"></i>
+                                Reply
+                            </a>
+                            <a href="/thread/123457" class="action-btn">
+                                <i class="fas fa-share"></i>
+                                Share
+                            </a>
+                        </div>
+                        <div class="thread-date">4 hours ago</div>
+                    </div>
+                </article>
+                <article class="thread-card">
+                    <div class="thread-header">
+                        <div>
+                            <a href="/thread/123458" class="thread-title">Gaming PC Build Guide - Best Value for Money 2024</a>
+                            <div class="thread-meta">
+                                <span class="thread-author">by PCBuilder</span>
+                                <div class="thread-stats">
+                                    <span><i class="fas fa-arrow-up"></i> 1.5k</span>
+                                    <span><i class="fas fa-comment"></i> 189</span>
+                                    <span><i class="fas fa-eye"></i> 9.8k</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="thread-content">
+                        Building a gaming PC doesn't have to break the bank. I've compiled the best components for different budgets to help you get the most bang for your buck...
+                    </div>
+                    <div class="thread-tags">
+                        <a href="/tag/gaming" class="tag">Gaming</a>
+                        <a href="/tag/pc" class="tag">PC</a>
+                        <a href="/tag/hardware" class="tag">Hardware</a>
+                    </div>
+                    <div class="thread-footer">
+                        <div class="thread-actions">
+                            <a href="/thread/123458" class="action-btn">
+                                <i class="fas fa-arrow-up"></i>
+                                Upvote
+                            </a>
+                            <a href="/thread/123458#reply" class="action-btn">
+                                <i class="fas fa-reply"></i>
+                                Reply
+                            </a>
+                            <a href="/thread/123458" class="action-btn">
+                                <i class="fas fa-share"></i>
+                                Share
+                            </a>
+                        </div>
+                        <div class="thread-date">6 hours ago</div>
+                    </div>
+                </article>
+            </div>
+        </section>
+        <!-- Hot Threads Tabs -->
+        <section class="section" aria-labelledby="hot-threads-heading">
+            <div class="section-header">
+                <h2 class="section-title" id="hot-threads-heading">Hot Threads</h2>
+                <a href="/hot" class="section-link">View all hot threads →</a>
+            </div>
+            
+            <div class="tabs" role="tablist">
+                <button class="tab active" role="tab" aria-selected="true" aria-controls="hot-today" onclick="showTab('hot-today', this)">Today</button>
+                <button class="tab" role="tab" aria-selected="false" aria-controls="hot-week" onclick="showTab('hot-week', this)">This Week</button>
+                <button class="tab" role="tab" aria-selected="false" aria-controls="hot-month" onclick="showTab('hot-month', this)">This Month</button>
+            </div>
+            <div id="hot-today" class="tab-content active" role="tabpanel">
+                <div class="thread-list">
+                    <article class="thread-card">
+                        <div class="thread-header">
+                            <div>
+                                <a href="/thread/123459" class="thread-title">Breaking: Major Tech Company Announces Revolutionary AI Chip</a>
+                                <div class="thread-meta">
+                                    <span class="thread-author">by TechNews</span>
+                                    <div class="thread-stats">
+                                        <span><i class="fas fa-arrow-up"></i> 3.2k</span>
+                                        <span><i class="fas fa-comment"></i> 456</span>
+                                        <span><i class="fas fa-eye"></i> 25k</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="thread-content">
+                            Just in: A major breakthrough in AI hardware technology that could change everything we know about computing...
+                        </div>
+                        <div class="thread-footer">
+                            <div class="thread-actions">
+                                <a href="/thread/123459" class="action-btn">
+                                    <i class="fas fa-arrow-up"></i>
+                                    Upvote
+                                </a>
+                                <a href="/thread/123459#reply" class="action-btn">
+                                    <i class="fas fa-reply"></i>
+                                    Reply
+                                </a>
+                                <a href="/thread/123459" class="action-btn">
+                                    <i class="fas fa-share"></i>
+                                    Share
+                                </a>
+                            </div>
+                            <div class="thread-date">1 hour ago</div>
+                        </div>
+                    </article>
+                    <article class="thread-card">
+                        <div class="thread-header">
+                            <div>
+                                <a href="/thread/123460" class="thread-title">The Ultimate Guide to Remote Work Productivity</a>
+                                <div class="thread-meta">
+                                    <span class="thread-author">by RemoteWorker</span>
+                                    <div class="thread-stats">
+                                        <span><i class="fas fa-arrow-up"></i> 2.1k</span>
+                                        <span><i class="fas fa-comment"></i> 298</span>
+                                        <span><i class="fas fa-eye"></i> 18k</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="thread-content">
+                            After 5 years of remote work, I've compiled everything I've learned about staying productive, maintaining work-life balance, and thriving in a remote environment...
+                        </div>
+                        <div class="thread-footer">
+                            <div class="thread-actions">
+                                <a href="/thread/123460" class="action-btn">
+                                    <i class="fas fa-arrow-up"></i>
+                                    Upvote
+                                </a>
+                                <a href="/thread/123460#reply" class="action-btn">
+                                    <i class="fas fa-reply"></i>
+                                    Reply
+                                </a>
+                                <a href="/thread/123460" class="action-btn">
+                                    <i class="fas fa-share"></i>
+                                    Share
+                                </a>
+                            </div>
+                            <div class="thread-date">3 hours ago</div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+            <div id="hot-week" class="tab-content" role="tabpanel">
+                <div class="thread-list">
+                    <article class="thread-card">
+                        <div class="thread-header">
+                            <div>
+                                <a href="/thread/123461" class="thread-title">Web Development Trends That Will Dominate 2024</a>
+                                <div class="thread-meta">
+                                    <span class="thread-author">by WebDevPro</span>
+                                    <div class="thread-stats">
+                                        <span><i class="fas fa-arrow-up"></i> 4.5k</span>
+                                        <span><i class="fas fa-comment"></i> 623</span>
+                                        <span><i class="fas fa-eye"></i> 45k</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="thread-content">
+                            From AI-powered development tools to new frameworks, here are the web development trends you need to watch in 2024...
+                        </div>
+                        <div class="thread-footer">
+                            <div class="thread-actions">
+                                <a href="/thread/123461" class="action-btn">
+                                    <i class="fas fa-arrow-up"></i>
+                                    Upvote
+                                </a>
+                                <a href="/thread/123461#reply" class="action-btn">
+                                    <i class="fas fa-reply"></i>
+                                    Reply
+                                </a>
+                                <a href="/thread/123461" class="action-btn">
+                                    <i class="fas fa-share"></i>
+                                    Share
+                                </a>
+                            </div>
+                            <div class="thread-date">2 days ago</div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+            <div id="hot-month" class="tab-content" role="tabpanel">
+                <div class="thread-list">
+                    <article class="thread-card">
+                        <div class="thread-header">
+                            <div>
+                                <a href="/thread/123462" class="thread-title">The Complete Guide to Cryptocurrency Investing</a>
+                                <div class="thread-meta">
+                                    <span class="thread-author">by CryptoExpert</span>
+                                    <div class="thread-stats">
+                                        <span><i class="fas fa-arrow-up"></i> 8.9k</span>
+                                        <span><i class="fas fa-comment"></i> 1.2k</span>
+                                        <span><i class="fas fa-eye"></i> 120k</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="thread-content">
+                            Everything you need to know about cryptocurrency investing, from basics to advanced strategies...
+                        </div>
+                        <div class="thread-footer">
+                            <div class="thread-actions">
+                                <a href="/thread/123462" class="action-btn">
+                                    <i class="fas fa-arrow-up"></i>
+                                    Upvote
+                                </a>
+                                <a href="/thread/123462#reply" class="action-btn">
+                                    <i class="fas fa-reply"></i>
+                                    Reply
+                                </a>
+                                <a href="/thread/123462" class="action-btn">
+                                    <i class="fas fa-share"></i>
+                                    Share
+                                </a>
+                            </div>
+                            <div class="thread-date">1 week ago</div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+        <!-- New Threads Section -->
+        <section class="section" aria-labelledby="new-threads-heading">
+            <div class="section-header">
+                <h2 class="section-title" id="new-threads-heading">New Threads</h2>
+                <a href="/new" class="section-link">View all new threads →</a>
+            </div>
+            <div class="thread-list">
+                <article class="thread-card">
+                    <div class="thread-header">
+                        <div>
+                            <a href="/thread/123463" class="thread-title">Just discovered this amazing open-source project</a>
+                            <div class="thread-meta">
+                                <span class="thread-author">by DevEnthusiast</span>
+                                <div class="thread-stats">
+                                    <span><i class="fas fa-arrow-up"></i> 45</span>
+                                    <span><i class="fas fa-comment"></i> 12</span>
+                                    <span><i class="fas fa-eye"></i> 234</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="thread-content">
+                        Found this incredible open-source project that's exactly what I've been looking for. Wanted to share it with the community...
+                    </div>
+                    <div class="thread-tags">
+                        <a href="/tag/opensource" class="tag">Open Source</a>
+                        <a href="/tag/programming" class="tag">Programming</a>
+                    </div>
+                    <div class="thread-footer">
+                        <div class="thread-actions">
+                            <a href="/thread/123463" class="action-btn">
+                                <i class="fas fa-arrow-up"></i>
+                                Upvote
+                            </a>
+                            <a href="/thread/123463#reply" class="action-btn">
+                                <i class="fas fa-reply"></i>
+                                Reply
+                            </a>
+                            <a href="/thread/123463" class="action-btn">
+                                <i class="fas fa-share"></i>
+                                Share
+                            </a>
+                        </div>
+                        <div class="thread-date">10 minutes ago</div>
+                    </div>
+                </article>
+                <article class="thread-card">
+                    <div class="thread-header">
+                        <div>
+                            <a href="/thread/123464" class="thread-title">Need recommendations for a good mechanical keyboard</a>
+                            <div class="thread-meta">
+                                <span class="thread-author">by KeyboardLover</span>
+                                <div class="thread-stats">
+                                    <span><i class="fas fa-arrow-up"></i> 23</span>
+                                    <span><i class="fas fa-comment"></i> 8</span>
+                                    <span><i class="fas fa-eye"></i> 156</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="thread-content">
+                        Looking to upgrade my typing experience. What mechanical keyboards do you recommend for around $100-150?
+                    </div>
+                    <div class="thread-tags">
+                        <a href="/tag/hardware" class="tag">Hardware</a>
+                        <a href="/tag/keyboards" class="tag">Keyboards</a>
+                    </div>
+                    <div class="thread-footer">
+                        <div class="thread-actions">
+                            <a href="/thread/123464" class="action-btn">
+                                <i class="fas fa-arrow-up"></i>
+                                Upvote
+                            </a>
+                            <a href="/thread/123464#reply" class="action-btn">
+                                <i class="fas fa-reply"></i>
+                                Reply
+                            </a>
+                            <a href="/thread/123464" class="action-btn">
+                                <i class="fas fa-share"></i>
+                                Share
+                            </a>
+                        </div>
+                        <div class="thread-date">25 minutes ago</div>
+                    </div>
+                </article>
+                <article class="thread-card">
+                    <div class="thread-header">
+                        <div>
+                            <a href="/thread/123465" class="thread-title">What's your favorite programming language and why?</a>
+                            <div class="thread-meta">
+                                <span class="thread-author">by CodeNewbie</span>
+                                <div class="thread-stats">
+                                    <span><i class="fas fa-arrow-up"></i> 67</span>
+                                    <span><i class="fas fa-comment"></i> 34</span>
+                                    <span><i class="fas fa-eye"></i> 445</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="thread-content">
+                        Just starting my programming journey and curious about what languages experienced developers prefer and why...
+                    </div>
+                    <div class="thread-tags">
+                        <a href="/tag/programming" class="tag">Programming</a>
+                        <a href="/tag/discussion" class="tag">Discussion</a>
+                    </div>
+                    <div class="thread-footer">
+                        <div class="thread-actions">
+                            <a href="/thread/123465" class="action-btn">
+                                <i class="fas fa-arrow-up"></i>
+                                Upvote
+                            </a>
+                            <a href="/thread/123465#reply" class="action-btn">
+                                <i class="fas fa-reply"></i>
+                                Reply
+                            </a>
+                            <a href="/thread/123465" class="action-btn">
+                                <i class="fas fa-share"></i>
+                                Share
+                            </a>
+                        </div>
+                        <div class="thread-date">1 hour ago</div>
+                    </div>
+                </article>
+            </div>
+        </section>
+        <!-- Best All Time Threads Section -->
+        <section class="section" aria-labelledby="best-threads-heading">
+            <div class="section-header">
+                <h2 class="section-title" id="best-threads-heading">Best All Time Threads</h2>
+                <a href="/best" class="section-link">View all best threads →</a>
+            </div>
+            <div class="thread-list">
+                <article class="thread-card featured-thread">
+                    <div class="thread-header">
+                        <div>
+                            <a href="/thread/100001" class="thread-title">The Complete Guide to Learning Programming in 2024</a>
+                            <div class="thread-meta">
+                                <span class="thread-author">by ProgrammingGuru</span>
+                                <div class="thread-stats">
+                                    <span><i class="fas fa-arrow-up"></i> 25.6k</span>
+                                    <span><i class="fas fa-comment"></i> 3.4k</span>
+                                    <span><i class="fas fa-eye"></i> 500k</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="thread-content">
+                        This comprehensive guide covers everything you need to know about learning programming in 2024, from choosing your first language to advanced topics and career paths...
+                    </div>
+                    <div class="thread-tags">
+                        <a href="/tag/programming" class="tag">Programming</a>
+                        <a href="/tag/guide" class="tag">Guide</a>
+                        <a href="/tag/2024" class="tag">2024</a>
+                    </div>
+                    <div class="thread-footer">
+                        <div class="thread-actions">
+                            <a href="/thread/100001" class="action-btn">
+                                <i class="fas fa-arrow-up"></i>
+                                Upvote
+                            </a>
+                            <a href="/thread/100001#reply" class="action-btn">
+                                <i class="fas fa-reply"></i>
+                                Reply
+                            </a>
+                            <a href="/thread/100001" class="action-btn">
+                                <i class="fas fa-share"></i>
+                                Share
+                            </a>
+                        </div>
+                        <div class="thread-date">6 months ago</div>
+                    </div>
+                </article>
+                <article class="thread-card">
+                    <div class="thread-header">
+                        <div>
+                            <a href="/thread/100002" class="thread-title">How I Built a $10k/Month Business from My Bedroom</a>
+                            <div class="thread-meta">
+                                <span class="thread-author">by EntrepreneurPro</span>
+                                <div class="thread-stats">
+                                    <span><i class="fas fa-arrow-up"></i> 18.9k</span>
+                                    <span><i class="fas fa-comment"></i> 2.1k</span>
+                                    <span><i class="fas fa-eye"></i> 350k</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="thread-content">
+                        My journey from broke college student to running a successful online business. Here's exactly how I did it, step by step...
+                    </div>
+                    <div class="thread-tags">
+                        <a href="/tag/business" class="tag">Business</a>
+                        <a href="/tag/entrepreneurship" class="tag">Entrepreneurship</a>
+                        <a href="/tag/money" class="tag">Money</a>
+                    </div>
+                    <div class="thread-footer">
+                        <div class="thread-actions">
+                            <a href="/thread/100002" class="action-btn">
+                                <i class="fas fa-arrow-up"></i>
+                                Upvote
+                            </a>
+                            <a href="/thread/100002#reply" class="action-btn">
+                                <i class="fas fa-reply"></i>
+                                Reply
+                            </a>
+                            <a href="/thread/100002" class="action-btn">
+                                <i class="fas fa-share"></i>
+                                Share
+                            </a>
+                        </div>
+                        <div class="thread-date">8 months ago</div>
+                    </div>
+                </article>
+                <article class="thread-card">
+                    <div class="thread-header">
+                        <div>
+                            <a href="/thread/100003" class="thread-title">The Ultimate Gaming PC Build Guide - 2024 Edition</a>
+                            <div class="thread-meta">
+                                <span class="thread-author">by PCMasterRace</span>
+                                <div class="thread-stats">
+                                    <span><i class="fas fa-arrow-up"></i> 15.7k</span>
+                                    <span><i class="fas fa-comment"></i> 1.8k</span>
+                                    <span><i class="fas fa-eye"></i> 280k</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="thread-content">
+                        The most comprehensive PC building guide you'll find anywhere. Covers everything from budget builds to high-end gaming rigs...
+                    </div>
+                    <div class="thread-tags">
+                        <a href="/tag/gaming" class="tag">Gaming</a>
+                        <a href="/tag/pc" class="tag">PC</a>
+                        <a href="/tag/hardware" class="tag">Hardware</a>
+                    </div>
+                    <div class="thread-footer">
+                        <div class="thread-actions">
+                            <a href="/thread/100003" class="action-btn">
+                                <i class="fas fa-arrow-up"></i>
+                                Upvote
+                            </a>
+                            <a href="/thread/100003#reply" class="action-btn">
+                                <i class="fas fa-reply"></i>
+                                Reply
+                            </a>
+                            <a href="/thread/100003" class="action-btn">
+                                <i class="fas fa-share"></i>
+                                Share
+                            </a>
+                        </div>
+                        <div class="thread-date">1 year ago</div>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="footer-content">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>About 6chan</h3>
+                    <p>6chan is the next-generation imageboard platform designed for modern online communities. Join millions of users in engaging discussions across various topics.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="/about">About Us</a></li>
+                        <li><a href="/rules">Community Rules</a></li>
+                        <li><a href="/faq">FAQ</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Popular Boards</h3>
+                    <ul>
+                        <li><a href="/tech">/tech/ - Technology</a></li>
+                        <li><a href="/gaming">/gaming/ - Gaming</a></li>
+                        <li><a href="/anime">/anime/ - Anime</a></li>
+                        <li><a href="/art">/art/ - Art</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Legal</h3>
+                    <ul>
+                        <li><a href="/privacy">Privacy Policy</a></li>
+                        <li><a href="/terms">Terms of Service</a></li>
+                        <li><a href="/dmca">DMCA</a></li>
+                        <li><a href="/accessibility">Accessibility</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 6chan. All rights reserved. | <a href="/sitemap">Sitemap</a> | <a href="/rss">RSS Feed</a></p>
+            </div>
+        </div>
+    </footer>
+    <script>
+        // Tab functionality
+        function showTab(tabId, tabElement) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+                tab.setAttribute('aria-selected', 'false');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabId).classList.add('active');
+            
+            // Add active class to clicked tab
+            tabElement.classList.add('active');
+            tabElement.setAttribute('aria-selected', 'true');
+        }
+        // Search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
+            const searchBox = document.querySelector('.search-box');
+            
+            // Search on Enter key
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const query = searchInput.value.trim();
+                    if (query) {
+                        window.location.href = `/search?q=${encodeURIComponent(query)}`;
+                    }
+                }
+            });
+            
+            // Search button click
+            searchBox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'BUTTON') {
+                    e.preventDefault();
+                    const query = searchInput.value.trim();
+                    if (query) {
+                        window.location.href = `/search?q=${encodeURIComponent(query)}`;
+                    }
+                }
+            });
+        });
+        // Lazy loading for images (if any)
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.remove('lazy');
+                        imageObserver.unobserve(img);
+                    }
+                });
+            });
+            document.querySelectorAll('img[data-src]').forEach(img => {
+                imageObserver.observe(img);
+            });
+        }
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        // Add loading animation for dynamic content
+        function showLoading(element) {
+            element.innerHTML = '<div class="loading"></div> Loading...';
+        }
+        // Error handling for external resources
+        window.addEventListener('error', function(e) {
+            if (e.target.tagName === 'IMG') {
+                e.target.src = 'https://sfile.chatglm.cn/images-ppt/f678ee27a6cf.png';
+                e.target.alt = 'Image not available';
+            }
+        }, true);
+        // Performance monitoring
+        if ('performance' in window) {
+            window.addEventListener('load', function() {
+                setTimeout(function() {
+                    const perfData = performance.getEntriesByType('navigation')[0];
+                    console.log('Page load time:', perfData.loadEventEnd - perfData.loadEventStart, 'ms');
+                }, 0);
+            });
+        }
+        // Keyboard navigation enhancement
+        document.addEventListener('keydown', function(e) {
+            // Alt + S: Focus search
+            if (e.altKey && e.key === 's') {
+                e.preventDefault();
+                document.getElementById('search-input').focus();
+            }
+            
+            // Alt + N: New thread
+            if (e.altKey && e.key === 'n') {
+                e.preventDefault();
+                window.location.href = '/create-thread';
+            }
+        });
+        // Accessibility: Announce dynamic content changes
+        function announceToScreenReader(message) {
+            const announcement = document.createElement('div');
+            announcement.setAttribute('role', 'status');
+            announcement.setAttribute('aria-live', 'polite');
+            announcement.className = 'sr-only';
+            announcement.textContent = message;
+            document.body.appendChild(announcement);
+            
+            setTimeout(() => {
+                document.body.removeChild(announcement);
+            }, 1000);
+        }
+        // Track scroll depth for analytics
+        let maxScroll = 0;
+        window.addEventListener('scroll', function() {
+            const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+            maxScroll = Math.max(maxScroll, scrollPercent);
+            
+            // Send scroll depth data at 25%, 50%, 75%, 90%
+            if ([25, 50, 75, 90].includes(Math.floor(maxScroll))) {
+                console.log('Scroll depth:', Math.floor(maxScroll) + '%');
+                // Here you would send this data to your analytics service
+            }
+        });
+        // Initialize tooltips (if any)
+        function initializeTooltips() {
+            const tooltipElements = document.querySelectorAll('[data-tooltip]');
+            tooltipElements.forEach(element => {
+                element.addEventListener('mouseenter', function() {
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'tooltip';
+                    tooltip.textContent = this.getAttribute('data-tooltip');
+                    document.body.appendChild(tooltip);
+                    
+                    const rect = this.getBoundingClientRect();
+                    tooltip.style.position = 'absolute';
+                    tooltip.style.top = rect.bottom + 5 + 'px';
+                    tooltip.style.left = rect.left + 'px';
+                    tooltip.style.backgroundColor = 'var(--bg-tertiary)';
+                    tooltip.style.color = 'var(--text-primary)';
+                    tooltip.style.padding = '5px 10px';
+                    tooltip.style.borderRadius = '4px';
+                    tooltip.style.fontSize = '12px';
+                    tooltip.style.zIndex = '1000';
+                });
+                
+                element.addEventListener('mouseleave', function() {
+                    const tooltip = document.querySelector('.tooltip');
+                    if (tooltip) {
+                        tooltip.remove();
+                    }
+                });
+            });
+        }
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTooltips();
+            announceToScreenReader('6chan homepage loaded successfully');
+        });
+    </script>
+    <!-- Structured Data for Breadcrumbs -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://6chan.com/"
+            }
+        ]
+    }
+    </script>
+    <!-- Structured Data for Organization -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "6chan",
+        "url": "https://6chan.com/",
+        "logo": "https://sfile.chatglm.cn/images-ppt/2e5a7d6d70da.jpg",
+        "sameAs": [
+            "https://twitter.com/6chan",
+            "https://facebook.com/6chan",
+            "https://instagram.com/6chan"
+        ],
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "Customer Service",
+            "url": "https://6chan.com/contact"
+        }
+    }
+    </script>
+    <!-- Structured Data for WebSite -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "6chan",
+        "url": "https://6chan.com/",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://6chan.com/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
+</body>
+</html>
