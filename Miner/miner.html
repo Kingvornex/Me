@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold Miner Adventure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #87CEEB;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .game-container {
+            width: 900px;
+            height: 600px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        canvas {
+            display: block;
+            background-color: #87CEEB;
+        }
+        
+        .ui-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            width: 200px;
+        }
+        
+        .ui-panel h3 {
+            margin-bottom: 10px;
+            color: #333;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        
+        .ui-panel p {
+            margin: 5px 0;
+            color: #555;
+        }
+        
+        .shop-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            width: 200px;
+            display: none;
+        }
+        
+        .shop-panel.active {
+            display: block;
+        }
+        
+        .shop-item {
+            margin: 10px 0;
+            padding: 8px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .shop-item:hover {
+            background-color: #e9e9e9;
+        }
+        
+        .shop-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .shop-item.disabled:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .message {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            display: none;
+        }
+        
+        .message.show {
+            display: block;
+            animation: fadeInOut 3s forwards;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        
+        .controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .controls p {
+            margin: 5px 0;
+        }
+        
+        .level-indicator {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="900" height="600"></canvas>
+        
+        <div class="ui-panel">
+            <h3>Game Stats</h3>
+            <p>Money: $<span id="money">0</span></p>
+            <p>Equipment: <span id="equipment">Pickaxe</span></p>
+            <p>Gold Mined: <span id="goldMined">0</span></p>
+        </div>
+        
+        <div class="level-indicator">
+            Level: <span id="level">1</span>
+        </div>
+        
+        <div class="shop-panel" id="shopPanel">
+            <h3>Shop</h3>
+            <div class="shop-item" id="buyExcavator">
+                <strong>Excavator</strong><br>
+                Price: $100<br>
+                Mines gold faster
+            </div>
+            <div class="shop-item" id="upgradeExcavator">
+                <strong>Upgrade Excavator</strong><br>
+                Price: $200<br>
+                Can mine harder gold
+            </div>
+            <div class="shop-item" id="upgradeBridge">
+                <strong>Upgrade Bridge</strong><br>
+                Price: $150<br>
+                Supports excavator
+            </div>
+        </div>
+        
+        <div class="message" id="message"></div>
+        
+        <div class="controls">
+            <p>← → Arrow Keys: Move</p>
+            <p>Space: Mine Gold</p>
+            <p>S: Sell Gold</p>
+            <p>B: Open/Close Shop</p>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Game state
+        const game = {
+            money: 0,
+            level: 1,
+            goldMined: 0,
+            currentGold: 0,
+            equipment: 'pickaxe',
+            excavatorLevel: 0,
+            bridgeLevel: 1,
+            shopOpen: false,
+            playerAtShop: true,
+            playerAtGold: false,
+            canCrossBridge: true,
+            goldHealth: 100,
+            maxGoldHealth: 100,
+            goldValue: 10
+        };
+        
+        // Game objects
+        const player = {
+            x: 100,
+            y: 400,
+            width: 40,
+            height: 60,
+            speed: 5,
+            color: '#FF5733',
+            facing: 'right'
+        };
+        
+        // Ground level
+        const groundY = 460;
+        const groundHeight = 140;
+        
+        const river = {
+            x: 320,
+            y: groundY,
+            width: 260,
+            height: 100
+        };
+        
+        const bridge = {
+            x: 300,
+            y: groundY - 20,
+            width: 300,
+            height: 20
+        };
+        
+        const gold = {
+            x: 700,
+            y: groundY - 110,
+            width: 80,
+            height: 110
+        };
+        
+        const shop = {
+            x: 50,
+            y: groundY - 100,
+            width: 100,
+            height: 100
+        };
+        
+        // Input handling
+        const keys = {};
+        
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            
+            if (e.key === 'b' || e.key === 'B') {
+                toggleShop();
+            }
+            
+            if (e.key === ' ' || e.key === ' ') {
+                mineGold();
+            }
+            
+            if (e.key === 's' || e.key === 'S') {
+                sellGold();
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+        
+        // Shop functionality
+        function toggleShop() {
+            game.shopOpen = !game.shopOpen;
+            document.getElementById('shopPanel').classList.toggle('active', game.shopOpen);
+            updateShopItems();
+        }
+        
+        function updateShopItems() {
+            const buyExcavator = document.getElementById('buyExcavator');
+            const upgradeExcavator = document.getElementById('upgradeExcavator');
+            const upgradeBridge = document.getElementById('upgradeBridge');
+            
+            // Buy excavator
+            if (game.equipment === 'pickaxe') {
+                buyExcavator.classList.toggle('disabled', game.money < 100);
+            } else {
+                buyExcavator.classList.add('disabled');
+            }
+            
+            // Upgrade excavator
+            if (game.equipment === 'excavator' && game.excavatorLevel < game.level) {
+                upgradeExcavator.classList.toggle('disabled', game.money < 200);
+            } else {
+                upgradeExcavator.classList.add('disabled');
+            }
+            
+            // Upgrade bridge
+            if (game.bridgeLevel < game.level) {
+                upgradeBridge.classList.toggle('disabled', game.money < 150);
+            } else {
+                upgradeBridge.classList.add('disabled');
+            }
+            
+            // Add click handlers
+            buyExcavator.onclick = () => {
+                if (game.equipment === 'pickaxe' && game.money >= 100) {
+                    game.money -= 100;
+                    game.equipment = 'excavator';
+                    updateUI();
+                    updateShopItems();
+                    showMessage("Excavator purchased!");
+                }
+            };
+            
+            upgradeExcavator.onclick = () => {
+                if (game.equipment === 'excavator' && game.excavatorLevel < game.level && game.money >= 200) {
+                    game.money -= 200;
+                    game.excavatorLevel++;
+                    updateUI();
+                    updateShopItems();
+                    showMessage("Excavator upgraded!");
+                }
+            };
+            
+            upgradeBridge.onclick = () => {
+                if (game.bridgeLevel < game.level && game.money >= 150) {
+                    game.money -= 150;
+                    game.bridgeLevel++;
+                    updateUI();
+                    updateShopItems();
+                    showMessage("Bridge upgraded!");
+                }
+            };
+        }
+        
+        function showMessage(text) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.classList.add('show');
+            
+            setTimeout(() => {
+                messageEl.classList.remove('show');
+            }, 3000);
+        }
+        
+        function mineGold() {
+            if (game.playerAtGold && game.goldHealth > 0) {
+                const minePower = game.equipment === 'pickaxe' ? 10 : 
+                                 (game.excavatorLevel >= game.level ? 30 : 5);
+                
+                game.goldHealth -= minePower;
+                
+                if (game.goldHealth <= 0) {
+                    const goldAmount = Math.floor(game.maxGoldHealth / 10);
+                    game.currentGold += goldAmount;
+                    game.goldMined += goldAmount;
+                    game.goldHealth = 0;
+                    showMessage(`Mined ${goldAmount} gold!`);
+                }
+            }
+        }
+        
+        function sellGold() {
+            if (game.playerAtShop && game.currentGold > 0) {
+                const earnings = game.currentGold * game.goldValue;
+                game.money += earnings;
+                showMessage(`Sold ${game.currentGold} gold for $${earnings}!`);
+                game.currentGold = 0;
+                updateUI();
+            }
+        }
+        
+        function updateUI() {
+            document.getElementById('money').textContent = game.money;
+            document.getElementById('equipment').textContent = 
+                game.equipment === 'pickaxe' ? 'Pickaxe' : `Excavator (Lv.${game.excavatorLevel})`;
+            document.getElementById('goldMined').textContent = game.goldMined;
+            document.getElementById('level').textContent = game.level;
+        }
+        
+        function update() {
+            // Player movement
+            if (keys['ArrowLeft']) {
+                player.x -= player.speed;
+                player.facing = 'left';
+            }
+            if (keys['ArrowRight']) {
+                player.x += player.speed;
+                player.facing = 'right';
+            }
+            
+            // Boundary checks
+            if (player.x < 0) player.x = 0;
+            if (player.x > canvas.width - player.width) player.x = canvas.width - player.width;
+            
+            // Check if player is at shop
+            game.playerAtShop = player.x < shop.x + shop.width && 
+                               player.x + player.width > shop.x &&
+                               player.y < shop.y + shop.height && 
+                               player.y + player.height > shop.y;
+            
+            // Check if player is at gold
+            game.playerAtGold = player.x < gold.x + gold.width && 
+                               player.x + player.width > gold.x &&
+                               player.y < gold.y + gold.height && 
+                               player.y + player.height > gold.y;
+            
+            // Check if player can cross bridge
+            game.canCrossBridge = game.equipment === 'pickaxe' || game.bridgeLevel >= game.level;
+            
+            // Bridge collision logic
+            const playerCenterX = player.x + player.width / 2;
+            const playerRight = player.x + player.width;
+            const playerLeft = player.x;
+            
+            // Check if player is trying to cross the river
+            if (playerCenterX > river.x && playerCenterX < river.x + river.width) {
+                // Check if player is on the bridge
+                const onBridge = playerCenterX > bridge.x && playerCenterX < bridge.x + bridge.width;
+                
+                if (!onBridge || !game.canCrossBridge) {
+                    // Push player back to the nearest safe ground
+                    if (player.facing === 'right') {
+                        player.x = river.x - player.width;
+                    } else {
+                        player.x = river.x + river.width;
+                    }
+                    
+                    if (!game.canCrossBridge && onBridge) {
+                        showMessage("The bridge is too weak for your excavator!");
+                    }
+                }
+            }
+            
+            // Set player Y position based on location
+            if (playerCenterX > bridge.x && playerCenterX < bridge.x + bridge.width) {
+                // On bridge
+                player.y = bridge.y - player.height;
+            } else {
+                // On ground
+                player.y = groundY - player.height;
+            }
+            
+            // Check if level is complete
+            if (game.goldHealth <= 0 && player.x < river.x) {
+                nextLevel();
+            }
+        }
+        
+        function nextLevel() {
+            game.level++;
+            game.goldHealth = 100 + (game.level - 1) * 50;
+            game.maxGoldHealth = game.goldHealth;
+            game.goldValue = 10 + (game.level - 1) * 5;
+            player.x = 100;
+            showMessage(`Level ${game.level} started!`);
+            updateUI();
+        }
+        
+        function render() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw sky
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(0, 0, canvas.width, groundY);
+            
+            // Draw ground
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(0, groundY, river.x, groundHeight); // left ground
+            ctx.fillRect(river.x + river.width, groundY, canvas.width - (river.x + river.width), groundHeight); // right ground
+            
+            // Draw river
+            ctx.fillStyle = '#1E90FF';
+            ctx.fillRect(river.x, river.y, river.width, river.height);
+            
+            // Draw bridge supports
+            ctx.fillStyle = '#654321';
+            ctx.fillRect(bridge.x + 30, bridge.y + bridge.height, 10, 20);
+            ctx.fillRect(bridge.x + bridge.width - 40, bridge.y + bridge.height, 10, 20);
+            
+            // Draw bridge
+            ctx.fillStyle = game.bridgeLevel >= game.level ? '#8B4513' : '#A0522D';
+            ctx.fillRect(bridge.x, bridge.y, bridge.width, bridge.height);
+            
+            // Draw bridge planks
+            ctx.strokeStyle = '#654321';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < bridge.width; i += 30) {
+                ctx.beginPath();
+                ctx.moveTo(bridge.x + i, bridge.y);
+                ctx.lineTo(bridge.x + i, bridge.y + bridge.height);
+                ctx.stroke();
+            }
+            
+            // Draw bridge railings
+            ctx.strokeStyle = '#654321';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(bridge.x, bridge.y);
+            ctx.lineTo(bridge.x + bridge.width, bridge.y);
+            ctx.stroke();
+            
+            // Draw shop
+            ctx.fillStyle = '#FFD700';
+            ctx.fillRect(shop.x, shop.y, shop.width, shop.height);
+            ctx.fillStyle = '#000';
+            ctx.font = '16px Arial';
+            ctx.fillText('SHOP', shop.x + 25, shop.y + 55);
+            
+            // Draw gold
+            if (game.goldHealth > 0) {
+                const goldHeight = (game.goldHealth / game.maxGoldHealth) * gold.height;
+                ctx.fillStyle = '#FFD700';
+                ctx.fillRect(gold.x, gold.y + gold.height - goldHeight, gold.width, goldHeight);
+                
+                // Draw gold cracks if damaged
+                if (game.goldHealth < game.maxGoldHealth) {
+                    ctx.strokeStyle = '#B8860B';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(gold.x + 20, gold.y + 20);
+                    ctx.lineTo(gold.x + 40, gold.y + 40);
+                    ctx.moveTo(gold.x + 60, gold.y + 30);
+                    ctx.lineTo(gold.x + 40, gold.y + 50);
+                    ctx.stroke();
+                }
+            }
+            
+            // Draw player
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            
+            // Draw equipment
+            if (game.equipment === 'pickaxe') {
+                ctx.fillStyle = '#A9A9A9';
+                ctx.fillRect(player.x + (player.facing === 'right' ? player.width - 10 : 0), 
+                            player.y + 10, 10, 30);
+            } else {
+                // Draw excavator
+                ctx.fillStyle = '#FF8C00';
+                ctx.fillRect(player.x - 10, player.y + 20, player.width + 20, 30);
+                
+                // Draw excavator arm
+                ctx.fillStyle = '#A9A9A9';
+                ctx.fillRect(player.x + (player.facing === 'right' ? player.width : -20), 
+                            player.y + 25, 20, 10);
+            }
+            
+            // Draw current gold indicator
+            if (game.currentGold > 0) {
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(player.x + player.width/2, player.y - 15, 15, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#000';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(game.currentGold, player.x + player.width/2, player.y - 10);
+                ctx.textAlign = 'left';
+            }
+        }
+        
+        function gameLoop() {
+            update();
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Initialize game
+        updateUI();
+        gameLoop();
+    </script>
+</body>
+</html>
