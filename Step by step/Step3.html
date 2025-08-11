@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadow Legion: Eternal Wars</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #111; color: #fff; font-family: 'Courier New', monospace; }
+        #gameCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        #ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .ui-element { position: absolute; pointer-events: auto; }
+        #healthBar { top: 20px; left: 20px; width: 300px; height: 30px; background: #333; border: 2px solid #fff; }
+        #healthFill { height: 100%; background: linear-gradient(to right, #f00, #ff0); width: 100%; transition: width 0.3s; }
+        #staminaBar { top: 60px; left: 20px; width: 300px; height: 20px; background: #333; border: 2px solid #fff; }
+        #staminaFill { height: 100%; background: #0f0; width: 100%; transition: width 0.3s; }
+        #ammo { top: 90px; left: 20px; font-size: 20px; text-shadow: 2px 2px #000; }
+        #abilities { bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; }
+        .ability { width: 60px; height: 60px; background: rgba(0,0,0,0.7); border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: all 0.2s; }
+        .ability:hover { background: rgba(255,255,255,0.2); }
+        .ability.cooldown { opacity: 0.5; cursor: not-allowed; }
+        #minimap { top: 20px; right: 20px; width: 200px; height: 200px; background: rgba(0,0,0,0.7); border: 2px solid #fff; }
+        #questLog { bottom: 20px; right: 20px; width: 300px; background: rgba(0,0,0,0.7); border: 2px solid #fff; padding: 10px; }
+        #crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 20px; height: 20px; border: 2px solid #fff; border-radius: 50%; }
+        #vehicleHUD { top: 120px; left: 20px; display: none; }
+        .speedometer { font-size: 18px; }
+        
+        /* New UI Elements */
+        #inventory { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 400px; background: rgba(0,0,0,0.9); border: 2px solid #fff; padding: 20px; display: none; }
+        #inventoryGrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 20px; }
+        .inventorySlot { width: 80px; height: 80px; background: #333; border: 2px solid #666; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .inventorySlot:hover { border-color: #fff; }
+        
+        #dialogueBox { bottom: 100px; left: 50%; transform: translateX(-50%); width: 800px; background: rgba(0,0,0,0.9); border: 2px solid #fff; padding: 20px; display: none; }
+        #dialogueText { font-size: 18px; margin-bottom: 20px; }
+        #dialogueChoices { display: flex; flex-direction: column; gap: 10px; }
+        .dialogueChoice { padding: 10px; background: #333; border: 1px solid #666; cursor: pointer; }
+        .dialogueChoice:hover { background: #555; }
+        
+        #worldMap { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; }
+        #mapContent { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 80%; background: url('map.jpg') center/cover; border: 2px solid #fff; }
+        .mapLocation { position: absolute; width: 20px; height: 20px; background: #f00; border-radius: 50%; cursor: pointer; }
+        
+        #soundToggle { top: 20px; left: 50%; transform: translateX(-50%); padding: 10px; background: rgba(0,0,0,0.7); border: 2px solid #fff; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div id="ui">
+        <!-- Health & Stamina -->
+        <div id="healthBar" class="ui-element"><div id="healthFill"></div></div>
+        <div id="staminaBar" class="ui-element"><div id="staminaFill"></div></div>
+        
+        <!-- Ammo -->
+        <div id="ammo" class="ui-element">Ammo: 30/90</div>
+        
+        <!-- Abilities -->
+        <div id="abilities" class="ui-element">
+            <div class="ability" data-ability="q">Q</div>
+            <div class="ability" data-ability="w">W</div>
+            <div class="ability" data-ability="e">E</div>
+            <div class="ability" data-ability="r">R</div>
+        </div>
+        
+        <!-- Minimap -->
+        <div id="minimap" class="ui-element"></div>
+        
+        <!-- Quest Log -->
+        <div id="questLog" class="ui-element">
+            <h3>Quests</h3>
+            <ul id="questList">
+                <li data-quest="1">[Active] Find the Lost Artifact</li>
+                <li data-quest="2">[Active] Defeat the Shadow Boss</li>
+            </ul>
+        </div>
+        
+        <!-- Crosshair -->
+        <div id="crosshair"></div>
+        
+        <!-- Vehicle HUD -->
+        <div id="vehicleHUD" class="ui-element">
+            <div class="speedometer">Speed: <span id="speed">0</span> km/h</div>
+        </div>
+        
+        <!-- Inventory (New) -->
+        <div id="inventory" class="ui-element">
+            <h2>Inventory</h2>
+            <div id="inventoryGrid"></div>
+            <button onclick="closeInventory()" style="margin-top: 20px;">Close</button>
+        </div>
+        
+        <!-- Dialogue (New) -->
+        <div id="dialogueBox" class="ui-element">
+            <div id="dialogueText"></div>
+            <div id="dialogueChoices"></div>
+        </div>
+        
+        <!-- World Map (New) -->
+        <div id="worldMap">
+            <div id="mapContent">
+                <div class="mapLocation" style="top: 30%; left: 40%;" onclick="fastTravel('City')"></div>
+                <div class="mapLocation" style="top: 60%; left: 70%;" onclick="fastTravel('Forest')"></div>
+                <button onclick="closeMap()" style="position: absolute; top: 20px; right: 20px;">Close</button>
+            </div>
+        </div>
+        
+        <!-- Sound Toggle (New) -->
+        <div id="soundToggle" class="ui-element" onclick="toggleSound()">🔊 Sound ON</div>
+    </div>
+
+    <script>
+        // Game State
+        const game = {
+            player: {
+                x: 0, y: 0, z: 0,
+                yaw: 0, pitch: 0,
+                health: 100, maxHealth: 100,
+                stamina: 100, maxStamina: 100,
+                ammo: 30, maxAmmo: 90,
+                inVehicle: false,
+                vehicle: null,
+                inventory: [
+                    { id: 1, name: 'Health Potion', type: 'consumable', icon: '🧪' },
+                    { id: 2, name: 'Sword', type: 'weapon', icon: '⚔️' },
+                    { id: 3, name: 'Key', type: 'quest', icon: '🗝️' }
+                ]
+            },
+            keys: {},
+            abilities: {
+                q: { name: 'Fireball', cooldown: 0, maxCooldown: 5000 },
+                w: { name: 'Heal', cooldown: 0, maxCooldown: 10000 },
+                e: { name: 'Dash', cooldown: 0, maxCooldown: 3000 },
+                r: { name: 'Ultimate', cooldown: 0, maxCooldown: 60000 }
+            },
+            quests: [
+                { id: 1, name: 'Find the Lost Artifact', completed: false },
+                { id: 2, name: 'Defeat the Shadow Boss', completed: false }
+            ],
+            npcs: [
+                { id: 1, name: 'Old Man', x: 10, z: 10, dialogue: 'Greetings, traveler!' },
+                { id: 2, name: 'Guard', x: 20, z: 20, dialogue: 'Halt! Who goes there?' }
+            ],
+            enemies: [
+                { id: 1, type: 'Shadow Warrior', x: 15, z: 15, health: 50, damage: 10 },
+                { id: 2, type: 'Dark Archer', x: 25, z: 25, health: 30, damage: 15 }
+            ],
+            vehicles: [
+                { id: 1, type: 'Motorcycle', x: 5, z: 5, speed: 0 }
+            ],
+            soundEnabled: true,
+            currentDialogue: null
+        };
+
+        // Canvas Setup
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Input Handling
+        document.addEventListener('keydown', (e) => {
+            game.keys[e.key.toLowerCase()] = true;
+            if (e.key === ' ') shoot();
+            if (e.key === 'i') openInventory();
+            if (e.key === 'm') openMap();
+            if (e.key === 'f') interact();
+            if (e.key === 'Enter' && game.player.inVehicle) exitVehicle();
+        });
+        document.addEventListener('keyup', (e) => {
+            game.keys[e.key.toLowerCase()] = false;
+        });
+
+        // Mouse Look
+        canvas.addEventListener('mousemove', (e) => {
+            game.player.yaw += e.movementX * 0.002;
+            game.player.pitch -= e.movementY * 0.002;
+            game.player.pitch = Math.max(-Math.PI/2, Math.min(Math.PI/2, game.player.pitch));
+        });
+
+        // Shooting
+        function shoot() {
+            if (game.player.ammo > 0) {
+                game.player.ammo--;
+                updateAmmo();
+                playSound('shoot');
+                console.log('Pew! Ammo left:', game.player.ammo);
+            } else {
+                playSound('reload');
+                console.log('Reload!');
+            }
+        }
+
+        // Movement
+        function updateMovement() {
+            const speed = game.player.inVehicle ? 0.5 : (game.keys['shift'] ? 0.2 : 0.1);
+            if (game.keys['w']) game.player.z -= Math.cos(game.player.yaw) * speed;
+            if (game.keys['s']) game.player.z += Math.cos(game.player.yaw) * speed;
+            if (game.keys['a']) game.player.x -= Math.sin(game.player.yaw) * speed;
+            if (game.keys['d']) game.player.x += Math.sin(game.player.yaw) * speed;
+            
+            if (game.keys['shift'] && game.player.stamina > 0 && !game.player.inVehicle) {
+                game.player.stamina -= 0.5;
+            } else if (game.player.stamina < game.player.maxStamina) {
+                game.player.stamina += 0.2;
+            }
+            updateStamina();
+        }
+
+        // Inventory System
+        function openInventory() {
+            document.getElementById('inventory').style.display = 'block';
+            renderInventory();
+        }
+        function closeInventory() {
+            document.getElementById('inventory').style.display = 'none';
+        }
+        function renderInventory() {
+            const grid = document.getElementById('inventoryGrid');
+            grid.innerHTML = '';
+            game.player.inventory.forEach((item, index) => {
+                const slot = document.createElement('div');
+                slot.className = 'inventorySlot';
+                slot.innerHTML = item.icon;
+                slot.onclick = () => useItem(item);
+                grid.appendChild(slot);
+            });
+        }
+        function useItem(item) {
+            if (item.type === 'consumable') {
+                console.log(`Used ${item.name}`);
+                if (item.name === 'Health Potion') {
+                    game.player.health = Math.min(game.player.maxHealth, game.player.health + 30);
+                    updateHealth();
+                }
+                game.player.inventory = game.player.inventory.filter(i => i.id !== item.id);
+                renderInventory();
+            }
+        }
+
+        // Dialogue System
+        function interact() {
+            const nearbyNPC = game.npcs.find(npc => 
+                Math.abs(npc.x - game.player.x) < 2 && Math.abs(npc.z - game.player.z) < 2
+            );
+            if (nearbyNPC) {
+                showDialogue(nearbyNPC);
+            }
+        }
+        function showDialogue(npc) {
+            const dialogueBox = document.getElementById('dialogueBox');
+            const dialogueText = document.getElementById('dialogueText');
+            const dialogueChoices = document.getElementById('dialogueChoices');
+            
+            dialogueBox.style.display = 'block';
+            dialogueText.textContent = npc.dialogue;
+            dialogueChoices.innerHTML = '';
+            
+            const choices = [
+                { text: 'Tell me more.', action: () => console.log('More info') },
+                { text: 'Goodbye.', action: () => closeDialogue() }
+            ];
+            
+            choices.forEach(choice => {
+                const choiceEl = document.createElement('div');
+                choiceEl.className = 'dialogueChoice';
+                choiceEl.textContent = choice.text;
+                choiceEl.onclick = choice.action;
+                dialogueChoices.appendChild(choiceEl);
+            });
+        }
+        function closeDialogue() {
+            document.getElementById('dialogueBox').style.display = 'none';
+        }
+
+        // Vehicle System
+        function enterVehicle(vehicle) {
+            game.player.inVehicle = true;
+            game.player.vehicle = vehicle;
+            document.getElementById('vehicleHUD').style.display = 'block';
+            playSound('engine');
+        }
+        function exitVehicle() {
+            game.player.inVehicle = false;
+            game.player.vehicle = null;
+            document.getElementById('vehicleHUD').style.display = 'none';
+            playSound('door');
+        }
+
+        // Enemy AI
+        function updateEnemies() {
+            game.enemies.forEach(enemy => {
+                const distance = Math.sqrt(
+                    Math.pow(enemy.x - game.player.x, 2) + 
+                    Math.pow(enemy.z - game.player.z, 2)
+                );
+                
+                if (distance < 5) {
+                    // Attack player
+                    if (distance < 2) {
+                        takeDamage(enemy.damage);
+                        console.log(`${enemy.type} attacks for ${enemy.damage} damage!`);
+                    }
+                    // Move towards player
+                    const angle = Math.atan2(game.player.z - enemy.z, game.player.x - enemy.x);
+                    enemy.x += Math.cos(angle) * 0.05;
+                    enemy.z += Math.sin(angle) * 0.05;
+                }
+            });
+        }
+
+        // World Map
+        function openMap() {
+            document.getElementById('worldMap').style.display = 'block';
+        }
+        function closeMap() {
+            document.getElementById('worldMap').style.display = 'none';
+        }
+        function fastTravel(location) {
+            console.log(`Fast traveling to ${location}`);
+            game.player.x = Math.random() * 50;
+            game.player.z = Math.random() * 50;
+            closeMap();
+        }
+
+        // Sound System
+        function playSound(soundName) {
+            if (!game.soundEnabled) return;
+            console.log(`Playing sound: ${soundName}`);
+            // In a real implementation, you would use the Web Audio API or HTML5 Audio
+        }
+        function toggleSound() {
+            game.soundEnabled = !game.soundEnabled;
+            document.getElementById('soundToggle').textContent = 
+                game.soundEnabled ? '🔊 Sound ON' : '🔇 Sound OFF';
+        }
+
+        // UI Updates
+        function updateHealth() {
+            const percentage = (game.player.health / game.player.maxHealth) * 100;
+            document.getElementById('healthFill').style.width = percentage + '%';
+        }
+        function updateStamina() {
+            const percentage = (game.player.stamina / game.player.maxStamina) * 100;
+            document.getElementById('staminaFill').style.width = percentage + '%';
+        }
+        function updateAmmo() {
+            document.getElementById('ammo').textContent = `Ammo: ${game.player.ammo}/${game.player.maxAmmo}`;
+        }
+
+        // Game Loop
+        function gameLoop() {
+            ctx.fillStyle = '#222';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            updateMovement();
+            updateEnemies();
+            
+            // Update vehicle speed
+            if (game.player.inVehicle && game.player.vehicle) {
+                game.player.vehicle.speed = Math.min(200, game.player.vehicle.speed + 1);
+                document.getElementById('speed').textContent = Math.floor(game.player.vehicle.speed);
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+        gameLoop();
+
+        // Test Functions
+        setTimeout(() => takeDamage(20), 2000);
+        setTimeout(() => completeQuest(1), 5000);
+    </script>
+</body>
+</html>
