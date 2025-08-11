@@ -17,7 +17,7 @@
     <meta property="og:description" content="Join the next-generation imageboard platform with advanced features and real-time discussions.">
     <meta property="og:url" content="https://6chan.com/">
     <meta property="og:site_name" content="6chan">
-    <meta property="og:image" content="https://6chan.com/og-image.jpg">
+    <meta property="og:image" content="https://sfile.chatglm.cn/images-ppt/d83e1142eab4.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:locale" content="en_US">
@@ -28,16 +28,16 @@
     <meta name="twitter:creator" content="@6chan">
     <meta name="twitter:title" content="6chan - Next Generation Imageboard Platform">
     <meta name="twitter:description" content="Join the next-generation imageboard platform with advanced features and real-time discussions.">
-    <meta name="twitter:image" content="https://6chan.com/twitter-image.jpg">
+    <meta name="twitter:image" content="https://sfile.chatglm.cn/images-ppt/39712e35ca67.jpeg">
     
     <!-- Additional SEO Tags -->
     <meta name="theme-color" content="#6366f1">
     <meta name="msapplication-TileColor" content="#6366f1">
     <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://sfile.chatglm.cn/images-ppt/96be635911c7.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://sfile.chatglm.cn/images-ppt/96be635911c7.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://sfile.chatglm.cn/images-ppt/96be635911c7.png">
+    <link rel="shortcut icon" href="https://sfile.chatglm.cn/images-ppt/96be635911c7.png">
     
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
@@ -78,7 +78,6 @@
         ]
     }
     </script>
-
     <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -105,14 +104,12 @@
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
-
         /* Reset & Base Styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg-primary);
@@ -120,7 +117,6 @@
             line-height: 1.6;
             overflow-x: hidden;
         }
-
         /* Skip to content for accessibility */
         .skip-link {
             position: absolute;
@@ -133,11 +129,9 @@
             border-radius: 0 0 4px 0;
             z-index: 100;
         }
-
         .skip-link:focus {
             top: 0;
         }
-
         /* Header Styles */
         .header {
             background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
@@ -148,7 +142,6 @@
             z-index: 1000;
             backdrop-filter: blur(10px);
         }
-
         .header-content {
             max-width: 1400px;
             margin: 0 auto;
@@ -159,7 +152,6 @@
             flex-wrap: wrap;
             gap: 1rem;
         }
-
         .logo {
             font-size: 1.5rem;
             font-weight: 800;
@@ -169,21 +161,18 @@
             align-items: center;
             gap: 0.5rem;
         }
-
         .nav-section {
             display: flex;
             align-items: center;
             gap: 2rem;
             flex-wrap: wrap;
         }
-
         .board-nav {
             display: flex;
             gap: 0.5rem;
             flex-wrap: wrap;
             list-style: none;
         }
-
         .board-nav a {
             color: var(--text-secondary);
             text-decoration: none;
@@ -193,24 +182,20 @@
             font-size: 0.875rem;
             border: 1px solid transparent;
         }
-
         .board-nav a:hover,
         .board-nav a:focus {
             background-color: var(--bg-tertiary);
             color: var(--primary);
             border-color: var(--primary);
         }
-
         .board-nav .current-board {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             font-weight: 600;
         }
-
         .search-box {
             position: relative;
         }
-
         .search-box input {
             background-color: var(--bg-tertiary);
             border: 1px solid var(--border);
@@ -221,13 +206,11 @@
             transition: all 0.3s ease;
             font-size: 0.875rem;
         }
-
         .search-box input:focus {
             outline: none;
             border-color: var(--primary);
             width: 250px;
         }
-
         .search-box button {
             position: absolute;
             right: 0.5rem;
@@ -239,41 +222,53 @@
             cursor: pointer;
             padding: 0.25rem;
         }
-
         /* Main Content */
         .main-content {
             max-width: 1400px;
             margin: 0 auto;
             padding: 2rem;
         }
-
         /* Breadcrumb */
         .breadcrumb {
             margin-bottom: 2rem;
             font-size: 0.875rem;
         }
-
         .breadcrumb a {
             color: var(--text-secondary);
             text-decoration: none;
         }
-
         .breadcrumb a:hover {
             color: var(--primary);
         }
-
         .breadcrumb span {
             color: var(--text-muted);
             margin: 0 0.5rem;
         }
-
         /* Hero Section */
         .hero {
             text-align: center;
             padding: 4rem 0;
             margin-bottom: 4rem;
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
         }
-
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://sfile.chatglm.cn/images-ppt/9518eb8bf49c.jpg');
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.3);
+            z-index: -1;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
         .hero h1 {
             font-size: 3rem;
             font-weight: 800;
@@ -283,7 +278,6 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-
         .hero p {
             font-size: 1.25rem;
             color: var(--text-secondary);
@@ -292,14 +286,12 @@
             margin-left: auto;
             margin-right: auto;
         }
-
         .cta-buttons {
             display: flex;
             gap: 1rem;
             justify-content: center;
             flex-wrap: wrap;
         }
-
         .btn {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
@@ -314,28 +306,23 @@
             align-items: center;
             gap: 0.5rem;
         }
-
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
         }
-
         .btn-secondary {
             background: transparent;
             border: 2px solid var(--primary);
             color: var(--primary);
         }
-
         .btn-secondary:hover {
             background: var(--primary);
             color: white;
         }
-
         /* Section Styles */
         .section {
             margin-bottom: 4rem;
         }
-
         .section-header {
             display: flex;
             justify-content: space-between;
@@ -344,24 +331,20 @@
             flex-wrap: wrap;
             gap: 1rem;
         }
-
         .section-title {
             font-size: 2rem;
             font-weight: 700;
             color: var(--primary);
         }
-
         .section-link {
             color: var(--text-secondary);
             text-decoration: none;
             font-size: 0.875rem;
             transition: color 0.3s ease;
         }
-
         .section-link:hover {
             color: var(--primary);
         }
-
         /* Announcements */
         .announcements {
             background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
@@ -370,7 +353,6 @@
             padding: 1.5rem;
             margin-bottom: 3rem;
         }
-
         .announcement-item {
             padding: 1rem;
             border-left: 4px solid var(--primary);
@@ -378,29 +360,24 @@
             background-color: var(--bg-primary);
             border-radius: 0 8px 8px 0;
         }
-
         .announcement-item:last-child {
             margin-bottom: 0;
         }
-
         .announcement-title {
             font-weight: 600;
             margin-bottom: 0.5rem;
             color: var(--text-primary);
         }
-
         .announcement-date {
             font-size: 0.75rem;
             color: var(--text-muted);
         }
-
         /* Boards Grid */
         .boards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 1.5rem;
         }
-
         .board-card {
             background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
             border: 1px solid var(--border);
@@ -410,49 +387,58 @@
             transition: all 0.3s ease;
             text-decoration: none;
             color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-
         .board-card:hover {
             transform: translateY(-5px);
             border-color: var(--primary);
             box-shadow: var(--shadow-lg);
         }
-
-        .board-icon {
-            font-size: 2rem;
-            color: var(--primary);
+        .board-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
             margin-bottom: 1rem;
         }
-
         .board-name {
             font-weight: 600;
             margin-bottom: 0.5rem;
         }
-
         .board-stats {
             font-size: 0.875rem;
             color: var(--text-muted);
         }
-
         /* Thread Lists */
         .thread-list {
             display: grid;
             gap: 1rem;
         }
-
         .thread-card {
             background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 1.5rem;
             transition: all 0.3s ease;
+            display: flex;
+            gap: 1.5rem;
         }
-
         .thread-card:hover {
             border-color: var(--primary);
             box-shadow: var(--shadow-lg);
         }
-
+        .thread-thumbnail {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+        .thread-content-wrapper {
+            flex: 1;
+        }
         .thread-header {
             display: flex;
             justify-content: space-between;
@@ -461,7 +447,6 @@
             flex-wrap: wrap;
             gap: 1rem;
         }
-
         .thread-title {
             font-size: 1.25rem;
             font-weight: 600;
@@ -470,23 +455,19 @@
             margin-bottom: 0.5rem;
             display: block;
         }
-
         .thread-title:hover {
             color: var(--secondary);
         }
-
         .thread-meta {
             display: flex;
             gap: 1rem;
             align-items: center;
             flex-wrap: wrap;
         }
-
         .thread-author {
             color: var(--text-secondary);
             font-size: 0.875rem;
         }
-
         .thread-stats {
             display: flex;
             gap: 0.5rem;
@@ -494,20 +475,17 @@
             font-size: 0.75rem;
             color: var(--text-muted);
         }
-
         .thread-content {
             color: var(--text-secondary);
             margin-bottom: 1rem;
             line-height: 1.6;
         }
-
         .thread-tags {
             display: flex;
             gap: 0.5rem;
             flex-wrap: wrap;
             margin-bottom: 1rem;
         }
-
         .tag {
             background-color: var(--bg-primary);
             color: var(--primary);
@@ -517,12 +495,10 @@
             text-decoration: none;
             border: 1px solid var(--primary);
         }
-
         .tag:hover {
             background-color: var(--primary);
             color: white;
         }
-
         .thread-footer {
             display: flex;
             justify-content: space-between;
@@ -530,13 +506,11 @@
             flex-wrap: wrap;
             gap: 1rem;
         }
-
         .thread-actions {
             display: flex;
             gap: 0.5rem;
             flex-wrap: wrap;
         }
-
         .action-btn {
             background: none;
             border: 1px solid var(--border);
@@ -551,56 +525,45 @@
             align-items: center;
             gap: 0.25rem;
         }
-
         .action-btn:hover {
             background-color: var(--primary);
             color: white;
             border-color: var(--primary);
         }
-
         .thread-date {
             font-size: 0.75rem;
             color: var(--text-muted);
         }
-
         /* Featured Threads */
         .featured-thread {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
         }
-
         .featured-thread .thread-title {
             color: white;
         }
-
         .featured-thread .thread-author {
             color: rgba(255, 255, 255, 0.9);
         }
-
         .featured-thread .thread-content {
             color: rgba(255, 255, 255, 0.9);
         }
-
         .featured-thread .tag {
             background-color: rgba(255, 255, 255, 0.2);
             color: white;
             border-color: rgba(255, 255, 255, 0.3);
         }
-
         .featured-thread .action-btn {
             background-color: rgba(255, 255, 255, 0.2);
             color: white;
             border-color: rgba(255, 255, 255, 0.3);
         }
-
         .featured-thread .action-btn:hover {
             background-color: rgba(255, 255, 255, 0.3);
         }
-
         .featured-thread .thread-date {
             color: rgba(255, 255, 255, 0.7);
         }
-
         /* Tabs */
         .tabs {
             display: flex;
@@ -609,7 +572,6 @@
             border-bottom: 1px solid var(--border);
             flex-wrap: wrap;
         }
-
         .tab {
             background: none;
             border: none;
@@ -621,25 +583,20 @@
             font-weight: 500;
             border-bottom: 2px solid transparent;
         }
-
         .tab:hover,
         .tab:focus {
             color: var(--primary);
         }
-
         .tab.active {
             color: var(--primary);
             border-bottom-color: var(--primary);
         }
-
         .tab-content {
             display: none;
         }
-
         .tab-content.active {
             display: block;
         }
-
         /* Stats Section */
         .stats-grid {
             display: grid;
@@ -647,29 +604,34 @@
             gap: 2rem;
             margin-bottom: 4rem;
         }
-
         .stat-card {
             background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 2rem;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            margin-bottom: 1rem;
+        }
         .stat-value {
             font-size: 2.5rem;
             font-weight: 700;
             color: var(--primary);
             margin-bottom: 0.5rem;
         }
-
         .stat-label {
             color: var(--text-secondary);
             font-size: 0.875rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
-
         /* Footer */
         .footer {
             background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
@@ -677,41 +639,34 @@
             padding: 3rem 0 2rem;
             margin-top: 4rem;
         }
-
         .footer-content {
             max-width: 1400px;
             margin: 0 auto;
             padding: 0 2rem;
         }
-
         .footer-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 2rem;
             margin-bottom: 2rem;
         }
-
         .footer-section h3 {
             color: var(--primary);
             margin-bottom: 1rem;
             font-size: 1.25rem;
         }
-
         .footer-section ul {
             list-style: none;
         }
-
         .footer-section a {
             color: var(--text-secondary);
             text-decoration: none;
             line-height: 2;
             transition: color 0.3s ease;
         }
-
         .footer-section a:hover {
             color: var(--primary);
         }
-
         .footer-bottom {
             text-align: center;
             padding-top: 2rem;
@@ -719,57 +674,52 @@
             color: var(--text-muted);
             font-size: 0.875rem;
         }
-
         /* Responsive Design */
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
                 gap: 1rem;
             }
-
             .nav-section {
                 width: 100%;
                 justify-content: center;
             }
-
             .search-box input {
                 width: 150px;
             }
-
             .search-box input:focus {
                 width: 180px;
             }
-
             .main-content {
                 padding: 1rem;
             }
-
             .hero h1 {
                 font-size: 2rem;
             }
-
             .hero p {
                 font-size: 1rem;
             }
-
             .section-title {
                 font-size: 1.5rem;
             }
-
             .boards-grid {
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             }
-
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 1rem;
             }
-
             .stat-value {
                 font-size: 2rem;
             }
+            .thread-card {
+                flex-direction: column;
+            }
+            .thread-thumbnail {
+                width: 100%;
+                height: 180px;
+            }
         }
-
         /* Loading Animation */
         .loading {
             display: inline-block;
@@ -780,12 +730,10 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
         /* Accessibility */
         .sr-only {
             position: absolute;
@@ -798,17 +746,14 @@
             white-space: nowrap;
             border: 0;
         }
-
         /* Focus Styles */
         *:focus {
             outline: 2px solid var(--primary);
             outline-offset: 2px;
         }
-
         *:focus:not(:focus-visible) {
             outline: none;
         }
-
         *:focus-visible {
             outline: 2px solid var(--primary);
             outline-offset: 2px;
@@ -818,7 +763,6 @@
 <body>
     <!-- Skip to main content -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
-
     <!-- Header -->
     <header class="header" role="banner">
         <div class="header-content">
@@ -850,30 +794,30 @@
             </div>
         </div>
     </header>
-
     <!-- Main Content -->
     <main class="main-content" id="main-content">
         <!-- Breadcrumb -->
         <nav class="breadcrumb" aria-label="Breadcrumb">
             <a href="/">Home</a>
         </nav>
-
         <!-- Hero Section -->
         <section class="hero">
-            <h1>Welcome to 6chan</h1>
-            <p>The next-generation imageboard platform with advanced features, real-time discussions, and a modern community experience.</p>
-            <div class="cta-buttons">
-                <a href="/create-thread" class="btn">
-                    <i class="fas fa-plus"></i>
-                    Create Thread
-                </a>
-                <a href="/explore" class="btn btn-secondary">
-                    <i class="fas fa-compass"></i>
-                    Explore
-                </a>
+            <div class="hero-bg"></div>
+            <div class="hero-content">
+                <h1>Welcome to 6chan</h1>
+                <p>The next-generation imageboard platform with advanced features, real-time discussions, and a modern community experience.</p>
+                <div class="cta-buttons">
+                    <a href="/create-thread" class="btn">
+                        <i class="fas fa-plus"></i>
+                        Create Thread
+                    </a>
+                    <a href="/explore" class="btn btn-secondary">
+                        <i class="fas fa-compass"></i>
+                        Explore
+                    </a>
+                </div>
             </div>
         </section>
-
         <!-- Announcements Section -->
         <section class="section" aria-labelledby="announcements-heading">
             <h2 class="section-title" id="announcements-heading">Announcements</h2>
@@ -895,28 +839,30 @@
                 </article>
             </div>
         </section>
-
         <!-- Stats Section -->
         <section class="stats-grid" aria-labelledby="stats-heading">
             <h2 class="sr-only" id="stats-heading">Platform Statistics</h2>
             <div class="stat-card">
+                <img src="https://sfile.chatglm.cn/images-ppt/9cb0c58a6931.jpg" alt="Active users icon" class="stat-icon">
                 <div class="stat-value">2.5M+</div>
                 <div class="stat-label">Active Users</div>
             </div>
             <div class="stat-card">
+                <img src="https://sfile.chatglm.cn/images-ppt/e3d540830f0a.jpg" alt="Daily threads icon" class="stat-icon">
                 <div class="stat-value">15K+</div>
                 <div class="stat-label">Daily Threads</div>
             </div>
             <div class="stat-card">
+                <img src="https://sfile.chatglm.cn/images-ppt/4e8f0f6d896a.jpg" alt="Daily posts icon" class="stat-icon">
                 <div class="stat-value">150K+</div>
                 <div class="stat-label">Daily Posts</div>
             </div>
             <div class="stat-card">
+                <img src="https://sfile.chatglm.cn/images-ppt/593d9cf1faa9.jpg" alt="Active boards icon" class="stat-icon">
                 <div class="stat-value">50+</div>
                 <div class="stat-label">Active Boards</div>
             </div>
         </section>
-
         <!-- Boards Section -->
         <section class="section" aria-labelledby="boards-heading">
             <div class="section-header">
@@ -925,56 +871,43 @@
             </div>
             <div class="boards-grid">
                 <a href="/tech" class="board-card">
-                    <div class="board-icon">
-                        <i class="fas fa-microchip"></i>
-                    </div>
+                    <img src="https://sfile.chatglm.cn/images-ppt/9172951c0e18.jpg" alt="Technology board" class="board-image">
                     <h3 class="board-name">/tech/</h3>
                     <p class="board-stats">Technology & Programming</p>
                     <p class="board-stats">1.2M threads</p>
                 </a>
                 <a href="/gaming" class="board-card">
-                    <div class="board-icon">
-                        <i class="fas fa-gamepad"></i>
-                    </div>
+                    <img src="https://sfile.chatglm.cn/images-ppt/e36b33554063.jpg" alt="Gaming board" class="board-image">
                     <h3 class="board-name">/gaming/</h3>
                     <p class="board-stats">Video Games & Esports</p>
                     <p class="board-stats">890K threads</p>
                 </a>
                 <a href="/anime" class="board-card">
-                    <div class="board-icon">
-                        <i class="fas fa-tv"></i>
-                    </div>
+                    <img src="https://sfile.chatglm.cn/images-ppt/48cdf0e8d6a8.jpg" alt="Anime board" class="board-image">
                     <h3 class="board-name">/anime/</h3>
                     <p class="board-stats">Anime & Manga</p>
                     <p class="board-stats">756K threads</p>
                 </a>
                 <a href="/art" class="board-card">
-                    <div class="board-icon">
-                        <i class="fas fa-palette"></i>
-                    </div>
+                    <img src="https://sfile.chatglm.cn/images-ppt/41f43d12e8c0.jpg" alt="Art board" class="board-image">
                     <h3 class="board-name">/art/</h3>
                     <p class="board-stats">Art & Design</p>
                     <p class="board-stats">432K threads</p>
                 </a>
                 <a href="/science" class="board-card">
-                    <div class="board-icon">
-                        <i class="fas fa-flask"></i>
-                    </div>
+                    <img src="https://sfile.chatglm.cn/images-ppt/68f66962045b.jpg" alt="Science board" class="board-image">
                     <h3 class="board-name">/science/</h3>
                     <p class="board-stats">Science & Mathematics</p>
                     <p class="board-stats">567K threads</p>
                 </a>
                 <a href="/music" class="board-card">
-                    <div class="board-icon">
-                        <i class="fas fa-music"></i>
-                    </div>
+                    <img src="https://sfile.chatglm.cn/images-ppt/7d5aaa4b627d.jpg" alt="Music board" class="board-image">
                     <h3 class="board-name">/music/</h3>
                     <p class="board-stats">Music & Audio</p>
                     <p class="board-stats">345K threads</p>
                 </a>
             </div>
         </section>
-
         <!-- Trending Threads Section -->
         <section class="section" aria-labelledby="trending-heading">
             <div class="section-header">
@@ -983,130 +916,136 @@
             </div>
             <div class="thread-list">
                 <article class="thread-card featured-thread">
-                    <div class="thread-header">
-                        <div>
-                            <a href="/thread/123456" class="thread-title">The Future of AI: Where We're Headed in 2025</a>
-                            <div class="thread-meta">
-                                <span class="thread-author">by TechVisionary</span>
-                                <div class="thread-stats">
-                                    <span><i class="fas fa-arrow-up"></i> 2.5k</span>
-                                    <span><i class="fas fa-comment"></i> 342</span>
-                                    <span><i class="fas fa-eye"></i> 15k</span>
+                    <img src="https://sfile.chatglm.cn/images-ppt/33d5ce27729a.jpg" alt="AI technology" class="thread-thumbnail">
+                    <div class="thread-content-wrapper">
+                        <div class="thread-header">
+                            <div>
+                                <a href="/thread/123456" class="thread-title">The Future of AI: Where We're Headed in 2025</a>
+                                <div class="thread-meta">
+                                    <span class="thread-author">by TechVisionary</span>
+                                    <div class="thread-stats">
+                                        <span><i class="fas fa-arrow-up"></i> 2.5k</span>
+                                        <span><i class="fas fa-comment"></i> 342</span>
+                                        <span><i class="fas fa-eye"></i> 15k</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="thread-content">
-                        Artificial Intelligence is evolving at an unprecedented pace. Let's discuss the latest developments, breakthrough technologies, and what we can expect in the coming year...
-                    </div>
-                    <div class="thread-tags">
-                        <a href="/tag/ai" class="tag">AI</a>
-                        <a href="/tag/technology" class="tag">Technology</a>
-                        <a href="/tag/future" class="tag">Future</a>
-                    </div>
-                    <div class="thread-footer">
-                        <div class="thread-actions">
-                            <a href="/thread/123456" class="action-btn">
-                                <i class="fas fa-arrow-up"></i>
-                                Upvote
-                            </a>
-                            <a href="/thread/123456#reply" class="action-btn">
-                                <i class="fas fa-reply"></i>
-                                Reply
-                            </a>
-                            <a href="/thread/123456" class="action-btn">
-                                <i class="fas fa-share"></i>
-                                Share
-                            </a>
+                        <div class="thread-content">
+                            Artificial Intelligence is evolving at an unprecedented pace. Let's discuss the latest developments, breakthrough technologies, and what we can expect in the coming year...
                         </div>
-                        <div class="thread-date">2 hours ago</div>
+                        <div class="thread-tags">
+                            <a href="/tag/ai" class="tag">AI</a>
+                            <a href="/tag/technology" class="tag">Technology</a>
+                            <a href="/tag/future" class="tag">Future</a>
+                        </div>
+                        <div class="thread-footer">
+                            <div class="thread-actions">
+                                <a href="/thread/123456" class="action-btn">
+                                    <i class="fas fa-arrow-up"></i>
+                                    Upvote
+                                </a>
+                                <a href="/thread/123456#reply" class="action-btn">
+                                    <i class="fas fa-reply"></i>
+                                    Reply
+                                </a>
+                                <a href="/thread/123456" class="action-btn">
+                                    <i class="fas fa-share"></i>
+                                    Share
+                                </a>
+                            </div>
+                            <div class="thread-date">2 hours ago</div>
+                        </div>
                     </div>
                 </article>
-
                 <article class="thread-card">
-                    <div class="thread-header">
-                        <div>
-                            <a href="/thread/123457" class="thread-title">Best Programming Languages to Learn in 2024</a>
-                            <div class="thread-meta">
-                                <span class="thread-author">by CodeMaster</span>
-                                <div class="thread-stats">
-                                    <span><i class="fas fa-arrow-up"></i> 1.8k</span>
-                                    <span><i class="fas fa-comment"></i> 267</span>
-                                    <span><i class="fas fa-eye"></i> 12k</span>
+                    <img src="https://sfile.chatglm.cn/images-ppt/6918e2ec2182.jpg" alt="Programming code" class="thread-thumbnail">
+                    <div class="thread-content-wrapper">
+                        <div class="thread-header">
+                            <div>
+                                <a href="/thread/123457" class="thread-title">Best Programming Languages to Learn in 2024</a>
+                                <div class="thread-meta">
+                                    <span class="thread-author">by CodeMaster</span>
+                                    <div class="thread-stats">
+                                        <span><i class="fas fa-arrow-up"></i> 1.8k</span>
+                                        <span><i class="fas fa-comment"></i> 267</span>
+                                        <span><i class="fas fa-eye"></i> 12k</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="thread-content">
-                        With the tech landscape constantly changing, it's important to stay updated with the most in-demand programming languages. Here's my comprehensive guide...
-                    </div>
-                    <div class="thread-tags">
-                        <a href="/tag/programming" class="tag">Programming</a>
-                        <a href="/tag/career" class="tag">Career</a>
-                        <a href="/tag/2024" class="tag">2024</a>
-                    </div>
-                    <div class="thread-footer">
-                        <div class="thread-actions">
-                            <a href="/thread/123457" class="action-btn">
-                                <i class="fas fa-arrow-up"></i>
-                                Upvote
-                            </a>
-                            <a href="/thread/123457#reply" class="action-btn">
-                                <i class="fas fa-reply"></i>
-                                Reply
-                            </a>
-                            <a href="/thread/123457" class="action-btn">
-                                <i class="fas fa-share"></i>
-                                Share
-                            </a>
+                        <div class="thread-content">
+                            With the tech landscape constantly changing, it's important to stay updated with the most in-demand programming languages. Here's my comprehensive guide...
                         </div>
-                        <div class="thread-date">4 hours ago</div>
+                        <div class="thread-tags">
+                            <a href="/tag/programming" class="tag">Programming</a>
+                            <a href="/tag/career" class="tag">Career</a>
+                            <a href="/tag/2024" class="tag">2024</a>
+                        </div>
+                        <div class="thread-footer">
+                            <div class="thread-actions">
+                                <a href="/thread/123457" class="action-btn">
+                                    <i class="fas fa-arrow-up"></i>
+                                    Upvote
+                                </a>
+                                <a href="/thread/123457#reply" class="action-btn">
+                                    <i class="fas fa-reply"></i>
+                                    Reply
+                                </a>
+                                <a href="/thread/123457" class="action-btn">
+                                    <i class="fas fa-share"></i>
+                                    Share
+                                </a>
+                            </div>
+                            <div class="thread-date">4 hours ago</div>
+                        </div>
                     </div>
                 </article>
-
                 <article class="thread-card">
-                    <div class="thread-header">
-                        <div>
-                            <a href="/thread/123458" class="thread-title">Gaming PC Build Guide - Best Value for Money 2024</a>
-                            <div class="thread-meta">
-                                <span class="thread-author">by PCBuilder</span>
-                                <div class="thread-stats">
-                                    <span><i class="fas fa-arrow-up"></i> 1.5k</span>
-                                    <span><i class="fas fa-comment"></i> 189</span>
-                                    <span><i class="fas fa-eye"></i> 9.8k</span>
+                    <img src="https://sfile.chatglm.cn/images-ppt/5c8b6e211e73.jpg" alt="Gaming PC" class="thread-thumbnail">
+                    <div class="thread-content-wrapper">
+                        <div class="thread-header">
+                            <div>
+                                <a href="/thread/123458" class="thread-title">Gaming PC Build Guide - Best Value for Money 2024</a>
+                                <div class="thread-meta">
+                                    <span class="thread-author">by PCBuilder</span>
+                                    <div class="thread-stats">
+                                        <span><i class="fas fa-arrow-up"></i> 1.5k</span>
+                                        <span><i class="fas fa-comment"></i> 189</span>
+                                        <span><i class="fas fa-eye"></i> 9.8k</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="thread-content">
-                        Building a gaming PC doesn't have to break the bank. I've compiled the best components for different budgets to help you get the most bang for your buck...
-                    </div>
-                    <div class="thread-tags">
-                        <a href="/tag/gaming" class="tag">Gaming</a>
-                        <a href="/tag/pc" class="tag">PC</a>
-                        <a href="/tag/hardware" class="tag">Hardware</a>
-                    </div>
-                    <div class="thread-footer">
-                        <div class="thread-actions">
-                            <a href="/thread/123458" class="action-btn">
-                                <i class="fas fa-arrow-up"></i>
-                                Upvote
-                            </a>
-                            <a href="/thread/123458#reply" class="action-btn">
-                                <i class="fas fa-reply"></i>
-                                Reply
-                            </a>
-                            <a href="/thread/123458" class="action-btn">
-                                <i class="fas fa-share"></i>
-                                Share
-                            </a>
+                        <div class="thread-content">
+                            Building a gaming PC doesn't have to break the bank. I've compiled the best components for different budgets to help you get the most bang for your buck...
                         </div>
-                        <div class="thread-date">6 hours ago</div>
+                        <div class="thread-tags">
+                            <a href="/tag/gaming" class="tag">Gaming</a>
+                            <a href="/tag/pc" class="tag">PC</a>
+                            <a href="/tag/hardware" class="tag">Hardware</a>
+                        </div>
+                        <div class="thread-footer">
+                            <div class="thread-actions">
+                                <a href="/thread/123458" class="action-btn">
+                                    <i class="fas fa-arrow-up"></i>
+                                    Upvote
+                                </a>
+                                <a href="/thread/123458#reply" class="action-btn">
+                                    <i class="fas fa-reply"></i>
+                                    Reply
+                                </a>
+                                <a href="/thread/123458" class="action-btn">
+                                    <i class="fas fa-share"></i>
+                                    Share
+                                </a>
+                            </div>
+                            <div class="thread-date">6 hours ago</div>
+                        </div>
                     </div>
                 </article>
             </div>
         </section>
-
         <!-- Hot Threads Tabs -->
         <section class="section" aria-labelledby="hot-threads-heading">
             <div class="section-header">
@@ -1119,164 +1058,171 @@
                 <button class="tab" role="tab" aria-selected="false" aria-controls="hot-week" onclick="showTab('hot-week', this)">This Week</button>
                 <button class="tab" role="tab" aria-selected="false" aria-controls="hot-month" onclick="showTab('hot-month', this)">This Month</button>
             </div>
-
             <div id="hot-today" class="tab-content active" role="tabpanel">
                 <div class="thread-list">
                     <article class="thread-card">
-                        <div class="thread-header">
-                            <div>
-                                <a href="/thread/123459" class="thread-title">Breaking: Major Tech Company Announces Revolutionary AI Chip</a>
-                                <div class="thread-meta">
-                                    <span class="thread-author">by TechNews</span>
-                                    <div class="thread-stats">
-                                        <span><i class="fas fa-arrow-up"></i> 3.2k</span>
-                                        <span><i class="fas fa-comment"></i> 456</span>
-                                        <span><i class="fas fa-eye"></i> 25k</span>
+                        <img src="https://sfile.chatglm.cn/images-ppt/009ddd52333a.jpg" alt="AI chip" class="thread-thumbnail">
+                        <div class="thread-content-wrapper">
+                            <div class="thread-header">
+                                <div>
+                                    <a href="/thread/123459" class="thread-title">Breaking: Major Tech Company Announces Revolutionary AI Chip</a>
+                                    <div class="thread-meta">
+                                        <span class="thread-author">by TechNews</span>
+                                        <div class="thread-stats">
+                                            <span><i class="fas fa-arrow-up"></i> 3.2k</span>
+                                            <span><i class="fas fa-comment"></i> 456</span>
+                                            <span><i class="fas fa-eye"></i> 25k</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="thread-content">
-                            Just in: A major breakthrough in AI hardware technology that could change everything we know about computing...
-                        </div>
-                        <div class="thread-footer">
-                            <div class="thread-actions">
-                                <a href="/thread/123459" class="action-btn">
-                                    <i class="fas fa-arrow-up"></i>
-                                    Upvote
-                                </a>
-                                <a href="/thread/123459#reply" class="action-btn">
-                                    <i class="fas fa-reply"></i>
-                                    Reply
-                                </a>
-                                <a href="/thread/123459" class="action-btn">
-                                    <i class="fas fa-share"></i>
-                                    Share
-                                </a>
+                            <div class="thread-content">
+                                Just in: A major breakthrough in AI hardware technology that could change everything we know about computing...
                             </div>
-                            <div class="thread-date">1 hour ago</div>
+                            <div class="thread-footer">
+                                <div class="thread-actions">
+                                    <a href="/thread/123459" class="action-btn">
+                                        <i class="fas fa-arrow-up"></i>
+                                        Upvote
+                                    </a>
+                                    <a href="/thread/123459#reply" class="action-btn">
+                                        <i class="fas fa-reply"></i>
+                                        Reply
+                                    </a>
+                                    <a href="/thread/123459" class="action-btn">
+                                        <i class="fas fa-share"></i>
+                                        Share
+                                    </a>
+                                </div>
+                                <div class="thread-date">1 hour ago</div>
+                            </div>
                         </div>
                     </article>
-
                     <article class="thread-card">
-                        <div class="thread-header">
-                            <div>
-                                <a href="/thread/123460" class="thread-title">The Ultimate Guide to Remote Work Productivity</a>
-                                <div class="thread-meta">
-                                    <span class="thread-author">by RemoteWorker</span>
-                                    <div class="thread-stats">
-                                        <span><i class="fas fa-arrow-up"></i> 2.1k</span>
-                                        <span><i class="fas fa-comment"></i> 298</span>
-                                        <span><i class="fas fa-eye"></i> 18k</span>
+                        <img src="https://sfile.chatglm.cn/images-ppt/fa4f0cc424e5.jpg" alt="Remote work" class="thread-thumbnail">
+                        <div class="thread-content-wrapper">
+                            <div class="thread-header">
+                                <div>
+                                    <a href="/thread/123460" class="thread-title">The Ultimate Guide to Remote Work Productivity</a>
+                                    <div class="thread-meta">
+                                        <span class="thread-author">by RemoteWorker</span>
+                                        <div class="thread-stats">
+                                            <span><i class="fas fa-arrow-up"></i> 2.1k</span>
+                                            <span><i class="fas fa-comment"></i> 298</span>
+                                            <span><i class="fas fa-eye"></i> 18k</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="thread-content">
-                            After 5 years of remote work, I've compiled everything I've learned about staying productive, maintaining work-life balance, and thriving in a remote environment...
-                        </div>
-                        <div class="thread-footer">
-                            <div class="thread-actions">
-                                <a href="/thread/123460" class="action-btn">
-                                    <i class="fas fa-arrow-up"></i>
-                                    Upvote
-                                </a>
-                                <a href="/thread/123460#reply" class="action-btn">
-                                    <i class="fas fa-reply"></i>
-                                    Reply
-                                </a>
-                                <a href="/thread/123460" class="action-btn">
-                                    <i class="fas fa-share"></i>
-                                    Share
-                                </a>
+                            <div class="thread-content">
+                                After 5 years of remote work, I've compiled everything I've learned about staying productive, maintaining work-life balance, and thriving in a remote environment...
                             </div>
-                            <div class="thread-date">3 hours ago</div>
+                            <div class="thread-footer">
+                                <div class="thread-actions">
+                                    <a href="/thread/123460" class="action-btn">
+                                        <i class="fas fa-arrow-up"></i>
+                                        Upvote
+                                    </a>
+                                    <a href="/thread/123460#reply" class="action-btn">
+                                        <i class="fas fa-reply"></i>
+                                        Reply
+                                    </a>
+                                    <a href="/thread/123460" class="action-btn">
+                                        <i class="fas fa-share"></i>
+                                        Share
+                                    </a>
+                                </div>
+                                <div class="thread-date">3 hours ago</div>
+                            </div>
                         </div>
                     </article>
                 </div>
             </div>
-
             <div id="hot-week" class="tab-content" role="tabpanel">
                 <div class="thread-list">
                     <article class="thread-card">
-                        <div class="thread-header">
-                            <div>
-                                <a href="/thread/123461" class="thread-title">Web Development Trends That Will Dominate 2024</a>
-                                <div class="thread-meta">
-                                    <span class="thread-author">by WebDevPro</span>
-                                    <div class="thread-stats">
-                                        <span><i class="fas fa-arrow-up"></i> 4.5k</span>
-                                        <span><i class="fas fa-comment"></i> 623</span>
-                                        <span><i class="fas fa-eye"></i> 45k</span>
+                        <img src="https://sfile.chatglm.cn/images-ppt/754f2ca167d9.jpg" alt="Web development" class="thread-thumbnail">
+                        <div class="thread-content-wrapper">
+                            <div class="thread-header">
+                                <div>
+                                    <a href="/thread/123461" class="thread-title">Web Development Trends That Will Dominate 2024</a>
+                                    <div class="thread-meta">
+                                        <span class="thread-author">by WebDevPro</span>
+                                        <div class="thread-stats">
+                                            <span><i class="fas fa-arrow-up"></i> 4.5k</span>
+                                            <span><i class="fas fa-comment"></i> 623</span>
+                                            <span><i class="fas fa-eye"></i> 45k</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="thread-content">
-                            From AI-powered development tools to new frameworks, here are the web development trends you need to watch in 2024...
-                        </div>
-                        <div class="thread-footer">
-                            <div class="thread-actions">
-                                <a href="/thread/123461" class="action-btn">
-                                    <i class="fas fa-arrow-up"></i>
-                                    Upvote
-                                </a>
-                                <a href="/thread/123461#reply" class="action-btn">
-                                    <i class="fas fa-reply"></i>
-                                    Reply
-                                </a>
-                                <a href="/thread/123461" class="action-btn">
-                                    <i class="fas fa-share"></i>
-                                    Share
-                                </a>
+                            <div class="thread-content">
+                                From AI-powered development tools to new frameworks, here are the web development trends you need to watch in 2024...
                             </div>
-                            <div class="thread-date">2 days ago</div>
+                            <div class="thread-footer">
+                                <div class="thread-actions">
+                                    <a href="/thread/123461" class="action-btn">
+                                        <i class="fas fa-arrow-up"></i>
+                                        Upvote
+                                    </a>
+                                    <a href="/thread/123461#reply" class="action-btn">
+                                        <i class="fas fa-reply"></i>
+                                        Reply
+                                    </a>
+                                    <a href="/thread/123461" class="action-btn">
+                                        <i class="fas fa-share"></i>
+                                        Share
+                                    </a>
+                                </div>
+                                <div class="thread-date">2 days ago</div>
+                            </div>
                         </div>
                     </article>
                 </div>
             </div>
-
             <div id="hot-month" class="tab-content" role="tabpanel">
                 <div class="thread-list">
                     <article class="thread-card">
-                        <div class="thread-header">
-                            <div>
-                                <a href="/thread/123462" class="thread-title">The Complete Guide to Cryptocurrency Investing</a>
-                                <div class="thread-meta">
-                                    <span class="thread-author">by CryptoExpert</span>
-                                    <div class="thread-stats">
-                                        <span><i class="fas fa-arrow-up"></i> 8.9k</span>
-                                        <span><i class="fas fa-comment"></i> 1.2k</span>
-                                        <span><i class="fas fa-eye"></i> 120k</span>
+                        <img src="https://sfile.chatglm.cn/images-ppt/5c8b6e211e73.jpg" alt="Cryptocurrency" class="thread-thumbnail">
+                        <div class="thread-content-wrapper">
+                            <div class="thread-header">
+                                <div>
+                                    <a href="/thread/123462" class="thread-title">The Complete Guide to Cryptocurrency Investing</a>
+                                    <div class="thread-meta">
+                                        <span class="thread-author">by CryptoExpert</span>
+                                        <div class="thread-stats">
+                                            <span><i class="fas fa-arrow-up"></i> 8.9k</span>
+                                            <span><i class="fas fa-comment"></i> 1.2k</span>
+                                            <span><i class="fas fa-eye"></i> 120k</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="thread-content">
-                            Everything you need to know about cryptocurrency investing, from basics to advanced strategies...
-                        </div>
-                        <div class="thread-footer">
-                            <div class="thread-actions">
-                                <a href="/thread/123462" class="action-btn">
-                                    <i class="fas fa-arrow-up"></i>
-                                    Upvote
-                                </a>
-                                <a href="/thread/123462#reply" class="action-btn">
-                                    <i class="fas fa-reply"></i>
-                                    Reply
-                                </a>
-                                <a href="/thread/123462" class="action-btn">
-                                    <i class="fas fa-share"></i>
-                                    Share
-                                </a>
+                            <div class="thread-content">
+                                Everything you need to know about cryptocurrency investing, from basics to advanced strategies...
                             </div>
-                            <div class="thread-date">1 week ago</div>
+                            <div class="thread-footer">
+                                <div class="thread-actions">
+                                    <a href="/thread/123462" class="action-btn">
+                                        <i class="fas fa-arrow-up"></i>
+                                        Upvote
+                                    </a>
+                                    <a href="/thread/123462#reply" class="action-btn">
+                                        <i class="fas fa-reply"></i>
+                                        Reply
+                                    </a>
+                                    <a href="/thread/123462" class="action-btn">
+                                        <i class="fas fa-share"></i>
+                                        Share
+                                    </a>
+                                </div>
+                                <div class="thread-date">1 week ago</div>
+                            </div>
                         </div>
                     </article>
                 </div>
             </div>
         </section>
-
         <!-- New Threads Section -->
         <section class="section" aria-labelledby="new-threads-heading">
             <div class="section-header">
@@ -1285,127 +1231,133 @@
             </div>
             <div class="thread-list">
                 <article class="thread-card">
-                    <div class="thread-header">
-                        <div>
-                            <a href="/thread/123463" class="thread-title">Just discovered this amazing open-source project</a>
-                            <div class="thread-meta">
-                                <span class="thread-author">by DevEnthusiast</span>
-                                <div class="thread-stats">
-                                    <span><i class="fas fa-arrow-up"></i> 45</span>
-                                    <span><i class="fas fa-comment"></i> 12</span>
-                                    <span><i class="fas fa-eye"></i> 234</span>
+                    <img src="https://sfile.chatglm.cn/images-ppt/9cb0c58a6931.jpg" alt="Open source project" class="thread-thumbnail">
+                    <div class="thread-content-wrapper">
+                        <div class="thread-header">
+                            <div>
+                                <a href="/thread/123463" class="thread-title">Just discovered this amazing open-source project</a>
+                                <div class="thread-meta">
+                                    <span class="thread-author">by DevEnthusiast</span>
+                                    <div class="thread-stats">
+                                        <span><i class="fas fa-arrow-up"></i> 45</span>
+                                        <span><i class="fas fa-comment"></i> 12</span>
+                                        <span><i class="fas fa-eye"></i> 234</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="thread-content">
-                        Found this incredible open-source project that's exactly what I've been looking for. Wanted to share it with the community...
-                    </div>
-                    <div class="thread-tags">
-                        <a href="/tag/opensource" class="tag">Open Source</a>
-                        <a href="/tag/programming" class="tag">Programming</a>
-                    </div>
-                    <div class="thread-footer">
-                        <div class="thread-actions">
-                            <a href="/thread/123463" class="action-btn">
-                                <i class="fas fa-arrow-up"></i>
-                                Upvote
-                            </a>
-                            <a href="/thread/123463#reply" class="action-btn">
-                                <i class="fas fa-reply"></i>
-                                Reply
-                            </a>
-                            <a href="/thread/123463" class="action-btn">
-                                <i class="fas fa-share"></i>
-                                Share
-                            </a>
+                        <div class="thread-content">
+                            Found this incredible open-source project that's exactly what I've been looking for. Wanted to share it with the community...
                         </div>
-                        <div class="thread-date">10 minutes ago</div>
+                        <div class="thread-tags">
+                            <a href="/tag/opensource" class="tag">Open Source</a>
+                            <a href="/tag/programming" class="tag">Programming</a>
+                        </div>
+                        <div class="thread-footer">
+                            <div class="thread-actions">
+                                <a href="/thread/123463" class="action-btn">
+                                    <i class="fas fa-arrow-up"></i>
+                                    Upvote
+                                </a>
+                                <a href="/thread/123463#reply" class="action-btn">
+                                    <i class="fas fa-reply"></i>
+                                    Reply
+                                </a>
+                                <a href="/thread/123463" class="action-btn">
+                                    <i class="fas fa-share"></i>
+                                    Share
+                                </a>
+                            </div>
+                            <div class="thread-date">10 minutes ago</div>
+                        </div>
                     </div>
                 </article>
-
                 <article class="thread-card">
-                    <div class="thread-header">
-                        <div>
-                            <a href="/thread/123464" class="thread-title">Need recommendations for a good mechanical keyboard</a>
-                            <div class="thread-meta">
-                                <span class="thread-author">by KeyboardLover</span>
-                                <div class="thread-stats">
-                                    <span><i class="fas fa-arrow-up"></i> 23</span>
-                                    <span><i class="fas fa-comment"></i> 8</span>
-                                    <span><i class="fas fa-eye"></i> 156</span>
+                    <img src="https://sfile.chatglm.cn/images-ppt/4053eacf44c3.jpg" alt="Mechanical keyboard" class="thread-thumbnail">
+                    <div class="thread-content-wrapper">
+                        <div class="thread-header">
+                            <div>
+                                <a href="/thread/123464" class="thread-title">Need recommendations for a good mechanical keyboard</a>
+                                <div class="thread-meta">
+                                    <span class="thread-author">by KeyboardLover</span>
+                                    <div class="thread-stats">
+                                        <span><i class="fas fa-arrow-up"></i> 23</span>
+                                        <span><i class="fas fa-comment"></i> 8</span>
+                                        <span><i class="fas fa-eye"></i> 156</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="thread-content">
-                        Looking to upgrade my typing experience. What mechanical keyboards do you recommend for around $100-150?
-                    </div>
-                    <div class="thread-tags">
-                        <a href="/tag/hardware" class="tag">Hardware</a>
-                        <a href="/tag/keyboards" class="tag">Keyboards</a>
-                    </div>
-                    <div class="thread-footer">
-                        <div class="thread-actions">
-                            <a href="/thread/123464" class="action-btn">
-                                <i class="fas fa-arrow-up"></i>
-                                Upvote
-                            </a>
-                            <a href="/thread/123464#reply" class="action-btn">
-                                <i class="fas fa-reply"></i>
-                                Reply
-                            </a>
-                            <a href="/thread/123464" class="action-btn">
-                                <i class="fas fa-share"></i>
-                                Share
-                            </a>
+                        <div class="thread-content">
+                            Looking to upgrade my typing experience. What mechanical keyboards do you recommend for around $100-150?
                         </div>
-                        <div class="thread-date">25 minutes ago</div>
+                        <div class="thread-tags">
+                            <a href="/tag/hardware" class="tag">Hardware</a>
+                            <a href="/tag/keyboards" class="tag">Keyboards</a>
+                        </div>
+                        <div class="thread-footer">
+                            <div class="thread-actions">
+                                <a href="/thread/123464" class="action-btn">
+                                    <i class="fas fa-arrow-up"></i>
+                                    Upvote
+                                </a>
+                                <a href="/thread/123464#reply" class="action-btn">
+                                    <i class="fas fa-reply"></i>
+                                    Reply
+                                </a>
+                                <a href="/thread/123464" class="action-btn">
+                                    <i class="fas fa-share"></i>
+                                    Share
+                                </a>
+                            </div>
+                            <div class="thread-date">25 minutes ago</div>
+                        </div>
                     </div>
                 </article>
-
                 <article class="thread-card">
-                    <div class="thread-header">
-                        <div>
-                            <a href="/thread/123465" class="thread-title">What's your favorite programming language and why?</a>
-                            <div class="thread-meta">
-                                <span class="thread-author">by CodeNewbie</span>
-                                <div class="thread-stats">
-                                    <span><i class="fas fa-arrow-up"></i> 67</span>
-                                    <span><i class="fas fa-comment"></i> 34</span>
-                                    <span><i class="fas fa-eye"></i> 445</span>
+                    <img src="https://sfile.chatglm.cn/images-ppt/3bf5ad67991d.jpg" alt="Programming languages" class="thread-thumbnail">
+                    <div class="thread-content-wrapper">
+                        <div class="thread-header">
+                            <div>
+                                <a href="/thread/123465" class="thread-title">What's your favorite programming language and why?</a>
+                                <div class="thread-meta">
+                                    <span class="thread-author">by CodeNewbie</span>
+                                    <div class="thread-stats">
+                                        <span><i class="fas fa-arrow-up"></i> 67</span>
+                                        <span><i class="fas fa-comment"></i> 34</span>
+                                        <span><i class="fas fa-eye"></i> 445</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="thread-content">
-                        Just starting my programming journey and curious about what languages experienced developers prefer and why...
-                    </div>
-                    <div class="thread-tags">
-                        <a href="/tag/programming" class="tag">Programming</a>
-                        <a href="/tag/discussion" class="tag">Discussion</a>
-                    </div>
-                    <div class="thread-footer">
-                        <div class="thread-actions">
-                            <a href="/thread/123465" class="action-btn">
-                                <i class="fas fa-arrow-up"></i>
-                                Upvote
-                            </a>
-                            <a href="/thread/123465#reply" class="action-btn">
-                                <i class="fas fa-reply"></i>
-                                Reply
-                            </a>
-                            <a href="/thread/123465" class="action-btn">
-                                <i class="fas fa-share"></i>
-                                Share
-                            </a>
+                        <div class="thread-content">
+                            Just starting my programming journey and curious about what languages experienced developers prefer and why...
                         </div>
-                        <div class="thread-date">1 hour ago</div>
+                        <div class="thread-tags">
+                            <a href="/tag/programming" class="tag">Programming</a>
+                            <a href="/tag/discussion" class="tag">Discussion</a>
+                        </div>
+                        <div class="thread-footer">
+                            <div class="thread-actions">
+                                <a href="/thread/123465" class="action-btn">
+                                    <i class="fas fa-arrow-up"></i>
+                                    Upvote
+                                </a>
+                                <a href="/thread/123465#reply" class="action-btn">
+                                    <i class="fas fa-reply"></i>
+                                    Reply
+                                </a>
+                                <a href="/thread/123465" class="action-btn">
+                                    <i class="fas fa-share"></i>
+                                    Share
+                                </a>
+                            </div>
+                            <div class="thread-date">1 hour ago</div>
+                        </div>
                     </div>
                 </article>
             </div>
         </section>
-
         <!-- Best All Time Threads Section -->
         <section class="section" aria-labelledby="best-threads-heading">
             <div class="section-header">
@@ -1414,131 +1366,137 @@
             </div>
             <div class="thread-list">
                 <article class="thread-card featured-thread">
-                    <div class="thread-header">
-                        <div>
-                            <a href="/thread/100001" class="thread-title">The Complete Guide to Learning Programming in 2024</a>
-                            <div class="thread-meta">
-                                <span class="thread-author">by ProgrammingGuru</span>
-                                <div class="thread-stats">
-                                    <span><i class="fas fa-arrow-up"></i> 25.6k</span>
-                                    <span><i class="fas fa-comment"></i> 3.4k</span>
-                                    <span><i class="fas fa-eye"></i> 500k</span>
+                    <img src="https://sfile.chatglm.cn/images-ppt/e3d540830f0a.jpg" alt="Programming guide" class="thread-thumbnail">
+                    <div class="thread-content-wrapper">
+                        <div class="thread-header">
+                            <div>
+                                <a href="/thread/100001" class="thread-title">The Complete Guide to Learning Programming in 2024</a>
+                                <div class="thread-meta">
+                                    <span class="thread-author">by ProgrammingGuru</span>
+                                    <div class="thread-stats">
+                                        <span><i class="fas fa-arrow-up"></i> 25.6k</span>
+                                        <span><i class="fas fa-comment"></i> 3.4k</span>
+                                        <span><i class="fas fa-eye"></i> 500k</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="thread-content">
-                        This comprehensive guide covers everything you need to know about learning programming in 2024, from choosing your first language to advanced topics and career paths...
-                    </div>
-                    <div class="thread-tags">
-                        <a href="/tag/programming" class="tag">Programming</a>
-                        <a href="/tag/guide" class="tag">Guide</a>
-                        <a href="/tag/2024" class="tag">2024</a>
-                    </div>
-                    <div class="thread-footer">
-                        <div class="thread-actions">
-                            <a href="/thread/100001" class="action-btn">
-                                <i class="fas fa-arrow-up"></i>
-                                Upvote
-                            </a>
-                            <a href="/thread/100001#reply" class="action-btn">
-                                <i class="fas fa-reply"></i>
-                                Reply
-                            </a>
-                            <a href="/thread/100001" class="action-btn">
-                                <i class="fas fa-share"></i>
-                                Share
-                            </a>
+                        <div class="thread-content">
+                            This comprehensive guide covers everything you need to know about learning programming in 2024, from choosing your first language to advanced topics and career paths...
                         </div>
-                        <div class="thread-date">6 months ago</div>
+                        <div class="thread-tags">
+                            <a href="/tag/programming" class="tag">Programming</a>
+                            <a href="/tag/guide" class="tag">Guide</a>
+                            <a href="/tag/2024" class="tag">2024</a>
+                        </div>
+                        <div class="thread-footer">
+                            <div class="thread-actions">
+                                <a href="/thread/100001" class="action-btn">
+                                    <i class="fas fa-arrow-up"></i>
+                                    Upvote
+                                </a>
+                                <a href="/thread/100001#reply" class="action-btn">
+                                    <i class="fas fa-reply"></i>
+                                    Reply
+                                </a>
+                                <a href="/thread/100001" class="action-btn">
+                                    <i class="fas fa-share"></i>
+                                    Share
+                                </a>
+                            </div>
+                            <div class="thread-date">6 months ago</div>
+                        </div>
                     </div>
                 </article>
-
                 <article class="thread-card">
-                    <div class="thread-header">
-                        <div>
-                            <a href="/thread/100002" class="thread-title">How I Built a $10k/Month Business from My Bedroom</a>
-                            <div class="thread-meta">
-                                <span class="thread-author">by EntrepreneurPro</span>
-                                <div class="thread-stats">
-                                    <span><i class="fas fa-arrow-up"></i> 18.9k</span>
-                                    <span><i class="fas fa-comment"></i> 2.1k</span>
-                                    <span><i class="fas fa-eye"></i> 350k</span>
+                    <img src="https://sfile.chatglm.cn/images-ppt/4e8f0f6d896a.jpg" alt="Business" class="thread-thumbnail">
+                    <div class="thread-content-wrapper">
+                        <div class="thread-header">
+                            <div>
+                                <a href="/thread/100002" class="thread-title">How I Built a $10k/Month Business from My Bedroom</a>
+                                <div class="thread-meta">
+                                    <span class="thread-author">by EntrepreneurPro</span>
+                                    <div class="thread-stats">
+                                        <span><i class="fas fa-arrow-up"></i> 18.9k</span>
+                                        <span><i class="fas fa-comment"></i> 2.1k</span>
+                                        <span><i class="fas fa-eye"></i> 350k</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="thread-content">
-                        My journey from broke college student to running a successful online business. Here's exactly how I did it, step by step...
-                    </div>
-                    <div class="thread-tags">
-                        <a href="/tag/business" class="tag">Business</a>
-                        <a href="/tag/entrepreneurship" class="tag">Entrepreneurship</a>
-                        <a href="/tag/money" class="tag">Money</a>
-                    </div>
-                    <div class="thread-footer">
-                        <div class="thread-actions">
-                            <a href="/thread/100002" class="action-btn">
-                                <i class="fas fa-arrow-up"></i>
-                                Upvote
-                            </a>
-                            <a href="/thread/100002#reply" class="action-btn">
-                                <i class="fas fa-reply"></i>
-                                Reply
-                            </a>
-                            <a href="/thread/100002" class="action-btn">
-                                <i class="fas fa-share"></i>
-                                Share
-                            </a>
+                        <div class="thread-content">
+                            My journey from broke college student to running a successful online business. Here's exactly how I did it, step by step...
                         </div>
-                        <div class="thread-date">8 months ago</div>
+                        <div class="thread-tags">
+                            <a href="/tag/business" class="tag">Business</a>
+                            <a href="/tag/entrepreneurship" class="tag">Entrepreneurship</a>
+                            <a href="/tag/money" class="tag">Money</a>
+                        </div>
+                        <div class="thread-footer">
+                            <div class="thread-actions">
+                                <a href="/thread/100002" class="action-btn">
+                                    <i class="fas fa-arrow-up"></i>
+                                    Upvote
+                                </a>
+                                <a href="/thread/100002#reply" class="action-btn">
+                                    <i class="fas fa-reply"></i>
+                                    Reply
+                                </a>
+                                <a href="/thread/100002" class="action-btn">
+                                    <i class="fas fa-share"></i>
+                                    Share
+                                </a>
+                            </div>
+                            <div class="thread-date">8 months ago</div>
+                        </div>
                     </div>
                 </article>
-
                 <article class="thread-card">
-                    <div class="thread-header">
-                        <div>
-                            <a href="/thread/100003" class="thread-title">The Ultimate Gaming PC Build Guide - 2024 Edition</a>
-                            <div class="thread-meta">
-                                <span class="thread-author">by PCMasterRace</span>
-                                <div class="thread-stats">
-                                    <span><i class="fas fa-arrow-up"></i> 15.7k</span>
-                                    <span><i class="fas fa-comment"></i> 1.8k</span>
-                                    <span><i class="fas fa-eye"></i> 280k</span>
+                    <img src="https://sfile.chatglm.cn/images-ppt/593d9cf1faa9.jpg" alt="Gaming PC" class="thread-thumbnail">
+                    <div class="thread-content-wrapper">
+                        <div class="thread-header">
+                            <div>
+                                <a href="/thread/100003" class="thread-title">The Ultimate Gaming PC Build Guide - 2024 Edition</a>
+                                <div class="thread-meta">
+                                    <span class="thread-author">by PCMasterRace</span>
+                                    <div class="thread-stats">
+                                        <span><i class="fas fa-arrow-up"></i> 15.7k</span>
+                                        <span><i class="fas fa-comment"></i> 1.8k</span>
+                                        <span><i class="fas fa-eye"></i> 280k</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="thread-content">
-                        The most comprehensive PC building guide you'll find anywhere. Covers everything from budget builds to high-end gaming rigs...
-                    </div>
-                    <div class="thread-tags">
-                        <a href="/tag/gaming" class="tag">Gaming</a>
-                        <a href="/tag/pc" class="tag">PC</a>
-                        <a href="/tag/hardware" class="tag">Hardware</a>
-                    </div>
-                    <div class="thread-footer">
-                        <div class="thread-actions">
-                            <a href="/thread/100003" class="action-btn">
-                                <i class="fas fa-arrow-up"></i>
-                                Upvote
-                            </a>
-                            <a href="/thread/100003#reply" class="action-btn">
-                                <i class="fas fa-reply"></i>
-                                Reply
-                            </a>
-                            <a href="/thread/100003" class="action-btn">
-                                <i class="fas fa-share"></i>
-                                Share
-                            </a>
+                        <div class="thread-content">
+                            The most comprehensive PC building guide you'll find anywhere. Covers everything from budget builds to high-end gaming rigs...
                         </div>
-                        <div class="thread-date">1 year ago</div>
+                        <div class="thread-tags">
+                            <a href="/tag/gaming" class="tag">Gaming</a>
+                            <a href="/tag/pc" class="tag">PC</a>
+                            <a href="/tag/hardware" class="tag">Hardware</a>
+                        </div>
+                        <div class="thread-footer">
+                            <div class="thread-actions">
+                                <a href="/thread/100003" class="action-btn">
+                                    <i class="fas fa-arrow-up"></i>
+                                    Upvote
+                                </a>
+                                <a href="/thread/100003#reply" class="action-btn">
+                                    <i class="fas fa-reply"></i>
+                                    Reply
+                                </a>
+                                <a href="/thread/100003" class="action-btn">
+                                    <i class="fas fa-share"></i>
+                                    Share
+                                </a>
+                            </div>
+                            <div class="thread-date">1 year ago</div>
+                        </div>
                     </div>
                 </article>
             </div>
         </section>
     </main>
-
     <!-- Footer -->
     <footer class="footer" role="contentinfo">
         <div class="footer-content">
@@ -1580,7 +1538,6 @@
             </div>
         </div>
     </footer>
-
     <script>
         // Tab functionality
         function showTab(tabId, tabElement) {
@@ -1602,7 +1559,6 @@
             tabElement.classList.add('active');
             tabElement.setAttribute('aria-selected', 'true');
         }
-
         // Search functionality
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('search-input');
@@ -1630,7 +1586,6 @@
                 }
             });
         });
-
         // Lazy loading for images (if any)
         if ('IntersectionObserver' in window) {
             const imageObserver = new IntersectionObserver((entries, observer) => {
@@ -1643,12 +1598,10 @@
                     }
                 });
             });
-
             document.querySelectorAll('img[data-src]').forEach(img => {
                 imageObserver.observe(img);
             });
         }
-
         // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -1662,20 +1615,17 @@
                 }
             });
         });
-
         // Add loading animation for dynamic content
         function showLoading(element) {
             element.innerHTML = '<div class="loading"></div> Loading...';
         }
-
         // Error handling for external resources
         window.addEventListener('error', function(e) {
             if (e.target.tagName === 'IMG') {
-                e.target.src = '/placeholder-image.jpg';
+                e.target.src = 'https://sfile.chatglm.cn/images-ppt/f678ee27a6cf.png';
                 e.target.alt = 'Image not available';
             }
         }, true);
-
         // Performance monitoring
         if ('performance' in window) {
             window.addEventListener('load', function() {
@@ -1685,7 +1635,6 @@
                 }, 0);
             });
         }
-
         // Keyboard navigation enhancement
         document.addEventListener('keydown', function(e) {
             // Alt + S: Focus search
@@ -1700,7 +1649,6 @@
                 window.location.href = '/create-thread';
             }
         });
-
         // Accessibility: Announce dynamic content changes
         function announceToScreenReader(message) {
             const announcement = document.createElement('div');
@@ -1714,7 +1662,6 @@
                 document.body.removeChild(announcement);
             }, 1000);
         }
-
         // Track scroll depth for analytics
         let maxScroll = 0;
         window.addEventListener('scroll', function() {
@@ -1727,7 +1674,6 @@
                 // Here you would send this data to your analytics service
             }
         });
-
         // Initialize tooltips (if any)
         function initializeTooltips() {
             const tooltipElements = document.querySelectorAll('[data-tooltip]');
@@ -1758,14 +1704,12 @@
                 });
             });
         }
-
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             initializeTooltips();
             announceToScreenReader('6chan homepage loaded successfully');
         });
     </script>
-
     <!-- Structured Data for Breadcrumbs -->
     <script type="application/ld+json">
     {
@@ -1781,7 +1725,6 @@
         ]
     }
     </script>
-
     <!-- Structured Data for Organization -->
     <script type="application/ld+json">
     {
@@ -1789,7 +1732,7 @@
         "@type": "Organization",
         "name": "6chan",
         "url": "https://6chan.com/",
-        "logo": "https://6chan.com/logo.png",
+        "logo": "https://sfile.chatglm.cn/images-ppt/2e5a7d6d70da.jpg",
         "sameAs": [
             "https://twitter.com/6chan",
             "https://facebook.com/6chan",
@@ -1802,7 +1745,6 @@
         }
     }
     </script>
-
     <!-- Structured Data for WebSite -->
     <script type="application/ld+json">
     {
