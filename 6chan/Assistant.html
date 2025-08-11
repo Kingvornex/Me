@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Milf Anime Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #c77dff;
+            --primary-dark: #9d4edd;
+            --secondary: #e0aaff;
+            --accent: #7209b7;
+            --success: #560bad;
+            --warning: #f72585;
+            --error: #b5179e;
+            --bg-primary: #240046;
+            --bg-secondary: #3c096c;
+            --bg-tertiary: #5a189a;
+            --text-primary: #f8f9fa;
+            --text-secondary: #e9ecef;
+            --text-muted: #dee2e6;
+            --border: #7209b7;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(199, 125, 255, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(114, 9, 183, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 50% 50%, rgba(224, 170, 255, 0.05) 0%, transparent 50%);
+        }
+        
+        .container {
+            display: flex;
+            flex: 1;
+            width: 100%;
+            max-width: 1920px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .character-section {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .character-container {
+            position: relative;
+            width: 500px;
+            height: 600px;
+            margin-bottom: 30px;
+        }
+        
+        .character-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: all 0.5s ease;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+        }
+        
+        .character-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 550px;
+            height: 650px;
+            background: radial-gradient(circle, rgba(157, 78, 221, 0.2) 0%, rgba(157, 78, 221, 0) 70%);
+            border-radius: 50%;
+            z-index: -1;
+            animation: pulse 3s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            0% {
+                opacity: 0.5;
+                transform: translate(-50%, -50%) scale(0.95);
+            }
+            100% {
+                opacity: 0.8;
+                transform: translate(-50%, -50%) scale(1.05);
+            }
+        }
+        
+        .dialogue-bubble {
+            position: absolute;
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 2px solid var(--primary);
+            border-radius: 20px;
+            padding: 15px 20px;
+            max-width: 300px;
+            font-size: 18px;
+            color: var(--text-primary);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        
+        .dialogue-bubble:after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 15px solid var(--bg-tertiary);
+        }
+        
+        .dialogue-bubble.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .dialogue-bubble.top {
+            top: -80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+        }
+        
+        .dialogue-bubble.top.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .dialogue-bubble.top:after {
+            top: 100%;
+            bottom: auto;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: none;
+            border-bottom: 15px solid var(--bg-tertiary);
+        }
+        
+        .interaction-points {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+        
+        .interaction-point {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: rgba(157, 78, 221, 0.5);
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 5;
+        }
+        
+        .interaction-point:hover {
+            background: rgba(157, 78, 221, 0.8);
+            transform: scale(1.2);
+        }
+        
+        .interaction-point i {
+            color: var(--text-primary);
+            font-size: 20px;
+        }
+        
+        .point-head {
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .point-shoulder-left {
+            top: 250px;
+            left: 30%;
+        }
+        
+        .point-shoulder-right {
+            top: 250px;
+            right: 30%;
+        }
+        
+        .point-hand {
+            bottom: 120px;
+            right: 35%;
+        }
+        
+        .control-panel {
+            flex: 1;
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .panel-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 10px;
+            font-family: 'Quicksand', sans-serif;
+        }
+        
+        .panel-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            color: var(--primary);
+        }
+        
+        .emotion-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .asmr-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .action-button {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .action-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(157, 78, 221, 0.4);
+        }
+        
+        .action-button i {
+            font-size: 24px;
+        }
+        
+        .action-button span {
+            font-size: 14px;
+        }
+        
+        .action-button.active {
+            background: linear-gradient(135deg, var(--warning), var(--error));
+        }
+        
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .volume-slider {
+            width: 150px;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--bg-primary);
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .volume-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .audio-button {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 24px;
+            transition: all 0.3s ease;
+        }
+        
+        .audio-button:hover {
+            color: var(--secondary);
+            transform: scale(1.1);
+        }
+        
+        .character-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 30px;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: blink 2s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+        
+        .status-text {
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+        
+        .patting-effect {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 70%);
+            pointer-events: none;
+            opacity: 0;
+            transform: scale(0);
+            z-index: 15;
+        }
+        
+        .patting-effect.active {
+            animation: pat 0.6s ease-out;
+        }
+        
+        @keyframes pat {
+            0% {
+                opacity: 0.8;
+                transform: scale(0);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(2);
+            }
+        }
+        
+        .heart {
+            position: absolute;
+            color: var(--warning);
+            font-size: 24px;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(0);
+            z-index: 15;
+        }
+        
+        .heart.active {
+            animation: float-up 1.5s ease-out forwards;
+        }
+        
+        @keyframes float-up {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+        }
+        
+        .wink {
+            position: absolute;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 20px;
+            border-bottom: 3px solid var(--text-primary);
+            border-radius: 50%;
+            opacity: 0;
+            z-index: 6;
+        }
+        
+        .wink.active {
+            animation: wink-animation 0.5s ease-out;
+        }
+        
+        @keyframes wink-animation {
+            0%, 100% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+        
+        .asmr-mode-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+        
+        .asmr-mode-indicator.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .asmr-audio-waves {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .asmr-audio-waves.active {
+            opacity: 1;
+        }
+        
+        .audio-wave {
+            width: 3px;
+            height: 20px;
+            background-color: var(--primary);
+            border-radius: 2px;
+            animation: wave 1.2s infinite ease-in-out;
+        }
+        
+        .audio-wave:nth-child(2) {
+            height: 30px;
+            animation-delay: 0.2s;
+        }
+        
+        .audio-wave:nth-child(3) {
+            height: 40px;
+            animation-delay: 0.4s;
+        }
+        
+        .audio-wave:nth-child(4) {
+            height: 30px;
+            animation-delay: 0.6s;
+        }
+        
+        .audio-wave:nth-child(5) {
+            height: 20px;
+            animation-delay: 0.8s;
+        }
+        
+        @keyframes wave {
+            0%, 100% {
+                transform: scaleY(0.6);
+            }
+            50% {
+                transform: scaleY(1);
+            }
+        }
+        
+        @media (max-width: 1200px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .character-section {
+                margin-bottom: 30px;
+            }
+            
+            .control-panel {
+                width: 100%;
+                max-width: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="character-section">
+            <div class="character-container">
+                <div class="character-glow"></div>
+                <img src="https://sfile.chatglm.cn/images-ppt/d8c44452de4b.jpg" alt="Milf Anime Assistant" class="character-image" id="character-image">
+                
+                <div class="dialogue-bubble top" id="dialogue-bubble">
+                    Hello! I'm your assistant. How can I help you today?
+                </div>
+                
+                <div class="interaction-points">
+                    <div class="interaction-point point-head" data-part="head">
+                        <i class="fas fa-hand-pointer"></i>
+                    </div>
+                    <div class="interaction-point point-shoulder-left" data-part="shoulder-left">
+                        <i class="fas fa-hand-pointer"></i>
+                    </div>
+                    <div class="interaction-point point-shoulder-right" data-part="shoulder-right">
+                        <i class="fas fa-hand-pointer"></i>
+                    </div>
+                    <div class="interaction-point point-hand" data-part="hand">
+                        <i class="fas fa-hand-pointer"></i>
+                    </div>
+                </div>
+                
+                <div class="patting-effect" id="patting-effect"></div>
+                <div class="heart" id="heart">❤️</div>
+                <div class="wink" id="wink"></div>
+                
+                <div class="asmr-mode-indicator" id="asmr-indicator">
+                    <i class="fas fa-headphones-alt"></i>
+                    <span>ASMR Mode</span>
+                </div>
+                
+                <div class="asmr-audio-waves" id="asmr-waves">
+                    <div class="audio-wave"></div>
+                    <div class="audio-wave"></div>
+                    <div class="audio-wave"></div>
+                    <div class="audio-wave"></div>
+                    <div class="audio-wave"></div>
+                </div>
+            </div>
+            
+            <div class="character-status">
+                <div class="status-indicator"></div>
+                <span class="status-text" id="status-text">Online and ready to interact</span>
+            </div>
+        </div>
+        
+        <div class="control-panel">
+            <h2 class="panel-title">Assistant Controls</h2>
+            
+            <div class="panel-section">
+                <h3 class="section-title">
+                    <i class="fas fa-smile"></i>
+                    Emotions
+                </h3>
+                <div class="emotion-buttons">
+                    <button class="action-button" data-emotion="happy">
+                        <i class="fas fa-laugh-beam"></i>
+                        <span>Happy</span>
+                    </button>
+                    <button class="action-button" data-emotion="sad">
+                        <i class="fas fa-sad-tear"></i>
+                        <span>Sad</span>
+                    </button>
+                    <button class="action-button" data-emotion="surprised">
+                        <i class="fas fa-surprise"></i>
+                        <span>Surprised</span>
+                    </button>
+                    <button class="action-button" data-emotion="shy">
+                        <i class="fas fa-blush"></i>
+                        <span>Shy</span>
+                    </button>
+                    <button class="action-button" data-emotion="playful">
+                        <i class="fas fa-grin-stars"></i>
+                        <span>Playful</span>
+                    </button>
+                    <button class="action-button" data-emotion="concerned">
+                        <i class="fas fa-frown-open"></i>
+                        <span>Concerned</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="panel-section">
+                <h3 class="section-title">
+                    <i class="fas fa-headphones-alt"></i>
+                    ASMR Mode
+                </h3>
+                <div class="asmr-buttons">
+                    <button class="action-button" data-asmr="sleep">
+                        <i class="fas fa-moon"></i>
+                        <span>Sleep Aid</span>
+                    </button>
+                    <button class="action-button" data-asmr="stress">
+                        <i class="fas fa-spa"></i>
+                        <span>Stress Relief</span>
+                    </button>
+                    <button class="action-button" data-asmr="affection">
+                        <i class="fas fa-heart"></i>
+                        <span>Affection</span>
+                    </button>
+                    <button class="action-button" data-asmr="story">
+                        <i class="fas fa-book-open"></i>
+                        <span>Story Time</span>
+                    </button>
+                </div>
+                
+                <div class="audio-controls">
+                    <button class="audio-button" id="play-pause">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <div class="volume-control">
+                        <i class="fas fa-volume-down"></i>
+                        <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="50">
+                        <i class="fas fa-volume-up"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel-section">
+                <h3 class="section-title">
+                    <i class="fas fa-magic"></i>
+                    Special Actions
+                </h3>
+                <div class="emotion-buttons">
+                    <button class="action-button" id="wink-button">
+                        <i class="fas fa-eye"></i>
+                        <span>Wink</span>
+                    </button>
+                    <button class="action-button" id="dance-button">
+                        <i class="fas fa-music"></i>
+                        <span>Dance</span>
+                    </button>
+                    <button class="action-button" id="wave-button">
+                        <i class="fas fa-hand-paper"></i>
+                        <span>Wave</span>
+                    </button>
+                    <button class="action-button" id="reset-button">
+                        <i class="fas fa-redo"></i>
+                        <span>Reset</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Character interaction functionality
+        const characterImage = document.getElementById('character-image');
+        const dialogueBubble = document.getElementById('dialogue-bubble');
+        const statusText = document.getElementById('status-text');
+        const pattingEffect = document.getElementById('patting-effect');
+        const heart = document.getElementById('heart');
+        const wink = document.getElementById('wink');
+        const asmrIndicator = document.getElementById('asmr-indicator');
+        const asmrWaves = document.getElementById('asmr-waves');
+        const playPauseBtn = document.getElementById('play-pause');
+        const volumeSlider = document.getElementById('volume-slider');
+        
+        // Character images for different emotions
+        const characterImages = {
+            default: 'https://sfile.chatglm.cn/images-ppt/d8c44452de4b.jpg',
+            happy: 'https://sfile.chatglm.cn/images-ppt/a214669f1a6e.jpg',
+            sad: 'https://sfile.chatglm.cn/images-ppt/4b028aa7c270.jpg',
+            surprised: 'https://sfile.chatglm.cn/images-ppt/5a293f0ebb71.jpg',
+            shy: 'https://sfile.chatglm.cn/images-ppt/b6684b252e25.jpg',
+            playful: 'https://sfile.chatglm.cn/images-ppt/9bdd6cc2e682.jpg',
+            concerned: 'https://sfile.chatglm.cn/images-ppt/a574564a73b9.jpg'
+        };
+        
+        // Dialogue responses for different interactions
+        const dialogues = {
+            head: [
+                "That feels nice~",
+                "I love it when you pat my head!",
+                "Mmm, that's comforting",
+                "You're so sweet!"
+            ],
+            'shoulder-left': [
+                "Oh, thank you!",
+                "You're so kind!",
+                "That's very thoughtful of you",
+                "I appreciate that!"
+            ],
+            'shoulder-right': [
+                "You're making me blush!",
+                "How considerate!",
+                "That's so nice of you",
+                "Thank you, dear!"
+            ],
+            hand: [
+                "Let's hold hands!",
+                "Your hand is so warm",
+                "I feel safe with you",
+                "That's comforting!"
+            ],
+            happy: [
+                "I'm so happy to see you!",
+                "Being with you makes me joyful!",
+                "You always make me smile!",
+                "I'm feeling wonderful right now!"
+            ],
+            sad: [
+                "I'm feeling a bit down today...",
+                "Sometimes I get sad too...",
+                "Could you cheer me up?",
+                "I could use a hug right now..."
+            ],
+            surprised: [
+                "Oh my! I didn't expect that!",
+                "Wow, you surprised me!",
+                "That was unexpected!",
+                "You caught me off guard!"
+            ],
+            shy: [
+                "Oh my... you're making me blush...",
+                "I'm feeling a bit shy right now...",
+                "That's embarrassing...",
+                "You're too kind to me..."
+            ],
+            playful: [
+                "Let's have some fun!",
+                "I'm in a playful mood today!",
+                "Wanna play a game?",
+                "I'm feeling mischievous!"
+            ],
+            concerned: [
+                "Is everything okay?",
+                "You seem worried about something...",
+                "I'm here if you need to talk",
+                "Is there something on your mind?"
+            ],
+            wink: [
+                "Did you see that? 😉",
+                "I've got a little secret for you...",
+                "I'm just teasing you!",
+                "Did I catch your attention?"
+            ],
+            dance: [
+                "Let's dance together!",
+                "Music makes me happy!",
+                "I love dancing with you!",
+                "Don't I look graceful?"
+            ],
+            wave: [
+                "Hello there!",
+                "Nice to meet you!",
+                "I'm waving at you!",
+                "Can you see me?"
+            ],
+            'sleep-asmr': [
+                "Shhh... it's time to rest now...",
+                "Close your eyes and listen to my voice...",
+                "Let me help you drift off to sleep...",
+                "Relax and let your worries fade away..."
+            ],
+            'stress-asmr': [
+                "Breathe in... breathe out...",
+                "Let all your tension melt away...",
+                "You're safe here with me...",
+                "Just relax and let me comfort you..."
+            ],
+            'affection-asmr': [
+                "You're so special to me...",
+                "I care about you so much...",
+                "Let me show you how much I care...",
+                "You deserve all the love in the world..."
+            ],
+            'story-asmr': [
+                "Once upon a time, in a land far away...",
+                "Let me tell you a story that will help you relax...",
+                "Close your eyes and imagine...",
+                "I'll tell you a tale that will soothe your mind..."
+            ]
+        };
+        
+        // Current state
+        let currentEmotion = 'default';
+        let currentASMR = null;
+        let isPlaying = false;
+        
+        // Show dialogue bubble
+        function showDialogue(message, duration = 3000) {
+            dialogueBubble.textContent = message;
+            dialogueBubble.classList.add('show');
+            
+            setTimeout(() => {
+                dialogueBubble.classList.remove('show');
+            }, duration);
+        }
+        
+        // Change character emotion
+        function changeEmotion(emotion) {
+            if (characterImages[emotion]) {
+                characterImage.src = characterImages[emotion];
+                currentEmotion = emotion;
+                
+                // Update status text
+                statusText.textContent = `Feeling ${emotion} right now`;
+                
+                // Show dialogue
+                const messages = dialogues[emotion] || ["I'm feeling different now!"];
+                const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+                showDialogue(randomMessage);
+                
+                // Remove active class from all emotion buttons
+                document.querySelectorAll('[data-emotion]').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Add active class to current emotion button
+                document.querySelector(`[data-emotion="${emotion}"]`)?.classList.add('active');
+            }
+        }
+        
+        // Handle body part interactions
+        document.querySelectorAll('.interaction-point').forEach(point => {
+            point.addEventListener('click', function() {
+                const part = this.getAttribute('data-part');
+                
+                // Create patting effect
+                const rect = this.getBoundingClientRect();
+                const containerRect = document.querySelector('.character-container').getBoundingClientRect();
+                
+                pattingEffect.style.left = (rect.left - containerRect.left + rect.width/2 - 40) + 'px';
+                pattingEffect.style.top = (rect.top - containerRect.top + rect.height/2 - 40) + 'px';
+                pattingEffect.classList.add('active');
+                
+                setTimeout(() => {
+                    pattingEffect.classList.remove('active');
+                }, 600);
+                
+                // Show heart effect for head pat
+                if (part === 'head') {
+                    heart.style.left = (rect.left - containerRect.left + rect.width/2 - 12) + 'px';
+                    heart.style.top = (rect.top - containerRect.top - 20) + 'px';
+                    heart.classList.add('active');
+                    
+                    setTimeout(() => {
+                        heart.classList.remove('active');
+                    }, 1500);
+                }
+                
+                // Show dialogue
+                const messages = dialogues[part] || ["That feels nice!"];
+                const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+                showDialogue(randomMessage);
+                
+                // Update status
+                statusText.textContent = `Enjoying your touch on my ${part.replace('-', ' ')}`;
+            });
+        });
+        
+        // Emotion button clicks
+        document.querySelectorAll('[data-emotion]').forEach(button => {
+            button.addEventListener('click', function() {
+                const emotion = this.getAttribute('data-emotion');
+                changeEmotion(emotion);
+            });
+        });
+        
+        // ASMR button clicks
+        document.querySelectorAll('[data-asmr]').forEach(button => {
+            button.addEventListener('click', function() {
+                const asmrMode = this.getAttribute('data-asmr');
+                
+                // Remove active class from all ASMR buttons
+                document.querySelectorAll('[data-asmr]').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Toggle ASMR mode
+                if (currentASMR === asmrMode) {
+                    currentASMR = null;
+                    asmrIndicator.classList.remove('active');
+                    asmrWaves.classList.remove('active');
+                    isPlaying = false;
+                    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    statusText.textContent = 'ASMR mode deactivated';
+                } else {
+                    currentASMR = asmrMode;
+                    this.classList.add('active');
+                    asmrIndicator.classList.add('active');
+                    asmrWaves.classList.add('active');
+                    isPlaying = true;
+                    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                    
+                    // Show dialogue
+                    const messages = dialogues[`${asmrMode}-asmr`] || ["Relax and listen to my voice..."];
+                    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+                    showDialogue(randomMessage, 5000);
+                    
+                    // Update status
+                    statusText.textContent = `ASMR mode: ${asmrMode}`;
+                }
+            });
+        });
+        
+        // Wink button
+        document.getElementById('wink-button').addEventListener('click', function() {
+            wink.classList.add('active');
+            
+            setTimeout(() => {
+                wink.classList.remove('active');
+            }, 500);
+            
+            const messages = dialogues.wink || ["Did you see that? 😉"];
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            showDialogue(randomMessage);
+            
+            statusText.textContent = "Just winked at you!";
+        });
+        
+        // Dance button
+        document.getElementById('dance-button').addEventListener('click', function() {
+            characterImage.style.animation = 'none';
+            setTimeout(() => {
+                characterImage.style.animation = 'dance 1s ease-in-out infinite';
+            }, 10);
+            
+            const messages = dialogues.dance || ["Let's dance together!"];
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            showDialogue(randomMessage);
+            
+            statusText.textContent = "Dancing with joy!";
+            
+            // Stop dancing after 5 seconds
+            setTimeout(() => {
+                characterImage.style.animation = 'none';
+                statusText.textContent = "Finished dancing!";
+            }, 5000);
+        });
+        
+        // Wave button
+        document.getElementById('wave-button').addEventListener('click', function() {
+            characterImage.style.animation = 'none';
+            setTimeout(() => {
+                characterImage.style.animation = 'wave 1s ease-in-out infinite';
+            }, 10);
+            
+            const messages = dialogues.wave || ["Hello there!"];
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            showDialogue(randomMessage);
+            
+            statusText.textContent = "Waving at you!";
+            
+            // Stop waving after 3 seconds
+            setTimeout(() => {
+                characterImage.style.animation = 'none';
+                statusText.textContent = "Finished waving!";
+            }, 3000);
+        });
+        
+        // Reset button
+        document.getElementById('reset-button').addEventListener('click', function() {
+            // Reset character image
+            characterImage.src = characterImages.default;
+            characterImage.style.animation = 'none';
+            currentEmotion = 'default';
+            
+            // Reset ASMR
+            currentASMR = null;
+            asmrIndicator.classList.remove('active');
+            asmrWaves.classList.remove('active');
+            isPlaying = false;
+            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            
+            // Remove active classes
+            document.querySelectorAll('.action-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show dialogue
+            showDialogue("I'm back to normal now!");
+            
+            // Update status
+            statusText.textContent = "Reset to default state";
+        });
+        
+        // Play/Pause button
+        playPauseBtn.addEventListener('click', function() {
+            if (currentASMR) {
+                isPlaying = !isPlaying;
+                
+                if (isPlaying) {
+                    this.innerHTML = '<i class="fas fa-pause"></i>';
+                    asmrWaves.classList.add('active');
+                    statusText.textContent = `ASMR mode: ${currentASMR} (playing)`;
+                } else {
+                    this.innerHTML = '<i class="fas fa-play"></i>';
+                    asmrWaves.classList.remove('active');
+                    statusText.textContent = `ASMR mode: ${currentASMR} (paused)`;
+                }
+            }
+        });
+        
+        // Volume slider
+        volumeSlider.addEventListener('input', function() {
+            const volume = this.value;
+            statusText.textContent = `Volume set to ${volume}%`;
+        });
+        
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes dance {
+                0%, 100% { transform: translateY(0) rotate(0deg); }
+                25% { transform: translateY(-20px) rotate(-5deg); }
+                50% { transform: translateY(0) rotate(0deg); }
+                75% { transform: translateY(-20px) rotate(5deg); }
+            }
+            
+            @keyframes wave {
+                0%, 100% { transform: rotate(0deg); }
+                25% { transform: rotate(-10deg); }
+                75% { transform: rotate(10deg); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Initialize with welcome message
+        setTimeout(() => {
+            showDialogue("Hello! I'm your assistant. Click on me to interact!");
+        }, 1000);
+    </script>
+</body>
+</html>
