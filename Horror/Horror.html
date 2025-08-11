@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Abandoned House - Horror Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            cursor: none;
+        }
+
+        #gameContainer {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), 
+                        rgba(30, 30, 50, 0.3) 0%, 
+                        rgba(0, 0, 0, 0.9) 40%, 
+                        #000 100%);
+            transition: background 0.1s ease;
+        }
+
+        #room {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background-image: 
+                radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.4) 100%),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23111" width="100" height="100"/><rect fill="%23000" x="10" y="10" width="80" height="80" opacity="0.5"/></svg>');
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #flashlight {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, 
+                        rgba(255, 255, 200, 0.8) 0%, 
+                        rgba(255, 255, 200, 0.4) 30%, 
+                        transparent 70%);
+            pointer-events: none;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: screen;
+            transition: opacity 0.3s ease;
+            z-index: 10;
+        }
+
+        .object {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            filter: brightness(0.3);
+        }
+
+        .object:hover {
+            filter: brightness(0.6);
+            transform: scale(1.05);
+        }
+
+        .door {
+            width: 120px;
+            height: 200px;
+            background: linear-gradient(to bottom, #2a1810, #1a0f08);
+            border: 3px solid #3a2820;
+            border-radius: 10px 10px 0 0;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .door::before {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #4a3830;
+            border-radius: 50%;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .painting {
+            width: 100px;
+            height: 120px;
+            background: linear-gradient(45deg, #3a2a1a, #2a1a0a);
+            border: 5px solid #4a3a2a;
+            top: 30%;
+            right: 20%;
+            border-radius: 5px;
+        }
+
+        .painting::after {
+            content: '馃憗锔�';
+            position: absolute;
+            font-size: 40px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .painting.scary::after {
+            opacity: 1;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 90%, 100% { opacity: 1; }
+            95% { opacity: 0; }
+        }
+
+        .bookshelf {
+            width: 150px;
+            height: 180px;
+            background: linear-gradient(to bottom, #2a1f15, #1a0f05);
+            border: 2px solid #3a2f25;
+            top: 20%;
+            left: 15%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            padding: 10px;
+        }
+
+        .book {
+            height: 20px;
+            background: linear-gradient(to right, #4a1a1a, #2a0a0a);
+            margin: 2px 0;
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .book::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 0, 0, 0);
+            transition: background 0.3s ease;
+        }
+
+        .book.scary::after {
+            background: rgba(255, 0, 0, 0.8);
+            animation: bloodDrip 1s ease-out;
+        }
+
+        @keyframes bloodDrip {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(0); }
+        }
+
+        #jumpScare {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            cursor: pointer;
+        }
+
+        .scareImage {
+            font-size: 300px;
+            animation: scareAnimation 0.5s ease-out;
+        }
+
+        @keyframes scareAnimation {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1.5) rotate(180deg); opacity: 1; }
+            100% { transform: scale(1) rotate(360deg); opacity: 1; }
+        }
+
+        #instructions {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 14px;
+            opacity: 0.7;
+            z-index: 20;
+        }
+
+        #sanity {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 18px;
+            z-index: 20;
+        }
+
+        .sanity-bar {
+            width: 200px;
+            height: 20px;
+            background: #333;
+            border: 2px solid #666;
+            margin-top: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sanity-fill {
+            height: 100%;
+            background: linear-gradient(to right, #0f0, #ff0, #f00);
+            width: 100%;
+            transition: width 0.5s ease;
+        }
+
+        #message {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 20;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .shadow {
+            position: absolute;
+            width: 100px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.8);
+            filter: blur(20px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .window {
+            width: 120px;
+            height: 150px;
+            background: linear-gradient(to bottom, #1a2a3a, #0a1a2a);
+            border: 5px solid #2a3a4a;
+            top: 25%;
+            right: 10%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .window::before {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background: #2a3a4a;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .window::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: #2a3a4a;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .face {
+            position: absolute;
+            font-size: 60px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .clock {
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #3a2a1a, #2a1a0a);
+            border: 3px solid #4a3a2a;
+            border-radius: 50%;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            position: relative;
+        }
+
+        .clock::before {
+            content: '3:00';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 14px;
+            color: #8a7a6a;
+        }
+
+        #static {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, 
+                    rgba(255,255,255,0.03) 0px, 
+                    transparent 1px, 
+                    transparent 2px, 
+                    rgba(255,255,255,0.03) 3px);
+            pointer-events: none;
+            opacity: 0;
+            z-index: 5;
+            animation: staticNoise 0.1s infinite;
+        }
+
+        @keyframes staticNoise {
+            0% { transform: translate(0, 0); }
+            10% { transform: translate(-1px, -1px); }
+            20% { transform: translate(1px, 1px); }
+            30% { transform: translate(-1px, 1px); }
+            40% { transform: translate(1px, -1px); }
+            50% { transform: translate(0, 0); }
+            60% { transform: translate(1px, 1px); }
+            70% { transform: translate(-1px, -1px); }
+            80% { transform: translate(1px, -1px); }
+            90% { transform: translate(-1px, 1px); }
+            100% { transform: translate(0, 0); }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="room">
+            <div id="flashlight"></div>
+            <div id="static"></div>
+            
+            <div id="instructions">
+                Move mouse to control flashlight<br>
+                Click objects to interact<br>
+                Survive the night...
+            </div>
+            
+            <div id="sanity">
+                Sanity: <span id="sanityValue">100</span>%
+                <div class="sanity-bar">
+                    <div class="sanity-fill" id="sanityFill"></div>
+                </div>
+            </div>
+            
+            <div id="message"></div>
+            
+            <div class="object door" id="door"></div>
+            <div class="object painting" id="painting"></div>
+            <div class="object bookshelf" id="bookshelf">
+                <div class="book"></div>
+                <div class="book"></div>
+                <div class="book"></div>
+                <div class="book"></div>
+                <div class="book"></div>
+            </div>
+            <div class="object window" id="window">
+                <div class="face" id="windowFace">馃懟</div>
+            </div>
+            <div class="object clock" id="clock"></div>
+            
+            <div class="shadow" id="shadow1" style="bottom: 0; right: 30%;"></div>
+            <div class="shadow" id="shadow2" style="bottom: 0; left: 30%;"></div>
+        </div>
+        
+        <div id="jumpScare">
+            <div class="scareImage" id="scareImage">馃槺</div>
+        </div>
+    </div>
+
+    <script>
+        let sanity = 100;
+        let gameActive = true;
+        let scareCount = 0;
+        let mousePosition = { x: 50, y: 50 };
+
+        const flashlight = document.getElementById('flashlight');
+        const gameContainer = document.getElementById('gameContainer');
+        const jumpScare = document.getElementById('jumpScare');
+        const scareImage = document.getElementById('scareImage');
+        const sanityValue = document.getElementById('sanityValue');
+        const sanityFill = document.getElementById('sanityFill');
+        const message = document.getElementById('message');
+        const static = document.getElementById('static');
+
+        // Mouse movement for flashlight
+        document.addEventListener('mousemove', (e) => {
+            mousePosition.x = (e.clientX / window.innerWidth) * 100;
+            mousePosition.y = (e.clientY / window.innerHeight) * 100;
+            
+            flashlight.style.left = e.clientX + 'px';
+            flashlight.style.top = e.clientY + 'px';
+            
+            gameContainer.style.setProperty('--mouse-x', mousePosition.x + '%');
+            gameContainer.style.setProperty('--mouse-y', mousePosition.y + '%');
+        });
+
+        // Update sanity
+        function updateSanity(amount) {
+            sanity = Math.max(0, Math.min(100, sanity + amount));
+            sanityValue.textContent = sanity;
+            sanityFill.style.width = sanity + '%';
+            
+            if (sanity <= 0) {
+                endGame();
+            }
+        }
+
+        // Show message
+        function showMessage(text, duration = 3000) {
+            message.textContent = text;
+            message.style.opacity = '1';
+            setTimeout(() => {
+                message.style.opacity = '0';
+            }, duration);
+        }
+
+        // Jump scare function
+        function triggerJumpScare(type = 'random') {
+            if (!gameActive) return;
+            
+            scareCount++;
+            const scares = ['馃槺', '馃懝', '馃拃', '馃懣', '馃', '馃懟', '馃暦锔�', '馃'];
+            const randomScare = scares[Math.floor(Math.random() * scares.length)];
+            
+            scareImage.textContent = randomScare;
+            jumpScare.style.display = 'flex';
+            
+            // Flash effect
+            document.body.style.background = '#fff';
+            setTimeout(() => {
+                document.body.style.background = '#000';
+            }, 100);
+            
+            // Static noise
+            static.style.opacity = '0.3';
+            
+            setTimeout(() => {
+                jumpScare.style.display = 'none';
+                static.style.opacity = '0';
+                updateSanity(-20);
+            }, 500);
+        }
+
+        // Door interaction
+        document.getElementById('door').addEventListener('click', () => {
+            if (Math.random() > 0.5) {
+                showMessage("The door is locked...");
+                setTimeout(() => {
+                    triggerJumpScare();
+                    showMessage("Something's behind you!");
+                }, 1500);
+            } else {
+                showMessage("You hear whispers from the other side...");
+                updateSanity(-10);
+            }
+        });
+
+        // Painting interaction
+        document.getElementById('painting').addEventListener('click', () => {
+            const painting = document.getElementById('painting');
+            painting.classList.add('scary');
+            showMessage("The eyes are following you...");
+            updateSanity(-15);
+            
+            setTimeout(() => {
+                painting.classList.remove('scary');
+            }, 3000);
+        });
+
+        // Bookshelf interaction
+        document.getElementById('bookshelf').addEventListener('click', (e) => {
+            if (e.target.classList.contains('book')) {
+                e.target.classList.add('scary');
+                showMessage("This book... it's bleeding!");
+                updateSanity(-10);
+                
+                setTimeout(() => {
+                    triggerJumpScare();
+                }, 1000);
+            }
+        });
+
+        // Window interaction
+        document.getElementById('window').addEventListener('click', () => {
+            const face = document.getElementById('windowFace');
+            face.style.opacity = '1';
+            showMessage("There's someone outside!");
+            updateSanity(-15);
+            
+            setTimeout(() => {
+                face.style.opacity = '0';
+                triggerJumpScare();
+            }, 2000);
+        });
+
+        // Clock interaction
+        document.getElementById('clock').addEventListener('click', () => {
+            showMessage("Time is running out...");
+            updateSanity(-5);
+            
+            // Make shadows appear
+            document.getElementById('shadow1').style.opacity = '0.6';
+            document.getElementById('shadow2').style.opacity = '0.6';
+            
+            setTimeout(() => {
+                document.getElementById('shadow1').style.opacity = '0';
+                document.getElementById('shadow2').style.opacity = '0';
+            }, 3000);
+        });
+
+        // Random events
+        function randomEvent() {
+            if (!gameActive) return;
+            
+            const events = [
+                () => {
+                    showMessage("You hear footsteps...");
+                    updateSanity(-5);
+                },
+                () => {
+                    document.getElementById('shadow1').style.opacity = '0.4';
+                    setTimeout(() => {
+                        document.getElementById('shadow1').style.opacity = '0';
+                    }, 2000);
+                    updateSanity(-5);
+                },
+                () => {
+                    static.style.opacity = '0.1';
+                    setTimeout(() => {
+                        static.style.opacity = '0';
+                    }, 1000);
+                    updateSanity(-3);
+                },
+                () => {
+                    triggerJumpScare();
+                }
+            ];
+            
+            const randomEvent = events[Math.floor(Math.random() * events.length)];
+            randomEvent();
+        }
+
+        // End game
+        function endGame() {
+            gameActive = false;
+            showMessage("You've lost your mind...", 5000);
+            flashlight.style.opacity = '0';
+            
+            setTimeout(() => {
+                triggerJumpScare();
+                setTimeout(() => {
+                    if (confirm('Game Over! You survived ' + scareCount + ' scares. Play again?')) {
+                        location.reload();
+                    }
+                }, 1000);
+            }, 2000);
+        }
+
+        // Start random events
+        setInterval(randomEvent, 8000);
+
+        // Initial message
+        setTimeout(() => {
+            showMessage("You're alone in this house... or are you?");
+        }, 2000);
+
+        // Gradual sanity drain
+        setInterval(() => {
+            if (gameActive) {
+                updateSanity(-1);
+            }
+        }, 3000);
+
+        // Jump scare on click anywhere
+        document.addEventListener('click', (e) => {
+            if (e.target === document.body || e.target === gameContainer || e.target === document.getElementById('room')) {
+                if (Math.random() > 0.8) {
+                    triggerJumpScare();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
