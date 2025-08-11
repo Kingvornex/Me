@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadow Legion: Eternal Wars</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #111; color: #fff; font-family: 'Courier New', monospace; }
+        #gameCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        #ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .ui-element { position: absolute; pointer-events: auto; }
+        #healthBar { top: 20px; left: 20px; width: 300px; height: 30px; background: #333; border: 2px solid #fff; }
+        #healthFill { height: 100%; background: linear-gradient(to right, #f00, #ff0); width: 100%; transition: width 0.3s; }
+        #staminaBar { top: 60px; left: 20px; width: 300px; height: 20px; background: #333; border: 2px solid #fff; }
+        #staminaFill { height: 100%; background: #0f0; width: 100%; transition: width 0.3s; }
+        #ammo { top: 90px; left: 20px; font-size: 20px; text-shadow: 2px 2px #000; }
+        #abilities { bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; }
+        .ability { width: 60px; height: 60px; background: rgba(0,0,0,0.7); border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: all 0.2s; }
+        .ability:hover { background: rgba(255,255,255,0.2); }
+        .ability.cooldown { opacity: 0.5; cursor: not-allowed; }
+        #minimap { top: 20px; right: 20px; width: 200px; height: 200px; background: rgba(0,0,0,0.7); border: 2px solid #fff; }
+        #questLog { bottom: 20px; right: 20px; width: 300px; background: rgba(0,0,0,0.7); border: 2px solid #fff; padding: 10px; }
+        #crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 20px; height: 20px; border: 2px solid #fff; border-radius: 50%; }
+        #vehicleHUD { top: 120px; left: 20px; display: none; }
+        .speedometer { font-size: 18px; }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div id="ui">
+        <!-- Health & Stamina (Dark Souls) -->
+        <div id="healthBar" class="ui-element"><div id="healthFill"></div></div>
+        <div id="staminaBar" class="ui-element"><div id="staminaFill"></div></div>
+        
+        <!-- Ammo (Call of Duty) -->
+        <div id="ammo" class="ui-element">Ammo: 30/90</div>
+        
+        <!-- Abilities (Dota 2) -->
+        <div id="abilities" class="ui-element">
+            <div class="ability" data-ability="q">Q</div>
+            <div class="ability" data-ability="w">W</div>
+            <div class="ability" data-ability="e">E</div>
+            <div class="ability" data-ability="r">R</div>
+        </div>
+        
+        <!-- Minimap (GTA) -->
+        <div id="minimap" class="ui-element"></div>
+        
+        <!-- Quest Log (Witcher 3) -->
+        <div id="questLog" class="ui-element">
+            <h3>Quests</h3>
+            <ul id="questList">
+                <li data-quest="1">[Active] Find the Lost Artifact</li>
+                <li data-quest="2">[Active] Defeat the Shadow Boss</li>
+            </ul>
+        </div>
+        
+        <!-- Crosshair (FPS) -->
+        <div id="crosshair"></div>
+        
+        <!-- Vehicle HUD (GTA) -->
+        <div id="vehicleHUD" class="ui-element">
+            <div class="speedometer">Speed: <span id="speed">0</span> km/h</div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        const game = {
+            player: {
+                x: 0, y: 0, z: 0,
+                yaw: 0, pitch: 0,
+                health: 100, maxHealth: 100,
+                stamina: 100, maxStamina: 100,
+                ammo: 30, maxAmmo: 90,
+                inVehicle: false,
+                vehicle: null
+            },
+            keys: {},
+            abilities: {
+                q: { name: 'Fireball', cooldown: 0, maxCooldown: 5000 },
+                w: { name: 'Heal', cooldown: 0, maxCooldown: 10000 },
+                e: { name: 'Dash', cooldown: 0, maxCooldown: 3000 },
+                r: { name: 'Ultimate', cooldown: 0, maxCooldown: 60000 }
+            },
+            quests: [
+                { id: 1, name: 'Find the Lost Artifact', completed: false },
+                { id: 2, name: 'Defeat the Shadow Boss', completed: false }
+            ]
+        };
+
+        // Canvas Setup
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Input Handling
+        document.addEventListener('keydown', (e) => {
+            game.keys[e.key.toLowerCase()] = true;
+            if (e.key === ' ') shoot(); // Space to shoot
+        });
+        document.addEventListener('keyup', (e) => {
+            game.keys[e.key.toLowerCase()] = false;
+        });
+
+        // Mouse Look (FPS)
+        canvas.addEventListener('mousemove', (e) => {
+            game.player.yaw += e.movementX * 0.002;
+            game.player.pitch -= e.movementY * 0.002;
+            game.player.pitch = Math.max(-Math.PI/2, Math.min(Math.PI/2, game.player.pitch));
+        });
+
+        // Shooting (Call of Duty)
+        function shoot() {
+            if (game.player.ammo > 0) {
+                game.player.ammo--;
+                updateAmmo();
+                console.log('Pew! Ammo left:', game.player.ammo);
+                // Raycast for hit detection (pseudo-code)
+                // const hit = raycast(game.player, game.player.yaw, game.player.pitch);
+            } else {
+                console.log('Reload!');
+                // Reload logic here
+            }
+        }
+
+        // Movement (GTA-style)
+        function updateMovement() {
+            const speed = game.keys['shift'] ? 0.2 : 0.1; // Sprint with Shift
+            if (game.keys['w']) game.player.z -= Math.cos(game.player.yaw) * speed;
+            if (game.keys['s']) game.player.z += Math.cos(game.player.yaw) * speed;
+            if (game.keys['a']) game.player.x -= Math.sin(game.player.yaw) * speed;
+            if (game.keys['d']) game.player.x += Math.sin(game.player.yaw) * speed;
+            
+            // Drain stamina when sprinting
+            if (game.keys['shift'] && game.player.stamina > 0) {
+                game.player.stamina -= 0.5;
+            } else if (game.player.stamina < game.player.maxStamina) {
+                game.player.stamina += 0.2;
+            }
+            updateStamina();
+        }
+
+        // Abilities (Dota 2-style)
+        document.querySelectorAll('.ability').forEach(ability => {
+            ability.addEventListener('click', () => {
+                const key = ability.dataset.ability;
+                useAbility(key);
+            });
+        });
+
+        function useAbility(key) {
+            const ability = game.abilities[key];
+            if (ability.cooldown > 0) {
+                console.log(`${ability.name} on cooldown!`);
+                return;
+            }
+            console.log(`Used ${ability.name}!`);
+            ability.cooldown = ability.maxCooldown;
+            updateAbilityUI(key);
+            
+            // Ability effects
+            switch(key) {
+                case 'q': // Fireball
+                    console.log('Fireball launched!');
+                    break;
+                case 'w': // Heal
+                    game.player.health = Math.min(game.player.maxHealth, game.player.health + 30);
+                    updateHealth();
+                    break;
+                case 'e': // Dash
+                    console.log('Dash forward!');
+                    break;
+                case 'r': // Ultimate
+                    console.log('ULTIMATE ACTIVATED!');
+                    break;
+            }
+        }
+
+        // Quest System (Witcher 3-style)
+        function completeQuest(questId) {
+            const quest = game.quests.find(q => q.id === questId);
+            if (quest && !quest.completed) {
+                quest.completed = true;
+                document.querySelector(`[data-quest="${questId}"]`).textContent = `[Completed] ${quest.name}`;
+                console.log(`Quest completed: ${quest.name}`);
+            }
+        }
+
+        // Death & Respawn (Dark Souls-style)
+        function takeDamage(amount) {
+            game.player.health -= amount;
+            updateHealth();
+            if (game.player.health <= 0) {
+                console.log('You died! Respawning...');
+                game.player.health = game.player.maxHealth;
+                game.player.x = 0; game.player.y = 0; game.player.z = 0;
+                updateHealth();
+            }
+        }
+
+        // UI Updates
+        function updateHealth() {
+            const percentage = (game.player.health / game.player.maxHealth) * 100;
+            document.getElementById('healthFill').style.width = percentage + '%';
+        }
+        function updateStamina() {
+            const percentage = (game.player.stamina / game.player.maxStamina) * 100;
+            document.getElementById('staminaFill').style.width = percentage + '%';
+        }
+        function updateAmmo() {
+            document.getElementById('ammo').textContent = `Ammo: ${game.player.ammo}/${game.player.maxAmmo}`;
+        }
+        function updateAbilityUI(key) {
+            const abilityEl = document.querySelector(`[data-ability="${key}"]`);
+            const ability = game.abilities[key];
+            if (ability.cooldown > 0) {
+                abilityEl.classList.add('cooldown');
+                setTimeout(() => {
+                    ability.cooldown = 0;
+                    abilityEl.classList.remove('cooldown');
+                }, ability.cooldown);
+            }
+        }
+
+        // Game Loop
+        function gameLoop() {
+            // Clear canvas
+            ctx.fillStyle = '#222';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Update game state
+            updateMovement();
+            
+            // Render 3D scene (pseudo-code)
+            // renderScene(game.player);
+            
+            // Update ability cooldowns
+            Object.keys(game.abilities).forEach(key => {
+                if (game.abilities[key].cooldown > 0) {
+                    game.abilities[key].cooldown -= 16; // ~60fps
+                }
+            });
+            
+            requestAnimationFrame(gameLoop);
+        }
+        gameLoop();
+
+        // Test Functions (for demo)
+        setTimeout(() => takeDamage(20), 2000); // Test damage
+        setTimeout(() => completeQuest(1), 5000); // Test quest completion
+    </script>
+</body>
+</html>
