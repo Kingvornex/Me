@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadow Legion: Eternal Wars - MMORPG Edition</title>
+    <style>
+        /* Previous styles remain... */
+        
+        /* New MMORPG Styles */
+        #marriagePanel { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 400px; background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(20,20,20,0.9)); border: 2px solid #fff; border-radius: 15px; padding: 20px; display: none; }
+        #marriagePanel h2 { text-align: center; color: #ffd700; margin-bottom: 20px; }
+        #marriageInfo { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        #marriageActions { display: flex; justify-content: center; gap: 10px; }
+        .marriage-button { padding: 10px 20px; background: #ff69b4; border: none; border-radius: 10px; color: white; cursor: pointer; transition: all 0.2s; }
+        .marriage-button:hover { background: #ff5252; transform: scale(1.05); }
+        
+        #familyPanel { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 700px; height: 500px; background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(20,20,20,0.9)); border: 2px solid #fff; border-radius: 15px; padding: 20px; display: none; }
+        #familyPanel h2 { text-align: center; color: #ffd700; margin-bottom: 20px; }
+        #familyMembers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; }
+        .family-member { padding: 15px; background: rgba(255,255,255,0.1); border: 2px solid #666; border-radius: 10px; text-align: center; }
+        .family-member.spouse { border-color: #ff69b4; }
+        .family-member.child { border-color: #87ceeb; }
+        .family-member .icon { font-size: 40px; margin-bottom: 10px; }
+        .family-member .name { font-weight: bold; margin-bottom: 5px; }
+        .family-member .relationship { color: #ccc; font-size: 14px; }
+        
+        #territoryMap { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; z-index: 300; }
+        #territoryMapContent { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; height: 90%; background: url('https://picsum.photos/seed/territory-map/1600/900.jpg') center/cover; border: 3px solid #fff; border-radius: 15px; }
+        .territory { position: absolute; width: 150px; height: 150px; border: 3px solid #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+        .territory:hover { transform: scale(1.05); }
+        .territory.owned { border-color: #ffd700; background: rgba(255,215,0,0.2); }
+        .territory.guild { border-color: #ff0000; background: rgba(255,0,0,0.2); }
+        .territory-info { text-align: center; color: #fff; text-shadow: 2px 2px #000; }
+        
+        #economyPanel { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 800px; height: 600px; background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(20,20,20,0.9)); border: 2px solid #fff; border-radius: 15px; padding: 20px; display: none; }
+        #economyPanel h2 { text-align: center; color: #ffd700; margin-bottom: 20px; }
+        #economyTabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .economy-tab { padding: 10px 20px; background: rgba(255,255,255,0.1); border: 1px solid #666; border-radius: 5px; cursor: pointer; transition: all 0.2s; }
+        .economy-tab:hover { background: rgba(255,255,255,0.2); }
+        .economy-tab.active { background: rgba(255,215,0,0.3); border-color: #ffd700; }
+        #marketList { max-height: 400px; overflow-y: auto; }
+        .market-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; margin: 10px 0; background: rgba(255,255,255,0.1); border: 2px solid #666; border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+        .market-item:hover { background: rgba(255,255,255,0.2); border-color: #fff; }
+        .market-item-info { flex: 1; }
+        .market-item-name { font-weight: bold; color: #ffd700; }
+        .market-item-price { color: #0f0; }
+        .market-item-trend { font-size: 12px; }
+        .trend-up { color: #0f0; }
+        .trend-down { color: #f00; }
+        
+        #weatherSystem { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
+        .weather-particle { position: absolute; pointer-events: none; }
+        .rain-drop { width: 2px; height: 20px; background: rgba(173, 216, 230, 0.6); animation: rain-fall linear infinite; }
+        @keyframes rain-fall { to { transform: translateY(100vh); } }
+        .snow-flake { width: 10px; height: 10px; background: white; border-radius: 50%; animation: snow-fall linear infinite; }
+        @keyframes snow-fall { to { transform: translateY(100vh) rotate(360deg); } }
+        .fog-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(200, 200, 200, 0.3); pointer-events: none; }
+        
+        #seasonInfo { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); border: 2px solid #fff; border-radius: 10px; padding: 10px 20px; }
+        #seasonInfo h3 { margin: 0; color: #ffd700; }
+        
+        #mountBreeding { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 400px; background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(20,20,20,0.9)); border: 2px solid #fff; border-radius: 15px; padding: 20px; display: none; }
+        #mountBreeding h2 { text-align: center; color: #ffd700; margin-bottom: 20px; }
+        #breedingSlots { display: flex; justify-content: space-around; margin: 30px 0; }
+        .breeding-slot { width: 150px; height: 200px; background: rgba(255,255,255,0.1); border: 2px solid #666; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+        .breeding-slot:hover { background: rgba(255,255,255,0.2); border-color: #fff; }
+        .breeding-slot .icon { font-size: 60px; margin-bottom: 10px; }
+        .breeding-slot .name { font-weight: bold; }
+        .breeding-slot .level { color: #ffd700; }
+        .breeding-slot .stats { font-size: 12px; color: #ccc; margin-top: 5px; }
+        
+        #guildHall { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; z-index: 400; }
+        #guildHallContent { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; height: 90%; background: url('https://picsum.photos/seed/guild-hall/1600/900.jpg') center/cover; border: 3px solid #fff; border-radius: 15px; padding: 20px; }
+        #guildHallInfo { background: rgba(0,0,0,0.8); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+        #guildHallFeatures { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .guild-feature { padding: 15px; background: rgba(0,0,0,0.8); border: 2px solid #fff; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .guild-feature:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
+    </style>
+</head>
+<body>
+    <!-- Previous UI elements remain... -->
+    
+    <!-- New MMORPG UI Elements -->
+    <div id="marriagePanel" class="ui-element">
+        <h2>Marriage</h2>
+        <div id="marriageInfo">
+            <p>Marriage allows you to form a lifelong bond with another player.</p>
+            <p>Married players can have children and share benefits.</p>
+        </div>
+        <div id="marriageActions">
+            <button class="marriage-button" onclick="proposeMarriage()">Propose Marriage</button>
+            <button class="marriage-button" onclick="haveChild()">Have Child</button>
+            <button class="marriage-button" onclick="divorceMarriage()">Divorce</button>
+        </div>
+        <button onclick="closeMarriagePanel()" style="margin-top: 20px; padding: 10px 20px; background: #ff6b6b; border: none; border-radius: 5px; color: white; cursor: pointer;">Close</button>
+    </div>
+    
+    <div id="familyPanel" class="ui-element">
+        <h2>Family</h2>
+        <div id="familyMembers">
+            <!-- Family members will be populated by JavaScript -->
+        </div>
+        <div style="text-align: center; margin-top: 20px;">
+            <p>Family members provide passive bonuses and can help with tasks.</p>
+        </div>
+        <button onclick="closeFamilyPanel()" style="margin-top: 20px; padding: 10px 20px; background: #ff6b6b; border: none; border-radius: 5px; color: white; cursor: pointer;">Close</button>
+    </div>
+    
+    <div id="territoryMap" class="ui-element">
+        <div id="territoryMapContent">
+            <div class="territory" style="top: 20%; left: 20%;" onclick="interactWithTerritory(0)">
+                <div class="territory-info">
+                    <h3>Northern Plains</h3>
+                    <p>Rich in gold</p>
+                </div>
+            </div>
+            <div class="territory" style="top: 20%; left: 60%;" onclick="interactWithTerritory(1)">
+                <div class="territory-info">
+                    <h3>Eastern Forest</h3>
+                    <p>Abundant wood</p>
+                </div>
+            </div>
+            <div class="territory" style="top: 60%; left: 20%;" onclick="interactWithTerritory(2)">
+                <div class="territory-info">
+                    <h3>Southern Desert</h3>
+                    <p>Rare minerals</p>
+                </div>
+            </div>
+            <div class="territory" style="top: 60%; left: 60%;" onclick="interactWithTerritory(3)">
+                <div class="territory-info">
+                    <h3>Western Mountains</h3>
+                    <p>Strategic location</p>
+                </div>
+            </div>
+            <button onclick="closeTerritoryMap()" style="position: absolute; top: 20px; right: 20px; padding: 10px 20px; background: #ff6b6b; border: none; border-radius: 5px; color: white; cursor: pointer;">Close</button>
+        </div>
+    </div>
+    
+    <div id="economyPanel" class="ui-element">
+        <h2>Economy & Marketplace</h2>
+        <div id="economyTabs">
+            <div class="economy-tab active" onclick="switchEconomyTab('market')">Market</div>
+            <div class="economy-tab" onclick="switchEconomyTab('auction')">Auction</div>
+            <div class="economy-tab" onclick="switchEconomyTab('trading')">Trading</div>
+        </div>
+        <div id="marketList">
+            <!-- Market items will be populated by JavaScript -->
+        </div>
+        <button onclick="closeEconomyPanel()" style="margin-top: 20px; padding: 10px 20px; background: #ff6b6b; border: none; border-radius: 5px; color: white; cursor: pointer;">Close</button>
+    </div>
+    
+    <div id="weatherSystem"></div>
+    
+    <div id="seasonInfo" class="ui-element">
+        <h3>Season: <span id="currentSeason">Spring</span></h3>
+    </div>
+    
+    <div id="mountBreeding" class="ui-element">
+        <h2>Mount Breeding</h2>
+        <p>Breed your mounts to create powerful offspring with unique traits!</p>
+        <div id="breedingSlots">
+            <div class="breeding-slot" onclick="selectMountForBreeding(0)">
+                <div class="icon">🐴</div>
+                <div class="name">Horse</div>
+                <div class="level">Level 5</div>
+                <div class="stats">Speed: 15, Stamina: 100</div>
+            </div>
+            <div class="breeding-slot" onclick="selectMountForBreeding(1)">
+                <div class="icon">🐺</div>
+                <div class="name">Wolf</div>
+                <div class="level">Level 3</div>
+                <div class="stats">Speed: 18, Stamina: 80</div>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 20px;">
+            <button onclick="breedMounts()" style="padding: 10px 20px; background: #4CAF50; border: none; border-radius: 5px; color: white; cursor: pointer;">Breed Mounts</button>
+        </div>
+        <button onclick="closeMountBreeding()" style="margin-top: 20px; padding: 10px 20px; background: #ff6b6b; border: none; border-radius: 5px; color: white; cursor: pointer;">Close</button>
+    </div>
+    
+    <div id="guildHall" class="ui-element">
+        <div id="guildHallContent">
+            <div id="guildHallInfo">
+                <h2 id="guildHallName">Shadow Legion Guild Hall</h2>
+                <p>Level: <span id="guildHallLevel">5</span></p>
+                <p>Members: <span id="guildHallMembers">25</span>/50</p>
+                <p>Territory: <span id="guildHallTerritory">Northern Plains</span></p>
+            </div>
+            <div id="guildHallFeatures">
+                <div class="guild-feature" onclick="accessGuildVault()">
+                    <h3>💰 Guild Vault</h3>
+                    <p>Store shared resources</p>
+                </div>
+                <div class="guild-feature" onclick="accessGuildWorkshop()">
+                    <h3>🔧 Workshop</h3>
+                    <p>Craft guild items</p>
+                </div>
+                <div class="guild-feature" onclick="accessGuildBarracks()">
+                    <h3>⚔️ Barracks</h3>
+                    <p>Train guild troops</p>
+                </div>
+                <div class="guild-feature" onclick="accessGuildLibrary()">
+                    <h3>📚 Library</h3>
+                    <p>Research upgrades</p>
+                </div>
+                <div class="guild-feature" onclick="accessGuildThrone()">
+                    <h3>👑 Throne Room</h3>
+                    <p>Manage guild</p>
+                </div>
+                <div class="guild-feature" onclick="accessGuildGarden()">
+                    <h3>🌳 Garden</h3>
+                    <p>Grow special crops</p>
+                </div>
+            </div>
+            <button onclick="closeGuildHall()" style="position: absolute; top: 20px; right: 20px; padding: 10px 20px; background: #ff6b6b; border: none; border-radius: 5px; color: white; cursor: pointer;">Leave</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+    <script>
+        // MMORPG Game State with all previous features plus new ones
+        const game = {
+            // ... (previous game state remains)
+            
+            // New MMORPG features
+            multiplayer: {
+                socket: null,
+                connected: false,
+                playerId: null,
+                serverUrl: 'ws://localhost:8080',
+                players: new Map(),
+                nearbyPlayers: [],
+                chatHistory: []
+            },
+            marriage: {
+                spouseId: null,
+                spouseName: null,
+                married: false,
+                marriageDate: null,
+                children: [],
+                familyBonus: 0
+            },
+            family: {
+                members: [],
+                familySkills: {},
+                familyLevel: 1
+            },
+            territories: {
+                owned: [],
+                controlled: [],
+                bonuses: {}
+            },
+            economy: {
+                marketplace: [],
+                auctions: [],
+                trading: [],
+                prices: {},
+                trends: {}
+            },
+            weather: {
+                current: 'clear',
+                intensity: 0,
+                season: 'spring',
+                seasonProgress: 0,
+                effects: []
+            },
+            guildHall: {
+                unlocked: false,
+                features: {
+                    vault: false,
+                    workshop: false,
+                    barracks: false,
+                    library: false,
+                    throne: false,
+                    garden: false
+                },
+                level: 1,
+                resources: {
+                    gold: 0,
+                    wood: 0,
+                    food: 0
+                }
+            },
+            mountBreeding: {
+                available: [],
+                selected: [],
+                offspring: [],
+                breedingCooldown: 0
+            },
+            seasons: {
+                current: 'spring',
+                effects: {
+                    spring: { growthBonus: 1.2, movementSpeed: 1.0 },
+                    summer: { growthBonus: 1.5, movementSpeed: 1.1 },
+                    autumn: { growthBonus: 1.0, movementSpeed: 0.9 },
+                    winter: { growthBonus: 0.5, movementSpeed: 0.8 }
+                }
+            }
+        };
+
+        // Initialize WebSocket connection
+        function connectToServer() {
+            if (!game.multiplayer.connected) {
+                try {
+                    game.multiplayer.socket = new WebSocket(game.multiplayer.serverUrl);
+                    
+                    game.multiplayer.socket.onopen = () => {
+                        game.multiplayer.connected = true;
+                        console.log('Connected to game server');
+                        
+                        // Request initial data
+                        game.multiplayer.socket.send(JSON.stringify({
+                            type: 'join',
+                            playerName: game.player.name || 'Player'
+                        }));
+                    };
+                    
+                    game.multiplayer.socket.onmessage = (event) => {
+                        const data = JSON.parse(event.data);
+                        handleServerMessage(data);
+                    };
+                    
+                    game.multiplayer.socket.onclose = () => {
+                        game.multiplayer.connected = false;
+                        console.log('Disconnected from game server');
+                    };
+                    
+                    game.multiplayer.socket.onerror = (error) => {
+                        console.error('WebSocket error:', error);
+                    };
+                } catch (error) {
+                    console.error('Failed to connect to server:', error);
+                }
+            }
+        }
+
+        // Handle server messages
+        function handleServerMessage(data) {
+            switch (data.type) {
+                case 'init':
+                    game.multiplayer.playerId = data.playerId;
+                    game.player = { ...game.player, ...data.player };
+                    initializeWorld(data.world);
+                    break;
+                    
+                case 'playerJoined':
+                    addNearbyPlayer(data.player);
+                    break;
+                    
+                case 'playerLeft':
+                    removeNearbyPlayer(data.playerId);
+                    break;
+                    
+                case 'playerMoved':
+                    updateNearbyPlayer(data.playerId, data.position, data.rotation);
+                    break;
+                    
+                case 'chat':
+                    addChatMessage(data);
+                    break;
+                    
+                case 'attackResult':
+                    showAttackResult(data);
+                    break;
+                    
+                case 'attacked':
+                    showAttacked(data);
+                    break;
+                    
+                case 'marriageProposal':
+                    showMarriageProposal(data);
+                    break;
+                    
+                case 'marriageAccepted':
+                    handleMarriageAccepted(data);
+                    break;
+                    
+                case 'childBorn':
+                    handleChildBorn(data);
+                    break;
+                    
+                case 'territoryClaimed':
+                    handleTerritoryClaimed(data);
+                    break;
+                    
+                case 'weatherChanged':
+                    updateWeather(data.weather);
+                    break;
+                    
+                case 'economyUpdate':
+                    updateEconomy(data.marketplace);
+                    break;
+                    
+                case 'worldBossSpawned':
+                    handleWorldBossSpawned(data);
+                    break;
+            }
+        }
+
+        // Marriage system
+        function openMarriagePanel() {
+            document.getElementById('marriagePanel').style.display = 'block';
+            updateMarriageInfo();
+        }
+
+        function closeMarriagePanel() {
+            document.getElementById('marriagePanel').style.display = 'none';
+        }
+
+        function updateMarriageInfo() {
+            const info = document.getElementById('marriageInfo');
+            if (game.marriage.married) {
+                info.innerHTML = `
+                    <h3>Married to ${game.marriage.spouseName}</h3>
+                    <p>Married on: ${new Date(game.marriage.marriageDate).toLocaleDateString()}</p>
+                    <p>Children: ${game.marriage.children.length}</p>
+                    <p>Family Bonus: +${game.marriage.familyBonus}% to all stats</p>
+                `;
+            } else {
+                info.innerHTML = `
+                    <p>You are not married.</p>
+                    <p>Find someone special and propose marriage!</p>
+                `;
+            }
+        }
+
+        function proposeMarriage() {
+            if (!game.marriage.married) {
+                // Find nearby players
+                const nearbyPlayers = game.multiplayer.nearbyPlayers.filter(p => p.id !== game.multiplayer.playerId);
+                
+                if (nearbyPlayers.length > 0) {
+                    const target = nearbyPlayers[0];
+                    
+                    game.multiplayer.socket.send(JSON.stringify({
+                        type: 'marriage',
+                        action: 'propose',
+                        targetId: target.id
+                    }));
+                    
+                    showEventNotification('Marriage Proposal', `You proposed to ${target.name}!`);
+                } else {
+                    showEventNotification('No One Nearby', 'There is no one nearby to propose to!');
+                }
+            }
+        }
+
+        function showMarriageProposal(data) {
+            const proposal = document.createElement('div');
+            proposal.className = 'event-notification';
+            proposal.innerHTML = `
+                <h3>Marriage Proposal!</h3>
+                <p>${data.proposerName} wants to marry you!</p>
+                <button onclick="acceptMarriageProposal(${data.proposerId})" style="margin: 10px; padding: 5px 15px; background: #4CAF50; border: none; border-radius: 5px; color: white; cursor: pointer;">Accept</button>
+                <button onclick="rejectMarriageProposal()" style="margin: 10px; padding: 5px 15px; background: #f44336; border: none; border-radius: 5px; color: white; cursor: pointer;">Reject</button>
+            `;
+            document.getElementById('eventNotifications').appendChild(proposal);
+            
+            setTimeout(() => {
+                proposal.remove();
+            }, 15000);
+        }
+
+        function acceptMarriageProposal(proposerId) {
+            game.multiplayer.socket.send(JSON.stringify({
+                type: 'marriage',
+                action: 'accept',
+                proposerId: proposerId
+            }));
+        }
+
+        function rejectMarriageProposal() {
+            showEventNotification('Proposal Rejected', 'You rejected the marriage proposal.');
+        }
+
+        function handleMarriageAccepted(data) {
+            game.marriage.married = true;
+            game.marriage.spouseId = data.spouseId;
+            game.marriage.spouseName = data.spouseName;
+            game.marriage.marriageDate = Date.now();
+            game.marriage.familyBonus = 10;
+            
+            updateMarriageInfo();
+            showEventNotification('Marriage Accepted', `You are now married to ${data.spouseName}!`);
+            
+            // Apply marriage bonus
+            game.player.maxHealth *= 1.1;
+            game.player.health = game.player.maxHealth;
+            updateHealth();
+        }
+
+        function haveChild() {
+            if (game.marriage.married && game.marriage.children.length < 3) {
+                game.multiplayer.socket.send(JSON.stringify({
+                    type: 'marriage',
+                    action: 'haveChild'
+                }));
+            } else {
+                showEventNotification('Cannot Have Child', 'You must be married and have less than 3 children!');
+            }
+        }
+
+        function handleChildBorn(data) {
+            game.marriage.children.push(data.child.id);
+            game.family.members.push(data.child);
+            
+            updateFamilyPanel();
+            showEventNotification('Child Born', `You had a child named ${data.child.name}!`);
+            
+            // Apply family bonus
+            game.marriage.familyBonus += 5;
+            updateMarriageInfo();
+        }
+
+        function divorceMarriage() {
+            if (game.marriage.married) {
+                game.multiplayer.socket.send(JSON.stringify({
+                    type: 'marriage',
+                    action: 'divorce'
+                }));
+            }
+        }
+
+        // Family system
+        function openFamilyPanel() {
+            document.getElementById('familyPanel').style.display = 'block';
+            updateFamilyPanel();
+        }
+
+        function closeFamilyPanel() {
+            document.getElementById('familyPanel').style.display = 'none';
+        }
+
+        function updateFamilyPanel() {
+            const membersContainer = document.getElementById('familyMembers');
+            membersContainer.innerHTML = '';
+            
+            // Add spouse
+            if (game.marriage.married) {
+                const spouseElement = document.createElement('div');
+                spouseElement.className = 'family-member spouse';
+                spouseElement.innerHTML = `
+                    <div class="icon">💑</div>
+                    <div class="name">${game.marriage.spouseName}</div>
+                    <div class="relationship">Spouse</div>
+                `;
+                membersContainer.appendChild(spouseElement);
+            }
+            
+            // Add children
+            game.marriage.children.forEach(childId => {
+                const child = game.family.members.find(m => m.id === childId);
+                if (child) {
+                    const childElement = document.createElement('div');
+                    childElement.className = 'family-member child';
+                    childElement.innerHTML = `
+                        <div class="icon">👶</div>
+                        <div class="name">${child.name}</div>
+                        <div class="relationship">Child - Age ${child.age}</div>
+                    `;
+                    membersContainer.appendChild(childElement);
+                }
+            });
+        }
+
+        // Territory system
+        function openTerritoryMap() {
+            document.getElementById('territoryMap').style.display = 'block';
+            updateTerritoryMap();
+        }
+
+        function closeTerritoryMap() {
+            document.getElementById('territoryMap').style.display = 'none';
+        }
+
+        function updateTerritoryMap() {
+            const territories = document.querySelectorAll('.territory');
+            territories.forEach((territory, index) => {
+                const territoryData = game.territories.owned.find(t => t.id === index);
+                if (territoryData) {
+                    territory.classList.add('owned');
+                }
+                
+                if (game.player.guild && territoryData && territoryData.guild === game.player.guild) {
+                    territory.classList.add('guild');
+                }
+            });
+        }
+
+        function interactWithTerritory(territoryId) {
+            if (game.multiplayer.connected) {
+                game.multiplayer.socket.send(JSON.stringify({
+                    type: 'territory',
+                    action: 'claim',
+                    territoryId: territoryId
+                }));
+            }
+        }
+
+        function handleTerritoryClaimed(data) {
+            game.territories.owned.push(data.territory);
+            updateTerritoryMap();
+            showEventNotification('Terrory Claimed', `You claimed ${data.territory.name}!`);
+            
+            // Apply territory bonus
+            game.territories.bonuses[data.territory.id] = 5;
+        }
+
+        // Economy system
+        function openEconomyPanel() {
+            document.getElementById('economyPanel').style.display = 'block';
+            switchEconomyTab('market');
+        }
+
+        function closeEconomyPanel() {
+            document.getElementById('economyPanel').style.display = 'none';
+        }
+
+        let currentEconomyTab = 'market';
+        function switchEconomyTab(tab) {
+            currentEconomyTab = tab;
+            document.querySelectorAll('.economy-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            updateEconomyPanel();
+        }
+
+        function updateEconomyPanel() {
+            const marketList = document.getElementById('marketList');
+            marketList.innerHTML = '';
+            
+            if (currentEconomyTab === 'market') {
+                game.economy.marketplace.forEach(item => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'market-item';
+                    itemElement.innerHTML = `
+                        <div class="market-item-info">
+                            <div class="market-item-name">${item.name}</div>
+                            <div class="market-item-price">${item.price} gold</div>
+                            <div class="market-item-trend ${item.trend > 0 ? 'trend-up' : 'trend-down'}">
+                                ${item.trend > 0 ? '↑' : '↓'} ${Math.abs(item.trend)}%
+                            </div>
+                        </div>
+                        <button onclick="buyMarketItem('${item.id}')" style="padding: 5px 15px; background: #4CAF50; border: none; border-radius: 5px; color: white; cursor: pointer;">Buy</button>
+                    `;
+                    marketList.appendChild(itemElement);
+                });
+            }
+        }
+
+        function buyMarketItem(itemId) {
+            const item = game.economy.marketplace.find(i => i.id === itemId);
+            if (item && game.player.currency >= item.price) {
+                game.player.currency -= item.price;
+                game.player.inventory.push({
+                    id: Date.now(),
+                    name: item.name,
+                    type: 'item',
+                    icon: '📦',
+                    quantity: 1
+                });
+                updateCurrency();
+                showEventNotification('Purchase Successful', `You bought ${item.name}!`);
+            } else {
+                showEventNotification('Insufficient Funds', 'You don\'t have enough gold!');
+            }
+        }
+
+        // Weather and seasons system
+        function updateWeather(weather) {
+            game.weather.current = weather;
+            const weatherSystem = document.getElementById('weatherSystem');
+            weatherSystem.innerHTML = '';
+            
+            switch (weather) {
+                case 'rain':
+                    createRainEffect();
+                    break;
+                case 'snow':
+                    createSnowEffect();
+                    break;
+                case 'storm':
+                    createStormEffect();
+                    break;
+                case 'fog':
+                    createFogEffect();
+                    break;
+                default:
+                    // Clear weather
+                    break;
+            }
+        }
+
+        function createRainEffect() {
+            const weatherSystem = document.getElementById('weatherSystem');
+            for (let i = 0; i < 100; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'weather-particle rain-drop';
+                drop.style.left = Math.random() * 100 + '%';
+                drop.style.animationDuration = Math.random() * 1 + 0.5 + 's';
+                drop.style.opacity = Math.random() * 0.5 + 0.3;
+                weatherSystem.appendChild(drop);
+            }
+        }
+
+        function createSnowEffect() {
+            const weatherSystem = document.getElementById('weatherSystem');
+            for (let i = 0; i < 50; i++) {
+                const flake = document.createElement('div');
+                flake.className = 'weather-particle snow-flake';
+                flake.style.left = Math.random() * 100 + '%';
+                flake.style.animationDuration = Math.random() * 3 + 2 + 's';
+                flake.style.opacity = Math.random() * 0.8 + 0.2;
+                weatherSystem.appendChild(flake);
+            }
+        }
+
+        function createFogEffect() {
+            const weatherSystem = document.getElementById('weatherSystem');
+            const fog = document.createElement('div');
+            fog.className = 'fog-overlay';
+            weatherSystem.appendChild(fog);
+        }
+
+        // Season system
+        function updateSeasons() {
+            const seasons = ['spring', 'summer', 'autumn', 'winter'];
+            const currentSeasonIndex = seasons.indexOf(game.seasons.current);
+            game.seasons.seasonProgress += 0.01;
+            
+            if (game.seasons.seasonProgress >= 1) {
+                game.seasons.seasonProgress = 0;
+                const nextSeasonIndex = (currentSeasonIndex + 1) % seasons.length;
+                game.seasons.current = seasons[nextSeasonIndex];
+                
+                document.getElementById('currentSeason').textContent = 
+                    game.seasons.current.charAt(0).toUpperCase() + game.seasons.current.slice(1);
+                
+                // Apply season effects
+                const effects = game.seasons.effects[game.seasons.current];
+                game.player.movementSpeed *= effects.movementSpeed;
+                
+                showEventNotification('Season Changed', `Welcome to ${game.seasons.current}!`);
+            }
+        }
+
+        // Mount breeding system
+        function openMountBreeding() {
+            document.getElementById('mountBreeding').style.display = 'block';
+            updateMountBreeding();
+        }
+
+        function closeMountBreeding() {
+            document.getElementById('mountBreeding').style.display = 'none';
+        }
+
+        function updateMountBreeding() {
+            // Update breeding slots with available mounts
+            const slots = document.querySelectorAll('.breeding-slot');
+            game.mountBreeding.available.forEach((mount, index) => {
+                if (slots[index]) {
+                    slots[index].innerHTML = `
+                        <div class="icon">${mount.icon}</div>
+                        <div class="name">${mount.name}</div>
+                        <div class="level">Level ${mount.level}</div>
+                        <div class="stats">Speed: ${mount.speed}, Stamina: ${mount.stamina}</div>
+                    `;
+                }
+            });
+        }
+
+        function selectMountForBreeding(slotIndex) {
+            if (game.mountBreeding.selected.length < 2) {
+                game.mountBreeding.selected.push(slotIndex);
+                updateMountBreeding();
+            }
+        }
+
+        function breedMounts() {
+            if (game.mountBreeding.selected.length === 2) {
+                if (game.mountBreeding.breedingCooldown <= Date.now()) {
+                    const parent1 = game.mountBreeding.available[game.mountBreeding.selected[0]];
+                    const parent2 = game.mountBreeding.available[game.mountBreeding.selected[1]];
+                    
+                    // Create offspring
+                    const offspring = {
+                        id: Date.now(),
+                        name: `${parent1.name}-${parent2.name}`,
+                        level: 1,
+                        speed: Math.floor((parent1.speed + parent2.speed) / 2),
+                        stamina: Math.floor((parent1.stamina + parent2.stamina) / 2),
+                        traits: [...parent1.traits, ...parent2.traits].slice(0, 4),
+                        parents: [parent1.id, parent2.id]
+                    };
+                    
+                    game.mountBreeding.offspring.push(offspring);
+                    game.mountBreeding.breedingCooldown = Date.now() + 86400000; // 24 hours
+                    
+                    showEventNotification('Breeding Successful', `You bred a new mount: ${offspring.name}!`);
+                    
+                    // Reset selection
+                    game.mountBreeding.selected = [];
+                    updateMountBreeding();
+                } else {
+                    const timeLeft = Math.ceil((game.mountBreeding.breedingCooldown - Date.now()) / 3600000);
+                    showEventNotification('Breeding Cooldown', `You can breed again in ${timeLeft} hours`);
+                }
+            } else {
+                showEventNotification('Select Parents', 'Please select 2 mounts for breeding!');
+            }
+        }
+
+        // Guild hall system
+        function openGuildHall() {
+            if (game.player.guild) {
+                document.getElementById('guildHall').style.display = 'block';
+                updateGuildHall();
+            } else {
+                showEventNotification('No Guild', 'You must be in a guild to access the guild hall!');
+            }
+        }
+
+        function closeGuildHall() {
+            document.getElementById('guildHall').style.display = 'none';
+        }
+
+        function updateGuildHall() {
+            if (game.player.guild) {
+                const guild = game.guilds[game.player.guild];
+                document.getElementById('guildHallName').textContent = `${guild.name} Guild Hall`;
+                document.getElementById('guildHallLevel').textContent = guild.level;
+                document.getElementById('guildHallMembers').textContent = `${guild.members.length}/50`;
+                
+                if (guild.territory) {
+                    const territory = game.territories.owned.find(t => t.id === guild.territory);
+                    document.getElementById('guildHallTerritory').textContent = territory ? territory.name : 'None';
+                }
+            }
+        }
+
+        function accessGuildVault() {
+            if (game.guildHall.features.vault) {
+                showEventNotification('Guild Vault', `Gold: ${game.guildHall.resources.gold}`);
+            } else {
+                showEventNotification('Feature Locked', 'Upgrade your guild hall to unlock the vault!');
+            }
+        }
+
+        function accessGuildWorkshop() {
+            if (game.guildHall.features.workshop) {
+                showEventNotification('Guild Workshop', 'Craft powerful guild items!');
+            } else {
+                showEventNotification('Feature Locked', 'Upgrade your guild hall to unlock the workshop!');
+            }
+        }
+
+        function accessGuildBarracks() {
+            if (game.guildHall.features.barracks) {
+                showEventNotification('Guild Barracks', 'Train elite guild troops!');
+            } else {
+                showEventNotification('Feature Locked', 'Upgrade your guild hall to unlock the barracks!');
+            }
+        }
+
+        function accessGuildLibrary() {
+            if (game.guildHall.features.library) {
+                showEventNotification('Guild Library', 'Research powerful upgrades!');
+            } else {
+                showEventNotification('Feature Locked', 'Upgrade your guild hall to unlock the library!');
+            }
+        }
+
+        function accessGuildThrone() {
+            if (game.guildHall.features.throne) {
+                showEventNotification('Throne Room', 'Manage your guild!');
+            } else {
+                showEventNotification('Feature Locked', 'Upgrade your guild hall to unlock the throne room!');
+            }
+        }
+
+        function accessGuildGarden() {
+            if (game.guildHall.features.garden) {
+                showEventNotification('Guild Garden', 'Grow special crops!');
+            } else {
+                showEventNotification('Feature Locked', 'Upgrade your guild hall to unlock the garden!');
+            }
+        }
+
+        // Enhanced input handling
+        document.addEventListener('keydown', (e) => {
+            // ... (previous key handling remains)
+            
+            // New keys
+            if (e.key === 'm' && e.ctrlKey) openMarriagePanel();
+            if (e.key === 'f' && e.altKey) openFamilyPanel();
+            if (e.key === 't' && e.ctrlKey) openTerritoryMap();
+            if (e.key === 'e' && e.ctrlKey) openEconomyPanel();
+            if (e.key === 'b' && e.altKey) openMountBreeding();
+            if (e.key === 'g' && e.ctrlKey) openGuildHall();
+        });
+
+        // Initialize game
+        function initGame() {
+            // ... (previous initialization remains)
+            
+            // Connect to server
+            connectToServer();
+            
+            // Initialize new systems
+            initMarriage();
+            initFamily();
+            initTerritories();
+            initEconomy();
+            initWeather();
+            initSeasons();
+            initMountBreeding();
+            initGuildHall();
+        }
+
+        function initMarriage() {
+            // Load marriage data from save
+            const savedMarriage = localStorage.getItem('shadowLegionMarriage');
+            if (savedMarriage) {
+                game.marriage = JSON.parse(savedMarriage);
+            }
+        }
+
+        function initFamily() {
+            // Load family data from save
+            const savedFamily = localStorage.getItem('shadowLegionFamily');
+            if (savedFamily) {
+                game.family = JSON.parse(savedFamily);
+            }
+        }
+
+        function initTerritories() {
+            // Load territory data from save
+            const savedTerritories = localStorage.getItem('shadowLegionTerritories');
+            if (savedTerritories) {
+                game.territories.owned = JSON.parse(savedTerritories);
+            }
+        }
+
+        function initEconomy() {
+            // Initialize economy
+            game.economy.marketplace = [
+                { id: 'iron_ore', name: 'Iron Ore', price: 10, trend: 0 },
+                { id: 'gold_ore', name: 'Gold Ore', price: 50, trend: 0 },
+                { id: 'wood', name: 'Wood', price: 5, trend: 0 },
+                { id: 'food', name: 'Food', price: 8, trend: 0 },
+                { id: 'potion', name: 'Health Potion', price: 25, trend: 0 }
+            ];
+        }
+
+        function initWeather() {
+            // Initialize weather system
+            setInterval(() => {
+                updateWeather(game.weather.current);
+            }, 300000); // Update weather every 5 minutes
+        }
+
+        function initSeasons() {
+            // Initialize season system
+            setInterval(updateSeasons, 1000); // Update seasons every second
+        }
+
+        function initMountBreeding() {
+            // Initialize mount breeding
+            game.mountBreeding.available = [
+                { id: 1, name: 'Horse', icon: '🐴', level: 5, speed: 15, stamina: 100, traits: ['fast', 'strong'] },
+                { id: 2, name: 'Wolf', icon: '🐺', level: 3, speed: 18, stamina: 80, traits: ['agile', 'fierce'] }
+            ];
+        }
+
+        function initGuildHall() {
+            // Initialize guild hall features
+            if (game.player.guild && game.guilds[game.player.guild]) {
+                const guild = game.guilds[game.player.guild];
+                game.guildHall.level = guild.level;
+                game.guildHall.resources = guild.resources;
+                
+                // Unlock features based on guild level
+                game.guildHall.features.vault = guild.level >= 2;
+                game.guildHall.features.workshop = guild.level >= 3;
+                game.guildHall.features.barracks = guild.level >= 4;
+                game.guildHall.features.library = guild.level >= 5;
+                game.guildHall.features.throne = guild.level >= 6;
+                game.guildHall.features.garden = guild.level >= 7;
+            }
+        }
+
+        // Save all new systems
+        function saveAllSystems() {
+            localStorage.setItem('shadowLegionMarriage', JSON.stringify(game.marriage));
+            localStorage.setItem('shadowLegionFamily', JSON.stringify(game.family));
+            localStorage.setItem('shadowLegionTerritories', JSON.stringify(game.territories.owned));
+            localStorage.setItem('shadowLegionEconomy', JSON.stringify(game.economy));
+            localStorage.setItem('shadowLegionMountBreeding', JSON.stringify(game.mountBreeding));
+        }
+
+        // Auto-save every 30 seconds
+        setInterval(() => {
+            if (game.gameMode === 'story') {
+                saveGame(1);
+                saveAllSystems();
+                console.log('Auto-saved all systems!');
+            }
+        }, 30000);
+
+        // Enhanced game loop with new systems
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const deltaTime = game.clock.getDelta();
+            
+            // ... (previous updates remain)
+            
+            // Update new systems
+            updateMarriage(deltaTime);
+            updateFamily(deltaTime);
+            updateTerritories(deltaTime);
+            updateEconomy(deltaTime);
+            updateWeather(deltaTime);
+            updateSeasons(deltaTime);
+            updateMountBreeding(deltaTime);
+            updateGuildHall(deltaTime);
+            
+            game.renderer.render(game.scene, game.camera);
+        }
+
+        function updateMarriage(deltaTime) {
+            // Update marriage bonuses
+            if (game.marriage.married) {
+                // Apply family bonus to player stats
+                const bonusMultiplier = 1 + (game.marriage.familyBonus / 100);
+                // Apply bonus to various player stats
+            }
+        }
+
+        function updateFamily(deltaTime) {
+            // Update family members
+            game.family.members.forEach(member => {
+                if (member.type === 'child') {
+                    member.age += deltaTime / 1000; // Age in seconds
+                }
+            });
+        }
+
+        function updateTerritories(deltaTime) {
+            // Update territory resources
+            game.territories.owned.forEach(territory => {
+                if (territory.resources) {
+                    // Generate resources over time
+                    territory.resources.gold += 1 * deltaTime;
+                    territory.resources.wood += 0.5 * deltaTime;
+                    territory.resources.food += 0.3 * deltaTime;
+                }
+            });
+        }
+
+        function updateEconomy(deltaTime) {
+            // Update economy
+            game.economy.marketplace.forEach(item => {
+                // Simulate price fluctuations
+                item.trend = (Math.random() - 0.5) * 2;
+                item.price = Math.max(1, item.price * (1 + item.trend * 0.01));
+            });
+        }
+
+        function updateWeather(deltaTime) {
+            // Update weather intensity
+            if (game.weather.current === 'storm') {
+                game.weather.intensity = Math.sin(Date.now() / 1000) * 0.5 + 0.5;
+            }
+        }
+
+        function updateSeasons(deltaTime) {
+            // Update season effects
+            const effects = game.seasons.effects[game.seasons.current];
+            // Apply seasonal effects to gameplay
+        }
+
+        function updateMountBreeding(deltaTime) {
+            // Update breeding cooldown
+            if (game.mountBreeding.breedingCooldown > 0) {
+                game.mountBreeding.breedingCooldown -= deltaTime * 1000;
+            }
+        }
+
+        function updateGuildHall(deltaTime) {
+            // Update guild hall resources
+            if (game.player.guild && game.guilds[game.player.guild]) {
+                const guild = game.guilds[game.player.guild];
+                // Generate guild resources over time
+                guild.resources.gold += 5 * deltaTime;
+                guild.resources.wood += 2 * deltaTime;
+                guild.resources.food += 1 * deltaTime;
+            }
+        }
+
+        // Start the game loop
+        animate();
+    </script>
+</body>
+</html>
