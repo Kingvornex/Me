@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Japanese Horror: Dark Descent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            cursor: none;
+        }
+        #gameContainer {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), 
+                        rgba(10, 10, 20, 0.2) 0%, 
+                        rgba(0, 0, 0, 0.95) 40%, 
+                        #000 100%);
+            transition: background 0.1s ease;
+        }
+        #room {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Stage 1: Haunted House */
+        #room.stage1 {
+            background-image: 
+                radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.7) 100%),
+                url('https://sfile.chatglm.cn/images-ppt/45664cd6a9b7.jpg');
+        }
+        /* Stage 2: Corridor */
+        #room.stage2 {
+            background-image: 
+                radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.8) 100%),
+                url('https://sfile.chatglm.cn/images-ppt/2a2285b730f1.jpg');
+        }
+        /* Stage 3: Bathroom */
+        #room.stage3 {
+            background-image: 
+                radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.8) 100%),
+                url('https://sfile.chatglm.cn/images-ppt/7797d8985398.jpg');
+        }
+        /* Stage 4: Attic */
+        #room.stage4 {
+            background-image: 
+                radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.8) 100%),
+                url('https://sfile.chatglm.cn/images-ppt/1fbd8d71adf7.jpg');
+        }
+        #flashlight {
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, 
+                        rgba(255, 255, 200, 0.6) 0%, 
+                        rgba(255, 255, 200, 0.3) 30%, 
+                        transparent 70%);
+            pointer-events: none;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: screen;
+            transition: opacity 0.3s ease;
+            z-index: 10;
+        }
+        .object {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            filter: brightness(0.2);
+        }
+        .object:hover {
+            filter: brightness(0.5);
+            transform: scale(1.05);
+        }
+        /* Stage 1 Objects */
+        .door {
+            width: 120px;
+            height: 200px;
+            background: linear-gradient(to bottom, #1a0f08, #0a0504);
+            border: 3px solid #2a1810;
+            border-radius: 10px 10px 0 0;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .door::before {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #3a2820;
+            border-radius: 50%;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .door::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('https://sfile.chatglm.cn/images-ppt/1d5bf2844c36.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .door.bloody::after {
+            opacity: 0.7;
+        }
+        .window {
+            width: 100px;
+            height: 120px;
+            background: linear-gradient(to bottom, #0a1a2a, #050a1a);
+            border: 4px solid #1a2a3a;
+            top: 25%;
+            right: 15%;
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+        .window::before {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background: #1a2a3a;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .window::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: #1a2a3a;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .window-face {
+            position: absolute;
+            font-size: 40px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .painting {
+            width: 100px;
+            height: 120px;
+            background: linear-gradient(45deg, #2a1a0a, #1a0a05);
+            border: 5px solid #3a2a1a;
+            top: 30%;
+            right: 20%;
+            border-radius: 5px;
+            background-image: url('https://sfile.chatglm.cn/images-ppt/b7cabbeaaab4.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        .painting::after {
+            content: '馃憗锔�';
+            position: absolute;
+            font-size: 40px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .painting.scary::after {
+            opacity: 1;
+            animation: blink 2s infinite;
+        }
+        @keyframes blink {
+            0%, 90%, 100% { opacity: 1; }
+            95% { opacity: 0; }
+        }
+        .bookshelf {
+            width: 150px;
+            height: 180px;
+            background: linear-gradient(to bottom, #1a0f05, #0a0502);
+            border: 2px solid #2a1f15;
+            top: 20%;
+            left: 15%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            padding: 10px;
+        }
+        .book {
+            height: 20px;
+            background: linear-gradient(to right, #2a0a0a, #1a0505);
+            margin: 2px 0;
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+        .book::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 0, 0, 0);
+            transition: background 0.3s ease;
+        }
+        .book.scary::after {
+            background: rgba(255, 0, 0, 0.8);
+            animation: bloodDrip 1s ease-out;
+        }
+        @keyframes bloodDrip {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(0); }
+        }
+        /* Stage 2 Objects */
+        .corridor-door {
+            width: 100px;
+            height: 180px;
+            background: linear-gradient(to bottom, #0a0f08, #050504);
+            border: 3px solid #1a1810;
+            border-radius: 5px 5px 0 0;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .corridor-window {
+            width: 80px;
+            height: 100px;
+            background: linear-gradient(to bottom, #050a1a, #02050a);
+            border: 3px solid #0a1a2a;
+            top: 30%;
+            right: 20%;
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+        .light-switch {
+            width: 40px;
+            height: 60px;
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border: 2px solid #3a3a3a;
+            top: 40%;
+            right: 15%;
+            border-radius: 5px;
+        }
+        .light-switch::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 5px;
+            background: #4a4a4a;
+            top: 20px;
+            left: 10px;
+            border-radius: 2px;
+        }
+        .flickering-light {
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, rgba(255, 255, 200, 0.6), transparent);
+            border-radius: 50%;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0.3;
+            animation: flicker 2s infinite;
+        }
+        @keyframes flicker {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.05; }
+            51% { opacity: 0.6; }
+            52% { opacity: 0.1; }
+            53% { opacity: 0.5; }
+        }
+        /* Stage 3 Objects */
+        .mirror {
+            width: 120px;
+            height: 150px;
+            background: linear-gradient(45deg, #1a1a2a, #0a0a1a);
+            border: 5px solid #2a2a3a;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+        .mirror::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(200,200,255,0.2));
+            opacity: 0.5;
+        }
+        .mirror-reflection {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://sfile.chatglm.cn/images-ppt/dd2ba3b77935.jpg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .mirror.scary .mirror-reflection {
+            opacity: 0.8;
+        }
+        .toilet {
+            width: 80px;
+            height: 100px;
+            background: linear-gradient(to bottom, #2a2a3a, #1a1a2a);
+            border: 3px solid #3a3a4a;
+            bottom: 10%;
+            right: 20%;
+            border-radius: 10px 10px 0 0;
+            position: relative;
+        }
+        .toilet::before {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 30px;
+            background: #1a1a2a;
+            top: 10px;
+            left: 10px;
+            border-radius: 5px;
+        }
+        .toilet::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('https://sfile.chatglm.cn/images-ppt/a8982d3dd55a.jpg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .toilet.scary::after {
+            opacity: 0.9;
+        }
+        .faucet {
+            width: 30px;
+            height: 40px;
+            background: linear-gradient(to bottom, #3a3a4a, #2a2a3a);
+            border: 2px solid #4a4a5a;
+            top: 35%;
+            left: 30%;
+            border-radius: 5px;
+            position: relative;
+        }
+        .faucet::before {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 20px;
+            background: #2a2a3a;
+            bottom: -15px;
+            left: 10px;
+            border-radius: 0 0 5px 5px;
+        }
+        .water-drip {
+            position: absolute;
+            width: 5px;
+            height: 10px;
+            background: rgba(255, 0, 0, 0);
+            bottom: -25px;
+            left: 12px;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+        .faucet.bloody .water-drip {
+            background: rgba(255, 0, 0, 0.8);
+            animation: bloodDrip 1s infinite;
+        }
+        .bathroom-window {
+            width: 70px;
+            height: 90px;
+            background: linear-gradient(to bottom, #050a1a, #02050a);
+            border: 3px solid #0a1a2a;
+            top: 25%;
+            left: 15%;
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+        /* Stage 4 Objects */
+        .doll {
+            width: 60px;
+            height: 90px;
+            background-image: url('https://sfile.chatglm.cn/images-ppt/84c421a49904.jpg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            top: 40%;
+            left: 30%;
+            filter: brightness(0.2);
+        }
+        .doll2 {
+            width: 50px;
+            height: 80px;
+            background-image: url('https://sfile.chatglm.cn/images-ppt/745ba4506101.jpg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            top: 30%;
+            right: 25%;
+            filter: brightness(0.2);
+        }
+        .doll.scary, .doll2.scary {
+            filter: brightness(0.6);
+            animation: dollMove 3s infinite;
+        }
+        @keyframes dollMove {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(5deg); }
+            75% { transform: rotate(-5deg); }
+        }
+        .old-chair {
+            width: 80px;
+            height: 100px;
+            background: linear-gradient(to bottom, #2a1a0a, #1a0a05);
+            border: 2px solid #3a2a1a;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 5px 5px 0 0;
+            position: relative;
+        }
+        .old-chair::before {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 40px;
+            background: #1a0a05;
+            top: 10px;
+            left: 10px;
+            border-radius: 3px;
+        }
+        .music-box {
+            width: 50px;
+            height: 40px;
+            background: linear-gradient(to bottom, #3a2a1a, #2a1a0a);
+            border: 2px solid #4a3a2a;
+            bottom: 25%;
+            right: 20%;
+            border-radius: 5px;
+            position: relative;
+        }
+        .music-box::before {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 20px;
+            background: #2a1a0a;
+            top: 5px;
+            left: 10px;
+            border-radius: 3px;
+        }
+        .music-box::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #1a0a05;
+            top: 30px;
+            left: 20px;
+            border-radius: 50%;
+            animation: musicBoxSpin 3s infinite linear;
+        }
+        @keyframes musicBoxSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .attic-window {
+            width: 90px;
+            height: 110px;
+            background: linear-gradient(to bottom, #050a1a, #02050a);
+            border: 3px solid #0a1a2a;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+        #jumpScare {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            cursor: pointer;
+        }
+        .scareImage {
+            width: 500px;
+            height: 500px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            animation: scareAnimation 0.5s ease-out;
+        }
+        @keyframes scareAnimation {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1.5) rotate(180deg); opacity: 1; }
+            100% { transform: scale(1) rotate(360deg); opacity: 1; }
+        }
+        #instructions {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 14px;
+            opacity: 0.7;
+            z-index: 20;
+        }
+        #stageInfo {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            text-align: center;
+            z-index: 20;
+            opacity: 0.8;
+        }
+        #sanity {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 18px;
+            z-index: 20;
+        }
+        .sanity-bar {
+            width: 200px;
+            height: 20px;
+            background: #222;
+            border: 2px solid #444;
+            margin-top: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+        .sanity-fill {
+            height: 100%;
+            background: linear-gradient(to right, #0f0, #ff0, #f00);
+            width: 100%;
+            transition: width 0.5s ease;
+        }
+        #message {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 20;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+        .shadow {
+            position: absolute;
+            width: 100px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.9);
+            filter: blur(20px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        #static {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, 
+                    rgba(255,255,255,0.03) 0px, 
+                    transparent 1px, 
+                    transparent 2px, 
+                    rgba(255,255,255,0.03) 3px);
+            pointer-events: none;
+            opacity: 0;
+            z-index: 5;
+            animation: staticNoise 0.1s infinite;
+        }
+        @keyframes staticNoise {
+            0% { transform: translate(0, 0); }
+            10% { transform: translate(-1px, -1px); }
+            20% { transform: translate(1px, 1px); }
+            30% { transform: translate(-1px, 1px); }
+            40% { transform: translate(1px, -1px); }
+            50% { transform: translate(0, 0); }
+            60% { transform: translate(1px, 1px); }
+            70% { transform: translate(-1px, -1px); }
+            80% { transform: translate(1px, -1px); }
+            90% { transform: translate(-1px, 1px); }
+            100% { transform: translate(0, 0); }
+        }
+        /* Japanese Horror Elements */
+        .talisman {
+            width: 60px;
+            height: 90px;
+            background-image: url('https://sfile.chatglm.cn/images-ppt/18d29e67852a.jpg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            filter: brightness(0.3);
+        }
+        .talisman:hover {
+            filter: brightness(0.6);
+            transform: scale(1.1);
+        }
+        .talisman1 {
+            top: 40%;
+            left: 35%;
+        }
+        .talisman2 {
+            top: 25%;
+            right: 30%;
+        }
+        .talisman.burning {
+            animation: burn 1s ease-out forwards;
+        }
+        @keyframes burn {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.5) rotate(45deg); }
+        }
+        .blood-stain {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-image: url('https://sfile.chatglm.cn/images-ppt/79f6a7d9a548.jpg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+        .blood-stain1 {
+            bottom: 10%;
+            left: 20%;
+            transform: rotate(45deg);
+        }
+        .blood-stain2 {
+            top: 50%;
+            right: 15%;
+            transform: rotate(-30deg);
+        }
+        .blood-stain.visible {
+            opacity: 0.7;
+        }
+        .yurei {
+            position: absolute;
+            width: 120px;
+            height: 180px;
+            background-image: url('https://sfile.chatglm.cn/images-ppt/2cd943e1a456.jpg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+        .yurei1 {
+            bottom: 0;
+            left: 10%;
+        }
+        .yurei2 {
+            top: 20%;
+            right: 5%;
+        }
+        .yurei.visible {
+            opacity: 0.8;
+            animation: float 3s infinite ease-in-out;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        /* Stage Transitions */
+        .stage-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            flex-direction: column;
+        }
+        .stage-transition-text {
+            font-size: 36px;
+            color: #ff3333;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+        .stage-transition-hint {
+            font-size: 18px;
+            color: #cc9999;
+            opacity: 0.8;
+        }
+        .progress-bar {
+            width: 300px;
+            height: 10px;
+            background: #222;
+            border: 1px solid #444;
+            margin-top: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #ff3333, #cc0000);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        /* Keys */
+        .key {
+            width: 30px;
+            height: 15px;
+            background: linear-gradient(to bottom, #ffcc66, #cc9933);
+            border-radius: 5px 5px 0 0;
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.8;
+        }
+        .key::before {
+            content: '';
+            position: absolute;
+            width: 5px;
+            height: 15px;
+            background: #cc9933;
+            bottom: -15px;
+            left: 5px;
+            border-radius: 0 0 2px 2px;
+        }
+        .key::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 5px;
+            background: #cc9933;
+            bottom: -20px;
+            left: 5px;
+            border-radius: 0 0 0 2px;
+        }
+        .key:hover {
+            transform: scale(1.2);
+            filter: brightness(1.2);
+        }
+        .key1 {
+            top: 60%;
+            left: 25%;
+        }
+        .key2 {
+            top: 40%;
+            right: 35%;
+        }
+        .key3 {
+            bottom: 30%;
+            left: 40%;
+        }
+        .key4 {
+            top: 25%;
+            right: 20%;
+        }
+        /* Sanity Restoration Items */
+        .sanity-item {
+            width: 40px;
+            height: 40px;
+            background-image: url('https://sfile.chatglm.cn/images-ppt/f713e81b00fc.jpg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            filter: brightness(0.4);
+        }
+        .sanity-item:hover {
+            filter: brightness(0.8);
+            transform: scale(1.1);
+        }
+        .sanity-item1 {
+            top: 50%;
+            left: 60%;
+        }
+        .sanity-item2 {
+            bottom: 40%;
+            right: 25%;
+        }
+        .sanity-item.used {
+            animation: heal 1s ease-out forwards;
+        }
+        @keyframes heal {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.5); }
+        }
+        /* Inventory */
+        #inventory {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 20;
+        }
+        .inventory-slot {
+            width: 40px;
+            height: 40px;
+            background: rgba(30, 20, 30, 0.7);
+            border: 2px solid #443344;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .inventory-slot.has-key {
+            background: rgba(50, 40, 20, 0.7);
+            border-color: #cc9933;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="room" class="stage1">
+            <div id="flashlight"></div>
+            <div id="static"></div>
+            
+            <div id="instructions">
+                Move mouse to control flashlight<br>
+                Click objects to interact<br>
+                Find keys to progress...
+            </div>
+            
+            <div id="stageInfo">
+                Stage 1: The Abandoned House
+            </div>
+            
+            <div id="sanity">
+                Sanity: <span id="sanityValue">100</span>%
+                <div class="sanity-bar">
+                    <div class="sanity-fill" id="sanityFill"></div>
+                </div>
+            </div>
+            
+            <div id="message"></div>
+            
+            <!-- Inventory -->
+            <div id="inventory">
+                <div class="inventory-slot" id="slot1"></div>
+                <div class="inventory-slot" id="slot2"></div>
+                <div class="inventory-slot" id="slot3"></div>
+                <div class="inventory-slot" id="slot4"></div>
+            </div>
+            
+            <!-- Stage 1 Objects -->
+            <div class="object door" id="door"></div>
+            <div class="object window" id="window">
+                <div class="window-face" id="windowFace">馃懟</div>
+            </div>
+            <div class="object painting" id="painting"></div>
+            <div class="object bookshelf" id="bookshelf">
+                <div class="book"></div>
+                <div class="book"></div>
+                <div class="book"></div>
+                <div class="book"></div>
+                <div class="book"></div>
+            </div>
+            
+            <!-- Stage 2 Objects (Hidden) -->
+            <div class="object corridor-door" id="corridorDoor" style="display: none;"></div>
+            <div class="object corridor-window" id="corridorWindow" style="display: none;"></div>
+            <div class="object light-switch" id="lightSwitch" style="display: none;"></div>
+            <div class="flickering-light" id="flickeringLight" style="display: none;"></div>
+            
+            <!-- Stage 3 Objects (Hidden) -->
+            <div class="object mirror" id="mirror" style="display: none;">
+                <div class="mirror-reflection"></div>
+            </div>
+            <div class="object toilet" id="toilet" style="display: none;"></div>
+            <div class="object faucet" id="faucet" style="display: none;">
+                <div class="water-drip"></div>
+            </div>
+            <div class="object bathroom-window" id="bathroomWindow" style="display: none;"></div>
+            
+            <!-- Stage 4 Objects (Hidden) -->
+            <div class="object doll" id="doll" style="display: none;"></div>
+            <div class="object doll2" id="doll2" style="display: none;"></div>
+            <div class="object old-chair" id="oldChair" style="display: none;"></div>
+            <div class="object music-box" id="musicBox" style="display: none;"></div>
+            <div class="object attic-window" id="atticWindow" style="display: none;"></div>
+            
+            <!-- Japanese Horror Elements -->
+            <div class="talisman talisman1" id="talisman1"></div>
+            <div class="talisman talisman2" id="talisman2"></div>
+            
+            <div class="blood-stain blood-stain1" id="bloodStain1"></div>
+            <div class="blood-stain blood-stain2" id="bloodStain2"></div>
+            
+            <div class="yurei yurei1" id="yurei1"></div>
+            <div class="yurei yurei2" id="yurei2"></div>
+            
+            <!-- Keys -->
+            <div class="key key1" id="key1"></div>
+            <div class="key key2" id="key2" style="display: none;"></div>
+            <div class="key key3" id="key3" style="display: none;"></div>
+            <div class="key key4" id="key4" style="display: none;"></div>
+            
+            <!-- Sanity Restoration Items -->
+            <div class="sanity-item sanity-item1" id="sanityItem1"></div>
+            <div class="sanity-item sanity-item2" id="sanityItem2"></div>
+            
+            <div class="shadow" id="shadow1" style="bottom: 0; right: 30%;"></div>
+            <div class="shadow" id="shadow2" style="bottom: 0; left: 30%;"></div>
+        </div>
+        
+        <div id="jumpScare">
+            <div class="scareImage" id="scareImage"></div>
+        </div>
+        
+        <div class="stage-transition" id="stageTransition">
+            <div class="stage-transition-text" id="transitionText">Loading...</div>
+            <div class="stage-transition-hint" id="transitionHint">Prepare yourself...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let sanity = 100;
+        let gameActive = true;
+        let scareCount = 0;
+        let currentStage = 1;
+        let stageProgress = 0;
+        let mousePosition = { x: 50, y: 50 };
+        let keysFound = 0;
+        const totalKeys = 4;
+        
+        const flashlight = document.getElementById('flashlight');
+        const gameContainer = document.getElementById('gameContainer');
+        const jumpScare = document.getElementById('jumpScare');
+        const scareImage = document.getElementById('scareImage');
+        const sanityValue = document.getElementById('sanityValue');
+        const sanityFill = document.getElementById('sanityFill');
+        const message = document.getElementById('message');
+        const static = document.getElementById('static');
+        const room = document.getElementById('room');
+        const stageInfo = document.getElementById('stageInfo');
+        const stageTransition = document.getElementById('stageTransition');
+        const transitionText = document.getElementById('transitionText');
+        const transitionHint = document.getElementById('transitionHint');
+        const progressFill = document.getElementById('progressFill');
+        
+        // Mouse movement for flashlight
+        document.addEventListener('mousemove', (e) => {
+            mousePosition.x = (e.clientX / window.innerWidth) * 100;
+            mousePosition.y = (e.clientY / window.innerHeight) * 100;
+            
+            flashlight.style.left = e.clientX + 'px';
+            flashlight.style.top = e.clientY + 'px';
+            
+            gameContainer.style.setProperty('--mouse-x', mousePosition.x + '%');
+            gameContainer.style.setProperty('--mouse-y', mousePosition.y + '%');
+        });
+        
+        // Update sanity
+        function updateSanity(amount) {
+            sanity = Math.max(0, Math.min(100, sanity + amount));
+            sanityValue.textContent = sanity;
+            sanityFill.style.width = sanity + '%';
+            
+            if (sanity <= 0) {
+                endGame();
+            }
+        }
+        
+        // Show message
+        function showMessage(text, duration = 3000) {
+            message.textContent = text;
+            message.style.opacity = '1';
+            setTimeout(() => {
+                message.style.opacity = '0';
+            }, duration);
+        }
+        
+        // Jump scare function with images
+        function triggerJumpScare(type = 'random') {
+            if (!gameActive) return;
+            
+            scareCount++;
+            
+            // Different types of jump scares based on stage
+            if (type === 'random') {
+                const scareTypes = ['ghost1', 'ghost2', 'ghost3', 'doll1', 'doll2', 'hanako'];
+                type = scareTypes[Math.floor(Math.random() * scareTypes.length)];
+            }
+            
+            // Set scare image based on type
+            const scareImages = {
+                'ghost1': 'https://sfile.chatglm.cn/images-ppt/38460bde5bce.jpg',
+                'ghost2': 'https://sfile.chatglm.cn/images-ppt/a3acd30668ae.jpg',
+                'ghost3': 'https://sfile.chatglm.cn/images-ppt/6d74a1d7daf8.jpg',
+                'doll1': 'https://sfile.chatglm.cn/images-ppt/84c421a49904.jpg',
+                'doll2': 'https://sfile.chatglm.cn/images-ppt/5e0eaf867b3f.jpg',
+                'hanako': 'https://sfile.chatglm.cn/images-ppt/49780a83a3c5.jpg'
+            };
+            
+            scareImage.style.backgroundImage = `url('${scareImages[type]}')`;
+            
+            jumpScare.style.display = 'flex';
+            
+            // Flash effect
+            document.body.style.background = '#fff';
+            setTimeout(() => {
+                document.body.style.background = '#000';
+            }, 100);
+            
+            // Static noise
+            static.style.opacity = '0.5';
+            
+            // Show blood stains
+            document.getElementById('bloodStain1').classList.add('visible');
+            document.getElementById('bloodStain2').classList.add('visible');
+            
+            setTimeout(() => {
+                jumpScare.style.display = 'none';
+                static.style.opacity = '0';
+                updateSanity(-25);
+            }, 700);
+        }
+        
+        // Stage transition
+        function transitionToStage(stageNumber) {
+            gameActive = false;
+            stageTransition.style.display = 'flex';
+            
+            // Set transition text based on stage
+            const stageTexts = [
+                '',
+                'Stage 1: The Abandoned House',
+                'Stage 2: The Endless Corridor',
+                'Stage 3: The Cursed Bathroom',
+                'Stage 4: The Doll\'s Attic'
+            ];
+            
+            const stageHints = [
+                '',
+                'Find the key to the corridor...',
+                'Navigate through the darkness...',
+                'Face the spirit in the mirror...',
+                'Confront the source of evil...'
+            ];
+            
+            transitionText.textContent = stageTexts[stageNumber];
+            transitionHint.textContent = stageHints[stageNumber];
+            
+            // Animate progress bar
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 5;
+                progressFill.style.width = progress + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    setTimeout(() => {
+                        // Hide transition screen
+                        stageTransition.style.display = 'none';
+                        progressFill.style.width = '0%';
+                        
+                        // Change stage
+                        currentStage = stageNumber;
+                        room.className = 'stage' + stageNumber;
+                        stageInfo.textContent = stageTexts[stageNumber];
+                        
+                        // Show/hide objects based on stage
+                        showStageObjects(stageNumber);
+                        
+                        // Reset game state
+                        gameActive = true;
+                        updateSanity(15); // Restore more sanity between stages
+                        
+                        // Show stage message
+                        showMessage(stageHints[stageNumber], 4000);
+                    }, 500);
+                }
+            }, 50);
+        }
+        
+        // Show objects for specific stage
+        function showStageObjects(stage) {
+            // Hide all objects first
+            const allObjects = document.querySelectorAll('.object');
+            allObjects.forEach(obj => {
+                obj.style.display = 'none';
+            });
+            
+            // Show objects for current stage
+            if (stage === 1) {
+                document.getElementById('door').style.display = 'block';
+                document.getElementById('window').style.display = 'block';
+                document.getElementById('painting').style.display = 'block';
+                document.getElementById('bookshelf').style.display = 'flex';
+            } else if (stage === 2) {
+                document.getElementById('corridorDoor').style.display = 'block';
+                document.getElementById('corridorWindow').style.display = 'block';
+                document.getElementById('lightSwitch').style.display = 'block';
+                document.getElementById('flickeringLight').style.display = 'block';
+            } else if (stage === 3) {
+                document.getElementById('mirror').style.display = 'block';
+                document.getElementById('toilet').style.display = 'block';
+                document.getElementById('faucet').style.display = 'block';
+                document.getElementById('bathroomWindow').style.display = 'block';
+            } else if (stage === 4) {
+                document.getElementById('doll').style.display = 'block';
+                document.getElementById('doll2').style.display = 'block';
+                document.getElementById('oldChair').style.display = 'block';
+                document.getElementById('musicBox').style.display = 'block';
+                document.getElementById('atticWindow').style.display = 'block';
+            }
+            
+            // Always show talismans
+            document.getElementById('talisman1').style.display = 'block';
+            document.getElementById('talisman2').style.display = 'block';
+            
+            // Show keys for current stage
+            document.getElementById('key' + stage).style.display = 'block';
+            
+            // Show sanity items
+            document.getElementById('sanityItem1').style.display = 'block';
+            document.getElementById('sanityItem2').style.display = 'block';
+        }
+        
+        // Update inventory display
+        function updateInventory() {
+            for (let i = 1; i <= keysFound; i++) {
+                const slot = document.getElementById('slot' + i);
+                slot.textContent = '馃攽';
+                slot.classList.add('has-key');
+            }
+        }
+        
+        // Stage 1 Interactions
+        document.getElementById('door').addEventListener('click', () => {
+            if (keysFound >= 1) {
+                showMessage("You unlock the door with the key...");
+                setTimeout(() => {
+                    transitionToStage(2);
+                }, 2000);
+            } else {
+                if (Math.random() > 0.5) {
+                    showMessage("The door is locked...");
+                    document.getElementById('door').classList.add('bloody');
+                    setTimeout(() => {
+                        triggerJumpScare();
+                        showMessage("Something's behind you!");
+                    }, 1500);
+                } else {
+                    showMessage("You hear whispers from the other side...");
+                    updateSanity(-10);
+                }
+            }
+        });
+        
+        document.getElementById('window').addEventListener('click', () => {
+            const face = document.getElementById('windowFace');
+            face.style.opacity = '1';
+            showMessage("There's someone outside!");
+            updateSanity(-15);
+            
+            setTimeout(() => {
+                face.style.opacity = '0';
+                triggerJumpScare();
+            }, 2000);
+        });
+        
+        document.getElementById('painting').addEventListener('click', () => {
+            const painting = document.getElementById('painting');
+            painting.classList.add('scary');
+            showMessage("The eyes are following you...");
+            updateSanity(-15);
+            
+            // Show yurei
+            document.getElementById('yurei1').classList.add('visible');
+            
+            setTimeout(() => {
+                painting.classList.remove('scary');
+                document.getElementById('yurei1').classList.remove('visible');
+            }, 3000);
+        });
+        
+        document.getElementById('bookshelf').addEventListener('click', (e) => {
+            if (e.target.classList.contains('book')) {
+                e.target.classList.add('scary');
+                showMessage("This book... it's bleeding!");
+                updateSanity(-10);
+                
+                setTimeout(() => {
+                    triggerJumpScare();
+                }, 1000);
+            }
+        });
+        
+        // Stage 2 Interactions
+        document.getElementById('corridorDoor').addEventListener('click', () => {
+            if (keysFound >= 2) {
+                showMessage("You unlock the door with the key...");
+                setTimeout(() => {
+                    transitionToStage(3);
+                }, 2000);
+            } else {
+                showMessage("The door is locked tight...");
+                document.getElementById('shadow1').style.opacity = '0.6';
+                document.getElementById('shadow2').style.opacity = '0.6';
+                
+                setTimeout(() => {
+                    triggerJumpScare();
+                    document.getElementById('shadow1').style.opacity = '0';
+                    document.getElementById('shadow2').style.opacity = '0';
+                }, 1500);
+            }
+        });
+        
+        document.getElementById('corridorWindow').addEventListener('click', () => {
+            showMessage("You see something moving in the darkness...");
+            updateSanity(-10);
+            
+            setTimeout(() => {
+                triggerJumpScare('ghost1');
+            }, 1500);
+        });
+        
+        document.getElementById('lightSwitch').addEventListener('click', () => {
+            const flickeringLight = document.getElementById('flickeringLight');
+            if (flickeringLight.style.opacity === '0.05') {
+                flickeringLight.style.opacity = '0.3';
+                showMessage("The lights flicker back to life...");
+            } else {
+                flickeringLight.style.opacity = '0.05';
+                showMessage("The lights go out...");
+                
+                // Trigger scare when lights go out
+                setTimeout(() => {
+                    triggerJumpScare('ghost2');
+                    showMessage("Something is in the darkness!");
+                }, 1000);
+            }
+            updateSanity(-5);
+        });
+        
+        // Stage 3 Interactions
+        document.getElementById('mirror').addEventListener('click', () => {
+            const mirror = document.getElementById('mirror');
+            mirror.classList.add('scary');
+            showMessage("The mirror shows something else...");
+            updateSanity(-15);
+            
+            setTimeout(() => {
+                triggerJumpScare('hanako');
+                mirror.classList.remove('scary');
+            }, 2000);
+        });
+        
+        document.getElementById('toilet').addEventListener('click', () => {
+            const toilet = document.getElementById('toilet');
+            toilet.classList.add('scary');
+            showMessage("Hanako-san emerges from the toilet!");
+            updateSanity(-20);
+            
+            setTimeout(() => {
+                triggerJumpScare('hanako');
+                toilet.classList.remove('scary');
+            }, 1500);
+        });
+        
+        document.getElementById('faucet').addEventListener('click', () => {
+            const faucet = document.getElementById('faucet');
+            faucet.classList.add('bloody');
+            showMessage("Blood pours from the faucet!");
+            updateSanity(-10);
+            
+            setTimeout(() => {
+                triggerJumpScare();
+                faucet.classList.remove('bloody');
+            }, 2000);
+        });
+        
+        document.getElementById('bathroomWindow').addEventListener('click', () => {
+            showMessage("A face appears in the window!");
+            updateSanity(-15);
+            
+            setTimeout(() => {
+                triggerJumpScare('ghost3');
+            }, 1000);
+        });
+        
+        // Stage 4 Interactions
+        document.getElementById('doll').addEventListener('click', () => {
+            const doll = document.getElementById('doll');
+            doll.classList.add('scary');
+            showMessage("The doll's head turns to look at you!");
+            updateSanity(-15);
+            
+            setTimeout(() => {
+                triggerJumpScare('doll1');
+                doll.classList.remove('scary');
+            }, 2000);
+        });
+        
+        document.getElementById('doll2').addEventListener('click', () => {
+            const doll2 = document.getElementById('doll2');
+            doll2.classList.add('scary');
+            showMessage("The second doll moves on its own!");
+            updateSanity(-15);
+            
+            setTimeout(() => {
+                triggerJumpScare('doll2');
+                doll2.classList.remove('scary');
+            }, 2000);
+        });
+        
+        document.getElementById('oldChair').addEventListener('click', () => {
+            showMessage("The chair rocks by itself...");
+            updateSanity(-5);
+            
+            document.getElementById('shadow1').style.opacity = '0.6';
+            document.getElementById('shadow2').style.opacity = '0.6';
+            
+            setTimeout(() => {
+                document.getElementById('shadow1').style.opacity = '0';
+                document.getElementById('shadow2').style.opacity = '0';
+                triggerJumpScare();
+            }, 2000);
+        });
+        
+        document.getElementById('musicBox').addEventListener('click', () => {
+            showMessage("The music box plays a haunting melody...");
+            updateSanity(-10);
+            
+            // Make dolls move
+            document.getElementById('doll').classList.add('scary');
+            document.getElementById('doll2').classList.add('scary');
+            
+            setTimeout(() => {
+                triggerJumpScare();
+                document.getElementById('doll').classList.remove('scary');
+                document.getElementById('doll2').classList.remove('scary');
+            }, 3000);
+        });
+        
+        document.getElementById('atticWindow').addEventListener('click', () => {
+            showMessage("You see a figure outside the window...");
+            updateSanity(-15);
+            
+            setTimeout(() => {
+                triggerJumpScare('ghost1');
+            }, 1500);
+        });
+        
+        // Key interactions
+        document.getElementById('key1').addEventListener('click', () => {
+            if (keysFound === 0) {
+                keysFound++;
+                showMessage("You found a key to the corridor!");
+                document.getElementById('key1').style.display = 'none';
+                updateInventory();
+                updateSanity(5);
+            }
+        });
+        
+        document.getElementById('key2').addEventListener('click', () => {
+            if (keysFound === 1) {
+                keysFound++;
+                showMessage("You found a key to the bathroom!");
+                document.getElementById('key2').style.display = 'none';
+                updateInventory();
+                updateSanity(5);
+            }
+        });
+        
+        document.getElementById('key3').addEventListener('click', () => {
+            if (keysFound === 2) {
+                keysFound++;
+                showMessage("You found a key to the attic!");
+                document.getElementById('key3').style.display = 'none';
+                updateInventory();
+                updateSanity(5);
+            }
+        });
+        
+        document.getElementById('key4').addEventListener('click', () => {
+            if (keysFound === 3) {
+                keysFound++;
+                showMessage("You found the final key!");
+                document.getElementById('key4').style.display = 'none';
+                updateInventory();
+                updateSanity(5);
+                
+                // Final stage completion
+                setTimeout(() => {
+                    endGame(true);
+                }, 2000);
+            }
+        });
+        
+        // Talisman interactions
+        document.getElementById('talisman1').addEventListener('click', () => {
+            const talisman = document.getElementById('talisman1');
+            talisman.classList.add('burning');
+            showMessage("The talisman burns away...");
+            updateSanity(-5);
+            
+            setTimeout(() => {
+                talisman.style.display = 'none';
+                triggerJumpScare();
+            }, 1000);
+        });
+        
+        document.getElementById('talisman2').addEventListener('click', () => {
+            const talisman = document.getElementById('talisman2');
+            talisman.classList.add('burning');
+            showMessage("Evil spirits are released!");
+            updateSanity(-10);
+            
+            // Show both yurei
+            document.getElementById('yurei1').classList.add('visible');
+            document.getElementById('yurei2').classList.add('visible');
+            
+            setTimeout(() => {
+                talisman.style.display = 'none';
+                triggerJumpScare();
+                document.getElementById('yurei1').classList.remove('visible');
+                document.getElementById('yurei2').classList.remove('visible');
+            }, 1000);
+        });
+        
+        // Sanity restoration items
+        document.getElementById('sanityItem1').addEventListener('click', () => {
+            const item = document.getElementById('sanityItem1');
+            item.classList.add('used');
+            showMessage("You feel a sense of calm...");
+            updateSanity(20);
+            
+            setTimeout(() => {
+                item.style.display = 'none';
+            }, 1000);
+        });
+        
+        document.getElementById('sanityItem2').addEventListener('click', () => {
+            const item = document.getElementById('sanityItem2');
+            item.classList.add('used');
+            showMessage("Your mind clears...");
+            updateSanity(20);
+            
+            setTimeout(() => {
+                item.style.display = 'none';
+            }, 1000);
+        });
+        
+        // Random events
+        function randomEvent() {
+            if (!gameActive) return;
+            
+            const events = [
+                () => {
+                    showMessage("You hear footsteps...");
+                    updateSanity(-5);
+                },
+                () => {
+                    document.getElementById('shadow1').style.opacity = '0.4';
+                    setTimeout(() => {
+                        document.getElementById('shadow1').style.opacity = '0';
+                    }, 2000);
+                    updateSanity(-5);
+                },
+                () => {
+                    static.style.opacity = '0.2';
+                    setTimeout(() => {
+                        static.style.opacity = '0';
+                    }, 1000);
+                    updateSanity(-3);
+                },
+                () => {
+                    triggerJumpScare();
+                },
+                () => {
+                    // Show random blood stain
+                    const bloodStains = [
+                        document.getElementById('bloodStain1'),
+                        document.getElementById('bloodStain2')
+                    ];
+                    const randomStain = bloodStains[Math.floor(Math.random() * bloodStains.length)];
+                    randomStain.classList.add('visible');
+                    showMessage("Blood appears from nowhere...");
+                    updateSanity(-5);
+                    
+                    setTimeout(() => {
+                        randomStain.classList.remove('visible');
+                    }, 3000);
+                },
+                () => {
+                    // Show random yurei
+                    const yureis = [
+                        document.getElementById('yurei1'),
+                        document.getElementById('yurei2')
+                    ];
+                    const randomYurei = yureis[Math.floor(Math.random() * yureis.length)];
+                    randomYurei.classList.add('visible');
+                    showMessage("A spirit appears...");
+                    updateSanity(-10);
+                    
+                    setTimeout(() => {
+                        randomYurei.classList.remove('visible');
+                    }, 3000);
+                },
+                () => {
+                    // Whisper sounds
+                    showMessage("You hear faint whispers...");
+                    updateSanity(-5);
+                    
+                    // Random scare after whispers
+                    if (Math.random() > 0.5) {
+                        setTimeout(() => {
+                            triggerJumpScare();
+                        }, 2000);
+                    }
+                },
+                () => {
+                    // Objects move
+                    showMessage("Something moved...");
+                    updateSanity(-7);
+                    
+                    // Make shadows appear
+                    document.getElementById('shadow1').style.opacity = '0.4';
+                    document.getElementById('shadow2').style.opacity = '0.4';
+                    
+                    setTimeout(() => {
+                        document.getElementById('shadow1').style.opacity = '0';
+                        document.getElementById('shadow2').style.opacity = '0';
+                    }, 2000);
+                }
+            ];
+            
+            const randomEvent = events[Math.floor(Math.random() * events.length)];
+            randomEvent();
+        }
+        
+        // End game
+        function endGame(victory = false) {
+            gameActive = false;
+            
+            if (victory) {
+                showMessage("You've escaped the horror!", 5000);
+                
+                // Show all horror elements one last time
+                document.getElementById('bloodStain1').classList.add('visible');
+                document.getElementById('bloodStain2').classList.add('visible');
+                document.getElementById('yurei1').classList.add('visible');
+                document.getElementById('yurei2').classList.add('visible');
+                
+                setTimeout(() => {
+                    if (confirm('Congratulations! You survived all stages with ' + sanity + '% sanity left. Play again?')) {
+                        location.reload();
+                    }
+                }, 2000);
+            } else {
+                showMessage("You've lost your mind...", 5000);
+                flashlight.style.opacity = '0';
+                
+                // Show all horror elements
+                document.getElementById('bloodStain1').classList.add('visible');
+                document.getElementById('bloodStain2').classList.add('visible');
+                document.getElementById('yurei1').classList.add('visible');
+                document.getElementById('yurei2').classList.add('visible');
+                
+                setTimeout(() => {
+                    triggerJumpScare();
+                    setTimeout(() => {
+                        if (confirm('Game Over! You survived ' + scareCount + ' scares. Play again?')) {
+                            location.reload();
+                        }
+                    }, 1000);
+                }, 2000);
+            }
+        }
+        
+        // Start random events
+        setInterval(randomEvent, 8000);
+        
+        // Initial message
+        setTimeout(() => {
+            showMessage("You're alone in this Japanese house... or are you?");
+        }, 2000);
+        
+        // Gradual sanity drain
+        setInterval(() => {
+            if (gameActive) {
+                updateSanity(-1);
+            }
+        }, 3000);
+        
+        // Jump scare on click anywhere
+        document.addEventListener('click', (e) => {
+            if (e.target === document.body || e.target === gameContainer || e.target === document.getElementById('room')) {
+                if (Math.random() > 0.8) {
+                    triggerJumpScare();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
