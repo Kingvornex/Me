@@ -35,6 +35,8 @@
 ,
   "Blog/index.html": {"title": "Crazy Interactive Blog", "desc": "A mobile-friendly blog interface designed for fast loading and smooth reading experience.", "tags": ["Blog","Mobile","HTML Template","Responsive","Reading"]}
 ,
+  "Skate/Skate.html": {"title": "Skateboard Game", "desc": "", "tags": []}
+,
   "Poker/Basic.html": {"title": "Texas Hold'em Poker - Wild West Saloon", "desc": "", "tags": []}
 ,
   "Poker/New.html": {"title": "Texas Hold'em Poker - Wild West Saloon", "desc": "", "tags": []}
