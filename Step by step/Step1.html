@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadow Legion: Eternal Wars</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; color: #fff; font-family: Arial, sans-serif; }
+        #gameCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        #ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .ui-element { position: absolute; pointer-events: auto; }
+        #healthBar { top: 20px; left: 20px; width: 300px; height: 30px; background: #333; border: 2px solid #fff; }
+        #healthFill { height: 100%; background: #f00; width: 100%; }
+        #ammo { top: 60px; left: 20px; font-size: 20px; }
+        #abilities { bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; }
+        .ability { width: 60px; height: 60px; background: #444; border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        #minimap { top: 20px; right: 20px; width: 200px; height: 200px; background: rgba(0,0,0,0.7); border: 2px solid #fff; }
+        #questLog { bottom: 20px; right: 20px; width: 300px; background: rgba(0,0,0,0.7); border: 2px solid #fff; padding: 10px; }
+        #crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50); width: 20px; height: 20px; border: 2px solid #fff; border-radius: 50%; }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div id="ui">
+        <!-- Health Bar -->
+        <div id="healthBar" class="ui-element">
+            <div id="healthFill"></div>
+        </div>
+        <!-- Ammo Counter -->
+        <div id="ammo" class="ui-element">Ammo: 30/90</div>
+        <!-- Abilities (Dota 2 Style) -->
+        <div id="abilities" class="ui-element">
+            <div class="ability">Q</div>
+            <div class="ability">W</div>
+            <div class="ability">E</div>
+            <div class="ability">R</div>
+        </div>
+        <!-- Minimap (GTA Style) -->
+        <div id="minimap" class="ui-element"></div>
+        <!-- Quest Log (Witcher 3 Style) -->
+        <div id="questLog" class="ui-element">
+            <h3>Quests</h3>
+            <ul>
+                <li>Find the Lost Artifact</li>
+                <li>Defeat the Shadow Boss</li>
+            </ul>
+        </div>
+        <!-- Crosshair (Call of Duty Style) -->
+        <div id="crosshair"></div>
+    </div>
+
+    <script>
+        // Basic game setup (placeholder for full game logic)
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Placeholder for game loop
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Render game world (FPS, open world, etc.)
+            requestAnimationFrame(gameLoop);
+        }
+        gameLoop();
+
+        // Placeholder for input handling
+        document.addEventListener('keydown', (e) => {
+            console.log('Key pressed:', e.key);
+            // Handle movement, shooting, abilities, etc.
+        });
+
+        // Placeholder for UI updates
+        function updateHealth(percentage) {
+            document.getElementById('healthFill').style.width = percentage + '%';
+        }
+        function updateAmmo(current, max) {
+            document.getElementById('ammo').textContent = `Ammo: ${current}/${max}`;
+        }
+    </script>
+</body>
+</html>
