@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadow Legion: Eternal Wars - 3D</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; color: #fff; font-family: 'Courier New', monospace; }
+        #gameCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        #ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
+        .ui-element { position: absolute; pointer-events: auto; }
+        #healthBar { top: 20px; left: 20px; width: 300px; height: 30px; background: rgba(0,0,0,0.7); border: 2px solid #fff; }
+        #healthFill { height: 100%; background: linear-gradient(to right, #f00, #ff0); width: 100%; transition: width 0.3s; }
+        #staminaBar { top: 60px; left: 20px; width: 300px; height: 20px; background: rgba(0,0,0,0.7); border: 2px solid #fff; }
+        #staminaFill { height: 100%; background: #0f0; width: 100%; transition: width 0.3s; }
+        #ammo { top: 90px; left: 20px; font-size: 20px; text-shadow: 2px 2px #000; }
+        #abilities { bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; }
+        .ability { width: 60px; height: 60px; background: rgba(0,0,0,0.7); border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: all 0.2s; }
+        .ability:hover { background: rgba(255,255,255,0.2); }
+        .ability.cooldown { opacity: 0.5; cursor: not-allowed; }
+        #minimap { top: 20px; right: 20px; width: 200px; height: 200px; background: rgba(0,0,0,0.7); border: 2px solid #fff; }
+        #questLog { bottom: 20px; right: 20px; width: 300px; background: rgba(0,0,0,0.7); border: 2px solid #fff; padding: 10px; }
+        #crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 20px; height: 20px; border: 2px solid #fff; border-radius: 50%; }
+        #vehicleHUD { top: 120px; left: 20px; display: none; }
+        .speedometer { font-size: 18px; }
+        
+        /* UI Panels */
+        #inventory { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 400px; background: rgba(0,0,0,0.9); border: 2px solid #fff; padding: 20px; display: none; }
+        #inventoryGrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 20px; }
+        .inventorySlot { width: 80px; height: 80px; background: #333; border: 2px solid #666; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .inventorySlot:hover { border-color: #fff; }
+        
+        #dialogueBox { bottom: 100px; left: 50%; transform: translateX(-50%); width: 800px; background: rgba(0,0,0,0.9); border: 2px solid #fff; padding: 20px; display: none; }
+        #dialogueText { font-size: 18px; margin-bottom: 20px; }
+        #dialogueChoices { display: flex; flex-direction: column; gap: 10px; }
+        .dialogueChoice { padding: 10px; background: #333; border: 1px solid #666; cursor: pointer; }
+        .dialogueChoice:hover { background: #555; }
+        
+        #worldMap { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; }
+        #mapContent { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 80%; background: url('https://picsum.photos/seed/fantasy-map/1200/800.jpg') center/cover; border: 2px solid #fff; }
+        .mapLocation { position: absolute; width: 20px; height: 20px; background: #f00; border-radius: 50%; cursor: pointer; }
+        
+        #soundToggle { top: 20px; left: 50%; transform: translateX(-50%); padding: 10px; background: rgba(0,0,0,0.7); border: 2px solid #fff; cursor: pointer; }
+        
+        #loadingScreen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        #loadingText { font-size: 24px; }
+    </style>
+</head>
+<body>
+    <div id="loadingScreen">
+        <div id="loadingText">Loading Shadow Legion: Eternal Wars...</div>
+    </div>
+    
+    <div id="gameCanvas"></div>
+    <div id="ui">
+        <!-- Health & Stamina -->
+        <div id="healthBar" class="ui-element"><div id="healthFill"></div></div>
+        <div id="staminaBar" class="ui-element"><div id="staminaFill"></div></div>
+        
+        <!-- Ammo -->
+        <div id="ammo" class="ui-element">Ammo: 30/90</div>
+        
+        <!-- Abilities -->
+        <div id="abilities" class="ui-element">
+            <div class="ability" data-ability="q">Q</div>
+            <div class="ability" data-ability="w">W</div>
+            <div class="ability" data-ability="e">E</div>
+            <div class="ability" data-ability="r">R</div>
+        </div>
+        
+        <!-- Minimap -->
+        <div id="minimap" class="ui-element"></div>
+        
+        <!-- Quest Log -->
+        <div id="questLog" class="ui-element">
+            <h3>Quests</h3>
+            <ul id="questList">
+                <li data-quest="1">[Active] Find the Lost Artifact</li>
+                <li data-quest="2">[Active] Defeat the Shadow Boss</li>
+            </ul>
+        </div>
+        
+        <!-- Crosshair -->
+        <div id="crosshair"></div>
+        
+        <!-- Vehicle HUD -->
+        <div id="vehicleHUD" class="ui-element">
+            <div class="speedometer">Speed: <span id="speed">0</span> km/h</div>
+        </div>
+        
+        <!-- Inventory -->
+        <div id="inventory" class="ui-element">
+            <h2>Inventory</h2>
+            <div id="inventoryGrid"></div>
+            <button onclick="closeInventory()" style="margin-top: 20px;">Close</button>
+        </div>
+        
+        <!-- Dialogue -->
+        <div id="dialogueBox" class="ui-element">
+            <div id="dialogueText"></div>
+            <div id="dialogueChoices"></div>
+        </div>
+        
+        <!-- World Map -->
+        <div id="worldMap">
+            <div id="mapContent">
+                <div class="mapLocation" style="top: 30%; left: 40%;" onclick="fastTravel('City')"></div>
+                <div class="mapLocation" style="top: 60%; left: 70%;" onclick="fastTravel('Forest')"></div>
+                <button onclick="closeMap()" style="position: absolute; top: 20px; right: 20px;">Close</button>
+            </div>
+        </div>
+        
+        <!-- Sound Toggle -->
+        <div id="soundToggle" class="ui-element" onclick="toggleSound()">🔊 Sound ON</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Game State
+        const game = {
+            scene: null,
+            camera: null,
+            renderer: null,
+            player: {
+                mesh: null,
+                x: 0, y: 0, z: 0,
+                yaw: 0, pitch: 0,
+                health: 100, maxHealth: 100,
+                stamina: 100, maxStamina: 100,
+                ammo: 30, maxAmmo: 90,
+                inVehicle: false,
+                vehicle: null,
+                inventory: [
+                    { id: 1, name: 'Health Potion', type: 'consumable', icon: '🧪' },
+                    { id: 2, name: 'Sword', type: 'weapon', icon: '⚔️' },
+                    { id: 3, name: 'Key', type: 'quest', icon: '🗝️' }
+                ],
+                velocity: new THREE.Vector3(),
+                isGrounded: false
+            },
+            keys: {},
+            abilities: {
+                q: { name: 'Fireball', cooldown: 0, maxCooldown: 5000 },
+                w: { name: 'Heal', cooldown: 0, maxCooldown: 10000 },
+                e: { name: 'Dash', cooldown: 0, maxCooldown: 3000 },
+                r: { name: 'Ultimate', cooldown: 0, maxCooldown: 60000 }
+            },
+            quests: [
+                { id: 1, name: 'Find the Lost Artifact', completed: false },
+                { id: 2, name: 'Defeat the Shadow Boss', completed: false }
+            ],
+            npcs: [],
+            enemies: [],
+            vehicles: [],
+            soundEnabled: true,
+            currentDialogue: null,
+            clock: new THREE.Clock(),
+            raycaster: new THREE.Raycaster(),
+            mouse: new THREE.Vector2()
+        };
+
+        // Initialize Three.js
+        function initThreeJS() {
+            // Scene
+            game.scene = new THREE.Scene();
+            game.scene.fog = new THREE.Fog(0x000000, 1, 1000);
+
+            // Camera
+            game.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            game.camera.position.set(0, 2, 0);
+
+            // Renderer
+            game.renderer = new THREE.WebGLRenderer({ antialias: true });
+            game.renderer.setSize(window.innerWidth, window.innerHeight);
+            game.renderer.shadowMap.enabled = true;
+            game.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('gameCanvas').appendChild(game.renderer.domElement);
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+            game.scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(50, 100, 50);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.camera.left = -100;
+            directionalLight.shadow.camera.right = 100;
+            directionalLight.shadow.camera.top = 100;
+            directionalLight.shadow.camera.bottom = -100;
+            game.scene.add(directionalLight);
+
+            // Create World
+            createWorld();
+            createPlayer();
+            createNPCs();
+            createEnemies();
+            createVehicles();
+
+            // Hide loading screen
+            document.getElementById('loadingScreen').style.display = 'none';
+        }
+
+        // Create 3D World
+        function createWorld() {
+            // Ground
+            const groundGeometry = new THREE.PlaneGeometry(1000, 1000);
+            const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x3a5f3a });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            game.scene.add(ground);
+
+            // Buildings
+            for (let i = 0; i < 20; i++) {
+                const buildingGeometry = new THREE.BoxGeometry(
+                    Math.random() * 20 + 10,
+                    Math.random() * 30 + 10,
+                    Math.random() * 20 + 10
+                );
+                const buildingMaterial = new THREE.MeshLambertMaterial({ 
+                    color: new THREE.Color().setHSL(Math.random(), 0.5, 0.3) 
+                });
+                const building = new THREE.Mesh(buildingGeometry, buildingMaterial);
+                building.position.set(
+                    (Math.random() - 0.5) * 200,
+                    buildingGeometry.parameters.height / 2,
+                    (Math.random() - 0.5) * 200
+                );
+                building.castShadow = true;
+                building.receiveShadow = true;
+                game.scene.add(building);
+            }
+
+            // Trees
+            for (let i = 0; i < 50; i++) {
+                const trunkGeometry = new THREE.CylinderGeometry(0.5, 0.7, 5);
+                const trunkMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+                const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+                
+                const leavesGeometry = new THREE.SphereGeometry(3);
+                const leavesMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+                const leaves = new THREE.Mesh(leavesGeometry, leavesMaterial);
+                leaves.position.y = 4;
+                
+                const tree = new THREE.Group();
+                tree.add(trunk);
+                tree.add(leaves);
+                tree.position.set(
+                    (Math.random() - 0.5) * 300,
+                    2.5,
+                    (Math.random() - 0.5) * 300
+                );
+                tree.castShadow = true;
+                game.scene.add(tree);
+            }
+        }
+
+        // Create Player
+        function createPlayer() {
+            const playerGeometry = new THREE.CapsuleGeometry(0.5, 1.8, 4, 8);
+            const playerMaterial = new THREE.MeshLambertMaterial({ color: 0x0066cc });
+            game.player.mesh = new THREE.Mesh(playerGeometry, playerMaterial);
+            game.player.mesh.position.set(0, 1, 0);
+            game.player.mesh.castShadow = true;
+            game.scene.add(game.player.mesh);
+        }
+
+        // Create NPCs
+        function createNPCs() {
+            const npcData = [
+                { name: 'Old Man', position: [10, 1, 10], color: 0x8B4513 },
+                { name: 'Guard', position: [20, 1, 20], color: 0x696969 }
+            ];
+
+            npcData.forEach(data => {
+                const npcGeometry = new THREE.CapsuleGeometry(0.5, 1.8, 4, 8);
+                const npcMaterial = new THREE.MeshLambertMaterial({ color: data.color });
+                const npc = new THREE.Mesh(npcGeometry, npcMaterial);
+                npc.position.set(...data.position);
+                npc.castShadow = true;
+                npc.userData = { name: data.name, type: 'npc' };
+                game.scene.add(npc);
+                game.npcs.push(npc);
+            });
+        }
+
+        // Create Enemies
+        function createEnemies() {
+            const enemyData = [
+                { name: 'Shadow Warrior', position: [15, 1, 15], color: 0x4B0082 },
+                { name: 'Dark Archer', position: [25, 1, 25], color: 0x800080 }
+            ];
+
+            enemyData.forEach(data => {
+                const enemyGeometry = new THREE.CapsuleGeometry(0.5, 1.8, 4, 8);
+                const enemyMaterial = new THREE.MeshLambertMaterial({ color: data.color });
+                const enemy = new THREE.Mesh(enemyGeometry, enemyMaterial);
+                enemy.position.set(...data.position);
+                enemy.castShadow = true;
+                enemy.userData = { 
+                    name: data.name, 
+                    type: 'enemy',
+                    health: 50,
+                    maxHealth: 50,
+                    damage: 10
+                };
+                game.scene.add(enemy);
+                game.enemies.push(enemy);
+            });
+        }
+
+        // Create Vehicles
+        function createVehicles() {
+            const vehicleData = [
+                { name: 'Motorcycle', position: [5, 0.5, 5], color: 0xFF0000 }
+            ];
+
+            vehicleData.forEach(data => {
+                const vehicleGroup = new THREE.Group();
+                
+                // Body
+                const bodyGeometry = new THREE.BoxGeometry(2, 0.5, 1);
+                const bodyMaterial = new THREE.MeshLambertMaterial({ color: data.color });
+                const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+                body.position.y = 0.5;
+                body.castShadow = true;
+                
+                // Wheels
+                const wheelGeometry = new THREE.CylinderGeometry(0.3, 0.3, 0.2);
+                const wheelMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+                
+                const wheel1 = new THREE.Mesh(wheelGeometry, wheelMaterial);
+                wheel1.rotation.z = Math.PI / 2;
+                wheel1.position.set(-0.8, 0.3, 0.5);
+                
+                const wheel2 = new THREE.Mesh(wheelGeometry, wheelMaterial);
+                wheel2.rotation.z = Math.PI / 2;
+                wheel2.position.set(0.8, 0.3, 0.5);
+                
+                const wheel3 = new THREE.Mesh(wheelGeometry, wheelMaterial);
+                wheel3.rotation.z = Math.PI / 2;
+                wheel3.position.set(-0.8, 0.3, -0.5);
+                
+                const wheel4 = new THREE.Mesh(wheelGeometry, wheelMaterial);
+                wheel4.rotation.z = Math.PI / 2;
+                wheel4.position.set(0.8, 0.3, -0.5);
+                
+                vehicleGroup.add(body);
+                vehicleGroup.add(wheel1);
+                vehicleGroup.add(wheel2);
+                vehicleGroup.add(wheel3);
+                vehicleGroup.add(wheel4);
+                
+                vehicleGroup.position.set(...data.position);
+                vehicleGroup.userData = { 
+                    name: data.name, 
+                    type: 'vehicle',
+                    speed: 0
+                };
+                
+                game.scene.add(vehicleGroup);
+                game.vehicles.push(vehicleGroup);
+            });
+        }
+
+        // Input Handling
+        document.addEventListener('keydown', (e) => {
+            game.keys[e.key.toLowerCase()] = true;
+            if (e.key === ' ') shoot();
+            if (e.key === 'i') openInventory();
+            if (e.key === 'm') openMap();
+            if (e.key === 'f') interact();
+            if (e.key === 'Enter' && game.player.inVehicle) exitVehicle();
+        });
+
+        document.addEventListener('keyup', (e) => {
+            game.keys[e.key.toLowerCase()] = false;
+        });
+
+        // Mouse Look
+        document.addEventListener('mousemove', (e) => {
+            if (document.pointerLockElement === game.renderer.domElement) {
+                game.player.yaw -= e.movementX * 0.002;
+                game.player.pitch -= e.movementY * 0.002;
+                game.player.pitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, game.player.pitch));
+            }
+        });
+
+        // Click to lock pointer
+        game.renderer.domElement.addEventListener('click', () => {
+            game.renderer.domElement.requestPointerLock();
+        });
+
+        // Shooting
+        function shoot() {
+            if (game.player.ammo > 0) {
+                game.player.ammo--;
+                updateAmmo();
+                playSound('shoot');
+                
+                // Raycast for shooting
+                const direction = new THREE.Vector3();
+                game.camera.getWorldDirection(direction);
+                game.raycaster.set(game.camera.position, direction);
+                
+                const intersects = game.raycaster.intersectObjects(game.scene.children, true);
+                if (intersects.length > 0) {
+                    const hit = intersects[0];
+                    if (hit.object.userData.type === 'enemy') {
+                        hit.object.userData.health -= 25;
+                        console.log(`Hit ${hit.object.userData.name}! Health: ${hit.object.userData.health}`);
+                        
+                        if (hit.object.userData.health <= 0) {
+                            game.scene.remove(hit.object);
+                            game.enemies = game.enemies.filter(e => e !== hit.object);
+                            console.log(`${hit.object.userData.name} defeated!`);
+                        }
+                    }
+                }
+            } else {
+                playSound('reload');
+                console.log('Reload!');
+            }
+        }
+
+        // Movement
+        function updateMovement(deltaTime) {
+            const speed = game.player.inVehicle ? 50 : (game.keys['shift'] ? 10 : 5);
+            const direction = new THREE.Vector3();
+            
+            if (game.keys['w']) direction.z -= 1;
+            if (game.keys['s']) direction.z += 1;
+            if (game.keys['a']) direction.x -= 1;
+            if (game.keys['d']) direction.x += 1;
+            
+            direction.normalize();
+            direction.multiplyScalar(speed * deltaTime);
+            
+            // Apply rotation
+            direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), game.player.yaw);
+            
+            // Update player position
+            game.player.mesh.position.add(direction);
+            game.camera.position.copy(game.player.mesh.position);
+            game.camera.position.y += 1.8;
+            
+            // Update camera rotation
+            game.camera.rotation.order = 'YXZ';
+            game.camera.rotation.y = game.player.yaw;
+            game.camera.rotation.x = game.player.pitch;
+            
+            // Stamina
+            if (game.keys['shift'] && game.player.stamina > 0 && !game.player.inVehicle) {
+                game.player.stamina -= 20 * deltaTime;
+            } else if (game.player.stamina < game.player.maxStamina) {
+                game.player.stamina += 10 * deltaTime;
+            }
+            updateStamina();
+        }
+
+        // Enemy AI
+        function updateEnemies(deltaTime) {
+            game.enemies.forEach(enemy => {
+                const distance = enemy.position.distanceTo(game.player.mesh.position);
+                
+                if (distance < 20) {
+                    // Move towards player
+                    const direction = new THREE.Vector3()
+                        .subVectors(game.player.mesh.position, enemy.position)
+                        .normalize();
+                    enemy.position.add(direction.multiplyScalar(3 * deltaTime));
+                    
+                    // Attack if close
+                    if (distance < 3) {
+                        takeDamage(enemy.userData.damage * deltaTime);
+                    }
+                }
+            });
+        }
+
+        // UI Functions (same as before)
+        function openInventory() {
+            document.getElementById('inventory').style.display = 'block';
+            renderInventory();
+        }
+        function closeInventory() {
+            document.getElementById('inventory').style.display = 'none';
+        }
+        function renderInventory() {
+            const grid = document.getElementById('inventoryGrid');
+            grid.innerHTML = '';
+            game.player.inventory.forEach((item, index) => {
+                const slot = document.createElement('div');
+                slot.className = 'inventorySlot';
+                slot.innerHTML = item.icon;
+                slot.onclick = () => useItem(item);
+                grid.appendChild(slot);
+            });
+        }
+        function useItem(item) {
+            if (item.type === 'consumable') {
+                console.log(`Used ${item.name}`);
+                if (item.name === 'Health Potion') {
+                    game.player.health = Math.min(game.player.maxHealth, game.player.health + 30);
+                    updateHealth();
+                }
+                game.player.inventory = game.player.inventory.filter(i => i.id !== item.id);
+                renderInventory();
+            }
+        }
+        function interact() {
+            // Check for nearby NPCs or vehicles
+            const nearbyObjects = [...game.npcs, ...game.vehicles].filter(obj => 
+                obj.position.distanceTo(game.player.mesh.position) < 5
+            );
+            
+            if (nearbyObjects.length > 0) {
+                const obj = nearbyObjects[0];
+                if (obj.userData.type === 'npc') {
+                    showDialogue(obj.userData);
+                } else if (obj.userData.type === 'vehicle') {
+                    enterVehicle(obj);
+                }
+            }
+        }
+        function showDialogue(npcData) {
+            const dialogueBox = document.getElementById('dialogueBox');
+            const dialogueText = document.getElementById('dialogueText');
+            const dialogueChoices = document.getElementById('dialogueChoices');
+            
+            dialogueBox.style.display = 'block';
+            dialogueText.textContent = `${npcData.name}: Greetings, traveler!`;
+            dialogueChoices.innerHTML = '';
+            
+            const choices = [
+                { text: 'Tell me more.', action: () => console.log('More info') },
+                { text: 'Goodbye.', action: () => closeDialogue() }
+            ];
+            
+            choices.forEach(choice => {
+                const choiceEl = document.createElement('div');
+                choiceEl.className = 'dialogueChoice';
+                choiceEl.textContent = choice.text;
+                choiceEl.onclick = choice.action;
+                dialogueChoices.appendChild(choiceEl);
+            });
+        }
+        function closeDialogue() {
+            document.getElementById('dialogueBox').style.display = 'none';
+        }
+        function enterVehicle(vehicle) {
+            game.player.inVehicle = true;
+            game.player.vehicle = vehicle;
+            document.getElementById('vehicleHUD').style.display = 'block';
+            playSound('engine');
+        }
+        function exitVehicle() {
+            game.player.inVehicle = false;
+            game.player.vehicle = null;
+            document.getElementById('vehicleHUD').style.display = 'none';
+            playSound('door');
+        }
+        function openMap() {
+            document.getElementById('worldMap').style.display = 'block';
+        }
+        function closeMap() {
+            document.getElementById('worldMap').style.display = 'none';
+        }
+        function fastTravel(location) {
+            console.log(`Fast traveling to ${location}`);
+            game.player.mesh.position.set(
+                Math.random() * 100 - 50,
+                1,
+                Math.random() * 100 - 50
+            );
+            closeMap();
+        }
+        function playSound(soundName) {
+            if (!game.soundEnabled) return;
+            console.log(`Playing sound: ${soundName}`);
+        }
+        function toggleSound() {
+            game.soundEnabled = !game.soundEnabled;
+            document.getElementById('soundToggle').textContent = 
+                game.soundEnabled ? '🔊 Sound ON' : '🔇 Sound OFF';
+        }
+        function takeDamage(amount) {
+            game.player.health -= amount;
+            updateHealth();
+            if (game.player.health <= 0) {
+                console.log('You died! Respawning...');
+                game.player.health = game.player.maxHealth;
+                game.player.mesh.position.set(0, 1, 0);
+                updateHealth();
+            }
+        }
+        function updateHealth() {
+            const percentage = (game.player.health / game.player.maxHealth) * 100;
+            document.getElementById('healthFill').style.width = percentage + '%';
+        }
+        function updateStamina() {
+            const percentage = (game.player.stamina / game.player.maxStamina) * 100;
+            document.getElementById('staminaFill').style.width = percentage + '%';
+        }
+        function updateAmmo() {
+            document.getElementById('ammo').textContent = `Ammo: ${game.player.ammo}/${game.player.maxAmmo}`;
+        }
+
+        // Game Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const deltaTime = game.clock.getDelta();
+            
+            updateMovement(deltaTime);
+            updateEnemies(deltaTime);
+            
+            // Update vehicle speed
+            if (game.player.inVehicle && game.player.vehicle) {
+                game.player.vehicle.userData.speed = Math.min(200, game.player.vehicle.userData.speed + 50 * deltaTime);
+                document.getElementById('speed').textContent = Math.floor(game.player.vehicle.userData.speed);
+            }
+            
+            game.renderer.render(game.scene, game.camera);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            game.camera.aspect = window.innerWidth / window.innerHeight;
+            game.camera.updateProjectionMatrix();
+            game.renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Initialize game
+        initThreeJS();
+        animate();
+
+        // Test functions
+        setTimeout(() => takeDamage(20), 2000);
+        setTimeout(() => completeQuest(1), 5000);
+        
+        function completeQuest(questId) {
+            const quest = game.quests.find(q => q.id === questId);
+            if (quest && !quest.completed) {
+                quest.completed = true;
+                document.querySelector(`[data-quest="${questId}"]`).textContent = `[Completed] ${quest.name}`;
+                console.log(`Quest completed: ${quest.name}`);
+            }
+        }
+    </script>
+</body>
+</html>
