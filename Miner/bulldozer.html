@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Gold Bulldozer Collector</title>
+    <title>Gold Bulldozer Collector - Enhanced Edition</title>
     <style>
         * {
             margin: 0;
@@ -149,6 +149,48 @@
             transition: width 0.3s;
         }
         
+        .combo-display {
+            position: absolute;
+            top: 100px;
+            right: 20px;
+            background-color: rgba(255, 87, 34, 0.9);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 5;
+            display: none;
+        }
+        
+        .combo-display.show {
+            display: block;
+            animation: pulse 0.5s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+        
+        .power-up-indicator {
+            position: absolute;
+            bottom: 100px;
+            left: 20px;
+            background-color: rgba(33, 150, 243, 0.9);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 5;
+            display: none;
+        }
+        
+        .power-up-indicator.show {
+            display: block;
+        }
+        
         .bottom-controls {
             background-color: rgba(255, 255, 255, 0.9);
             padding: 15px;
@@ -180,7 +222,7 @@
         }
         
         .control-btn.gems {
-            background-color: #E91E63;
+            background-color: #E91E63';
             box-shadow: 0 4px 0 #AD1457;
         }
         
@@ -195,6 +237,15 @@
         
         .control-btn.upgrade:active {
             box-shadow: 0 2px 0 #E65100;
+        }
+        
+        .control-btn.power {
+            background-color: #9C27B0';
+            box-shadow: 0 4px 0 #6A1B9A';
+        }
+        
+        .control-btn.power:active {
+            box-shadow: 0 2px 0 #6A1B9A';
         }
         
         .btn-icon {
@@ -232,7 +283,7 @@
         
         .controls-hint {
             position: absolute;
-            bottom: 100px;
+            bottom: 180px;
             left: 50%;
             transform: translateX(-50%);
             background-color: rgba(0, 0, 0, 0.7);
@@ -241,6 +292,31 @@
             border-radius: 20px;
             font-size: 14px;
             z-index: 5;
+        }
+        
+        .achievement-popup {
+            position: absolute;
+            top: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(76, 175, 80, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 5;
+            display: none;
+        }
+        
+        .achievement-popup.show {
+            display: block;
+            animation: slideDown 0.5s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateX(-50%) translateY(-50px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
         }
     </style>
 </head>
@@ -265,14 +341,26 @@
             <div class="progress-container">
                 <div class="progress-bar" id="progressBar"></div>
             </div>
+            <div class="combo-display" id="comboDisplay">
+                COMBO x<span id="comboCount">0</span>
+            </div>
+            <div class="power-up-indicator" id="powerUpIndicator">
+                <span id="powerUpText">SPEED BOOST</span>
+            </div>
+            <div class="achievement-popup" id="achievementPopup">
+                <span id="achievementText">Achievement Unlocked!</span>
+            </div>
             <canvas id="gameCanvas"></canvas>
             <div class="message" id="message"></div>
-            <div class="controls-hint">Use WASD or Arrow Keys to move</div>
+            <div class="controls-hint">WASD/Arrows: Move | Space: Boost | E: Magnet</div>
         </div>
         
         <div class="bottom-controls">
             <button class="control-btn upgrade" id="upgradeBtn">
                 <span class="btn-icon">🔧</span> Upgrade
+            </button>
+            <button class="control-btn power" id="powerBtn">
+                <span class="btn-icon">⚡</span> Power
             </button>
             <button class="control-btn gems" id="gemsBtn">
                 <span class="btn-icon">💎</span> GEMS
@@ -281,20 +369,7 @@
     </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const gameArea = document.querySelector('.game-area');
-        
-        // Set canvas size
-        function resizeCanvas() {
-            canvas.width = gameArea.clientWidth;
-            canvas.height = gameArea.clientHeight;
-        }
-        
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-        
-        // Game state
+        // Initialize game state first
         const game = {
             currency: 220.01,
             gems: 15,
@@ -302,8 +377,8 @@
             targetAmount: 10,
             collected: 0,
             vehicle: {
-                x: canvas.width / 2,
-                y: canvas.height / 2,
+                x: 0,
+                y: 0,
                 width: 60,
                 height: 40,
                 speed: 4,
@@ -317,30 +392,81 @@
                 velocityY: 0,
                 bladeWidth: 50,
                 bladeHeight: 30,
-                bladeOffset: 35
+                bladeOffset: 35,
+                boostActive: false,
+                boostDuration: 0,
+                magnetActive: false,
+                magnetDuration: 0,
+                magnetRange: 100,
+                doubleValueActive: false,
+                doubleValueDuration: 0
             },
             coins: [],
             particles: [],
             collector: {
-                x: canvas.width / 2 - 60,
+                x: 0,
                 y: 80,
                 width: 120,
                 height: 80
             },
             obstacles: [],
+            powerUps: [],
             lastCoinTime: 0,
             coinInterval: 2000,
             coinValue: 1.25,
-            vehicleLevel: 1
+            vehicleLevel: 1,
+            combo: 0,
+            comboTimer: 0,
+            achievements: [],
+            totalCoinsCollected: 0,
+            coinsPushed: 0,
+            perfectStages: 0
         };
         
-        // Coin class with physics
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gameArea = document.querySelector('.game-area');
+        
+        // Set canvas size
+        function resizeCanvas() {
+            if (!canvas || !gameArea) return;
+            
+            canvas.width = gameArea.clientWidth;
+            canvas.height = gameArea.clientHeight;
+            
+            // Initialize positions after canvas size is set
+            if (game.vehicle.x === 0 && game.vehicle.y === 0) {
+                game.vehicle.x = canvas.width / 2;
+                game.vehicle.y = canvas.height / 2;
+                game.collector.x = canvas.width / 2 - 60;
+            }
+            
+            // Reset bulldozer position if it's out of bounds
+            if (game.vehicle.x > canvas.width || game.vehicle.y > canvas.height) {
+                game.vehicle.x = canvas.width / 2;
+                game.vehicle.y = canvas.height / 2;
+            }
+        }
+        
+        // Initialize canvas size
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Power-up types
+        const POWER_UP_TYPES = {
+            SPEED: { color: '#2196F3', duration: 5000, icon: '⚡' },
+            MAGNET: { color: '#9C27B0', duration: 5000, icon: '🧲' },
+            DOUBLE_VALUE: { color: '#4CAF50', duration: 5000, icon: '💰' },
+            INSTANT_COLLECT: { color: '#FF9800', duration: 1000, icon: '🌀' }
+        };
+        
+        // Coin class with enhanced physics
         class Coin {
-            constructor(x, y) {
+            constructor(x, y, isSpecial = false) {
                 this.x = x;
                 this.y = y;
-                this.radius = 12;
-                this.value = game.coinValue;
+                this.radius = isSpecial ? 18 : 12;
+                this.value = isSpecial ? game.coinValue * 5 : game.coinValue;
                 this.collected = false;
                 this.inCollector = false;
                 this.opacity = 1;
@@ -349,9 +475,25 @@
                 this.vy = 0;
                 this.friction = 0.95;
                 this.bounce = 0.4;
+                this.isSpecial = isSpecial;
+                this.trail = [];
             }
             
             update() {
+                // Add to trail
+                if (Math.abs(this.vx) > 0.5 || Math.abs(this.vy) > 0.5) {
+                    this.trail.push({ x: this.x, y: this.y, opacity: 0.5 });
+                    if (this.trail.length > 10) {
+                        this.trail.shift();
+                    }
+                }
+                
+                // Update trail
+                this.trail.forEach(point => {
+                    point.opacity -= 0.05;
+                });
+                this.trail = this.trail.filter(point => point.opacity > 0);
+                
                 // Apply physics
                 this.x += this.vx;
                 this.y += this.vy;
@@ -389,18 +531,32 @@
                     this.y < game.collector.y + game.collector.height) {
                     this.inCollector = true;
                     game.collected++;
-                    game.currency += this.value;
+                    game.totalCoinsCollected++;
+                    
+                    // Apply double value power-up
+                    let finalValue = this.value;
+                    if (game.vehicle.doubleValueActive) {
+                        finalValue *= 2;
+                    }
+                    
+                    game.currency += finalValue;
                     updateUI();
                     updateProgress();
                     
+                    // Update combo
+                    game.combo++;
+                    game.comboTimer = 60; // 1 second at 60fps
+                    updateComboDisplay();
+                    
                     // Create particles
-                    for (let i = 0; i < 10; i++) {
+                    const particleCount = this.isSpecial ? 20 : 10;
+                    for (let i = 0; i < particleCount; i++) {
                         game.particles.push(new Particle(
                             this.x,
                             this.y,
-                            Math.random() * 4 - 2,
-                            Math.random() * -4 - 1,
-                            '#FFD700'
+                            Math.random() * 6 - 3,
+                            Math.random() * -6 - 2,
+                            this.isSpecial ? '#FFD700' : '#FFA500'
                         ));
                     }
                     
@@ -408,6 +564,9 @@
                     if (game.collected >= game.targetAmount) {
                         completeStage();
                     }
+                    
+                    // Check achievements
+                    checkAchievements();
                 }
                 
                 // Fade out if in collector
@@ -418,11 +577,22 @@
             }
             
             draw() {
+                // Draw trail
+                this.trail.forEach(point => {
+                    ctx.save();
+                    ctx.globalAlpha = point.opacity * 0.3;
+                    ctx.fillStyle = '#FFD700';
+                    ctx.beginPath();
+                    ctx.arc(point.x, point.y, this.radius * 0.5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                });
+                
                 ctx.save();
                 ctx.globalAlpha = this.opacity;
                 
                 // Draw coin
-                ctx.fillStyle = '#FFD700';
+                ctx.fillStyle = this.isSpecial ? '#FFD700' : '#FFA500';
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                 ctx.fill();
@@ -435,10 +605,19 @@
                 
                 // Draw dollar sign
                 ctx.fillStyle = '#8B4513';
-                ctx.font = 'bold 12px Arial';
+                ctx.font = `bold ${this.isSpecial ? 14 : 12}px Arial`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText('$', this.x, this.y);
+                
+                // Draw special indicator
+                if (this.isSpecial) {
+                    ctx.strokeStyle = '#FF0000';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius + 5, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
                 
                 ctx.restore();
             }
@@ -449,14 +628,29 @@
             }
         }
         
-        // Obstacle class
+        // Enhanced obstacle class
         class Obstacle {
-            constructor(x, y, width, height) {
+            constructor(x, y, width, height, type = 'normal') {
                 this.x = x;
                 this.y = y;
                 this.width = width;
                 this.height = height;
-                this.color = '#795548';
+                this.type = type;
+                this.color = type === 'moving' ? '#F44336' : '#795548';
+                this.moveSpeed = type === 'moving' ? 1 : 0;
+                this.moveDirection = 1;
+                this.originalX = x;
+                this.moveRange = 100;
+            }
+            
+            update() {
+                if (this.type === 'moving') {
+                    this.x += this.moveSpeed * this.moveDirection;
+                    
+                    if (this.x > this.originalX + this.moveRange || this.x < this.originalX) {
+                        this.moveDirection *= -1;
+                    }
+                }
             }
             
             draw() {
@@ -464,22 +658,84 @@
                 ctx.fillRect(this.x, this.y, this.width, this.height);
                 
                 // Draw details
-                ctx.fillStyle = '#5D4037';
+                ctx.fillStyle = this.type === 'moving' ? '#D32F2F' : '#5D4037';
                 ctx.fillRect(this.x + 5, this.y + 5, this.width - 10, 10);
                 ctx.fillRect(this.x + 5, this.y + this.height - 15, this.width - 10, 10);
+                
+                // Draw warning sign for moving obstacles
+                if (this.type === 'moving') {
+                    ctx.fillStyle = '#FFFF00';
+                    ctx.font = 'bold 16px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('!', this.x + this.width/2, this.y + this.height/2);
+                }
             }
         }
         
-        // Particle class
+        // Power-up class
+        class PowerUp {
+            constructor(x, y, type) {
+                this.x = x;
+                this.y = y;
+                this.type = type;
+                this.radius = 20;
+                this.collected = false;
+                this.opacity = 1;
+                this.floatPhase = Math.random() * Math.PI * 2;
+            }
+            
+            update() {
+                this.floatPhase += 0.1;
+                this.y += Math.sin(this.floatPhase) * 0.5;
+                
+                if (this.collected) {
+                    this.opacity -= 0.05;
+                    this.radius += 2;
+                }
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                
+                // Draw power-up background
+                ctx.fillStyle = this.type.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw icon
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 20px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.type.icon, this.x, this.y);
+                
+                // Draw glow
+                ctx.strokeStyle = this.type.color;
+                ctx.lineWidth = 3;
+                ctx.globalAlpha = this.opacity * 0.5;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius + 5, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                ctx.restore();
+            }
+        }
+        
+        // Enhanced particle class
         class Particle {
-            constructor(x, y, vx, vy, color) {
+            constructor(x, y, vx, vy, color, type = 'normal') {
                 this.x = x;
                 this.y = y;
                 this.vx = vx;
                 this.vy = vy;
                 this.color = color;
-                this.size = Math.random() * 5 + 2;
+                this.size = type === 'explosion' ? Math.random() * 8 + 4 : Math.random() * 5 + 2;
                 this.life = 1;
+                this.type = type;
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotationSpeed = (Math.random() - 0.5) * 0.2;
             }
             
             update() {
@@ -487,20 +743,51 @@
                 this.y += this.vy;
                 this.vy += 0.1; // gravity
                 this.life -= 0.02;
+                this.rotation += this.rotationSpeed;
+                
+                if (this.type === 'explosion') {
+                    this.size *= 0.98;
+                }
             }
             
             draw() {
                 ctx.save();
                 ctx.globalAlpha = this.life;
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                
+                if (this.type === 'explosion') {
+                    // Draw star shape
+                    ctx.fillStyle = this.color;
+                    ctx.beginPath();
+                    for (let i = 0; i < 5; i++) {
+                        const angle = (i * Math.PI * 2) / 5 - Math.PI / 2;
+                        const x = Math.cos(angle) * this.size;
+                        const y = Math.sin(angle) * this.size;
+                        if (i === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                        const innerAngle = angle + Math.PI / 5;
+                        const innerX = Math.cos(innerAngle) * this.size * 0.5;
+                        const innerY = Math.sin(innerAngle) * this.size * 0.5;
+                        ctx.lineTo(innerX, innerY);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                } else {
+                    ctx.fillStyle = this.color;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
                 ctx.restore();
             }
         }
         
-        // Draw bulldozer
+        // Draw enhanced bulldozer
         function drawVehicle() {
             const v = game.vehicle;
             
@@ -513,12 +800,31 @@
             ctx.ellipse(0, v.height/2 + 5, v.width/2, 8, 0, 0, Math.PI * 2);
             ctx.fill();
             
+            // Draw boost effect
+            if (v.boostActive) {
+                ctx.fillStyle = 'rgba(33, 150, 243, 0.3)';
+                ctx.beginPath();
+                ctx.ellipse(-v.width/2, 0, v.width * 1.5, v.height * 1.5, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Draw magnet effect
+            if (v.magnetActive) {
+                ctx.strokeStyle = 'rgba(156, 39, 176, 0.5)';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.arc(0, 0, v.magnetRange, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+            
             // Draw vehicle body
-            ctx.fillStyle = v.color;
+            ctx.fillStyle = v.boostActive ? '#2196F3' : v.color;
             ctx.fillRect(-v.width/2, -v.height/2, v.width, v.height);
             
             // Draw vehicle details
-            ctx.fillStyle = '#D84315';
+            ctx.fillStyle = v.boostActive ? '#1976D2' : '#D84315';
             ctx.fillRect(-v.width/2 + 5, -v.height/2 + 5, v.width - 10, v.height - 10);
             
             // Draw tracks
@@ -540,25 +846,39 @@
             ctx.fillRect(-v.width/2 + 12, -v.height/2 + 7, 16, 10);
             
             // Draw blade
-            ctx.fillStyle = '#78909C';
+            ctx.fillStyle = v.magnetActive ? '#9C27B0' : '#78909C';
             ctx.fillRect(v.width/2, -v.bladeHeight/2, v.bladeWidth, v.bladeHeight);
             
             // Draw blade support
-            ctx.fillStyle = '#546E7A';
+            ctx.fillStyle = v.magnetActive ? '#6A1B9A' : '#546E7A';
             ctx.fillRect(v.width/2 - 5, -v.bladeHeight/2 - 5, 8, v.bladeHeight + 10);
             
             // Draw blade teeth
-            ctx.fillStyle = '#455A64';
+            ctx.fillStyle = v.magnetActive ? '#4A148C' : '#455A64';
             for (let i = 0; i < 5; i++) {
                 ctx.fillRect(v.width/2 + v.bladeWidth - 5, -v.bladeHeight/2 + i * 6, 8, 4);
             }
             
+            // Draw level indicator
+            ctx.fillStyle = '#FFD700';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Lv.${game.vehicleLevel}`, 0, -v.height/2 - 10);
+            
             ctx.restore();
         }
         
-        // Draw collector
+        // Draw enhanced collector
         function drawCollector() {
             const c = game.collector;
+            
+            // Draw glow effect
+            if (game.collected > 0) {
+                ctx.fillStyle = 'rgba(76, 175, 80, 0.3)';
+                ctx.beginPath();
+                ctx.ellipse(c.x + c.width/2, c.y + c.height/2, c.width * 0.8, c.height * 0.8, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
             
             // Draw base
             ctx.fillStyle = '#795548';
@@ -582,16 +902,36 @@
             ctx.fillStyle = '#FFF';
             ctx.font = 'bold 14px Arial';
             ctx.fillText('COLLECTOR', c.x + c.width/2, c.y - 10);
+            
+            // Draw progress indicator
+            const progress = game.collected / game.targetAmount;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.fillRect(c.x, c.y + c.height + 5, c.width, 5);
+            ctx.fillStyle = '#4CAF50';
+            ctx.fillRect(c.x, c.y + c.height + 5, c.width * progress, 5);
         }
         
-        // Draw background
+        // Draw enhanced background
         function drawBackground() {
-            // Draw sky
+            // Draw sky with gradient
             const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
             gradient.addColorStop(0, '#87CEEB');
+            gradient.addColorStop(0.7, '#98D8E8');
             gradient.addColorStop(1, '#8BC34A');
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw clouds
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            for (let i = 0; i < 3; i++) {
+                const x = (Date.now() / 50 + i * 200) % (canvas.width + 100) - 50;
+                const y = 50 + i * 30;
+                ctx.beginPath();
+                ctx.arc(x, y, 25, 0, Math.PI * 2);
+                ctx.arc(x + 25, y, 35, 0, Math.PI * 2);
+                ctx.arc(x + 50, y, 25, 0, Math.PI * 2);
+                ctx.fill();
+            }
             
             // Draw ground
             ctx.fillStyle = '#8BC34A';
@@ -629,8 +969,86 @@
             document.getElementById('progressBar').style.width = progress + '%';
         }
         
+        // Update combo display
+        function updateComboDisplay() {
+            const comboDisplay = document.getElementById('comboDisplay');
+            const comboCount = document.getElementById('comboCount');
+            
+            if (game.combo > 1) {
+                comboDisplay.classList.add('show');
+                comboCount.textContent = game.combo;
+            } else {
+                comboDisplay.classList.remove('show');
+            }
+        }
+        
+        // Update power-up indicator
+        function updatePowerUpIndicator(text, duration) {
+            const indicator = document.getElementById('powerUpIndicator');
+            const powerUpText = document.getElementById('powerUpText');
+            
+            powerUpText.textContent = text;
+            indicator.classList.add('show');
+            
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, duration);
+        }
+        
+        // Show achievement
+        function showAchievement(text) {
+            const popup = document.getElementById('achievementPopup');
+            const achievementText = document.getElementById('achievementText');
+            
+            achievementText.textContent = text;
+            popup.classList.add('show');
+            
+            setTimeout(() => {
+                popup.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Check achievements
+        function checkAchievements() {
+            // First coin
+            if (game.totalCoinsCollected === 1 && !game.achievements.includes('first_coin')) {
+                game.achievements.push('first_coin');
+                showAchievement('First Coin! 🪙');
+                game.gems += 5;
+            }
+            
+            // Coin collector
+            if (game.totalCoinsCollected >= 50 && !game.achievements.includes('coin_collector')) {
+                game.achievements.push('coin_collector');
+                showAchievement('Coin Collector! (50 coins) 🏆');
+                game.gems += 10;
+            }
+            
+            // Push master
+            if (game.coinsPushed >= 100 && !game.achievements.includes('push_master')) {
+                game.achievements.push('push_master');
+                showAchievement('Push Master! (100 pushes) 💪');
+                game.currency += 100;
+            }
+            
+            // Perfect stage
+            if (game.collected === game.targetAmount && game.coins.length === 0 && !game.achievements.includes('perfect_stage')) {
+                game.achievements.push('perfect_stage');
+                game.perfectStages++;
+                showAchievement('Perfect Stage! ⭐');
+                game.gems += 15;
+            }
+            
+            updateUI();
+        }
+        
         // Complete stage and advance to next
         function completeStage() {
+            // Check if perfect stage
+            if (game.coins.length === 0) {
+                game.perfectStages++;
+            }
+            
             game.stage++;
             game.collected = 0;
             game.targetAmount = 10 * game.stage;
@@ -638,20 +1056,45 @@
             // Clear existing coins and obstacles
             game.coins = [];
             game.obstacles = [];
+            game.powerUps = [];
+            
+            // Reset bulldozer position
+            game.vehicle.x = canvas.width / 2;
+            game.vehicle.y = canvas.height / 2;
+            game.vehicle.velocityX = 0;
+            game.vehicle.velocityY = 0;
             
             // Add complexity for higher stages
             if (game.stage > 2) {
                 // Add obstacles
-                const obstacleCount = Math.min(game.stage - 2, 5);
+                const obstacleCount = Math.min(game.stage - 2, 8);
                 for (let i = 0; i < obstacleCount; i++) {
                     const x = Math.random() * (canvas.width - 100) + 50;
                     const y = canvas.height - 110;
-                    game.obstacles.push(new Obstacle(x, y, 60, 50));
+                    const type = Math.random() < 0.3 && game.stage > 5 ? 'moving' : 'normal';
+                    game.obstacles.push(new Obstacle(x, y, 60, 50, type));
+                }
+            }
+            
+            // Add power-ups for higher stages
+            if (game.stage > 3) {
+                const powerUpCount = Math.min(Math.floor(game.stage / 3), 3);
+                for (let i = 0; i < powerUpCount; i++) {
+                    const types = Object.values(POWER_UP_TYPES);
+                    const type = types[Math.floor(Math.random() * types.length)];
+                    const x = Math.random() * (canvas.width - 100) + 50;
+                    const y = Math.random() * (canvas.height - 200) + 100;
+                    game.powerUps.push(new PowerUp(x, y, type));
                 }
             }
             
             // Increase difficulty
-            game.coinInterval = Math.max(500, 2000 - (game.stage - 1) * 200);
+            game.coinInterval = Math.max(300, 2000 - (game.stage - 1) * 200);
+            
+            // Bonus for perfect stages
+            if (game.perfectStages > 0) {
+                game.currency += game.perfectStages * 50;
+            }
             
             updateUI();
             updateProgress();
@@ -684,20 +1127,45 @@
             if (distance < vehicle.bladeWidth/2 + coin.radius) {
                 // Calculate push direction
                 const angle = Math.atan2(dy, dx);
-                const force = 6;
+                const force = vehicle.boostActive ? 10 : 6;
                 
                 // Apply force to coin
                 coin.applyForce(Math.cos(angle) * force, Math.sin(angle) * force);
+                game.coinsPushed++;
                 
                 // Create push particles
-                for (let i = 0; i < 3; i++) {
+                for (let i = 0; i < 5; i++) {
                     game.particles.push(new Particle(
                         coin.x,
                         coin.y,
-                        Math.random() * 2 - 1,
-                        Math.random() * -1,
+                        Math.random() * 3 - 1.5,
+                        Math.random() * -2,
                         '#8BC34A'
                     ));
+                }
+                
+                // Create impact effect
+                for (let i = 0; i < 3; i++) {
+                    game.particles.push(new Particle(
+                        bladeX,
+                        bladeY,
+                        Math.random() * 4 - 2,
+                        Math.random() * -3,
+                        '#FF5722',
+                        'explosion'
+                    ));
+                }
+            }
+            
+            // Magnet effect
+            if (vehicle.magnetActive) {
+                const magnetDx = vehicle.x - coin.x;
+                const magnetDy = vehicle.y - coin.y;
+                const magnetDistance = Math.sqrt(magnetDx * magnetDx + magnetDy * magnetDy);
+                
+                if (magnetDistance < vehicle.magnetRange && magnetDistance > 0) {
+                    const magnetForce = (vehicle.magnetRange - magnetDistance) / vehicle.magnetRange * 0.5;
+                    coin.applyForce(magnetDx / magnetDistance * magnetForce, magnetDy / magnetDistance * magnetForce);
                 }
             }
         }
@@ -729,6 +1197,100 @@
                     coin.vy = dy > 0 ? Math.abs(coin.vy) * coin.bounce : -Math.abs(coin.vy) * coin.bounce;
                     coin.y = dy > 0 ? obstacle.y + obstacle.height + coin.radius : obstacle.y - coin.radius;
                 }
+                
+                // Create collision particles
+                for (let i = 0; i < 3; i++) {
+                    game.particles.push(new Particle(
+                        coin.x,
+                        coin.y,
+                        Math.random() * 4 - 2,
+                        Math.random() * -3,
+                        '#F44336'
+                    ));
+                }
+            }
+        }
+        
+        // Check collision between vehicle and power-up
+        function checkVehiclePowerUpCollision(vehicle, powerUp) {
+            const dx = vehicle.x - powerUp.x;
+            const dy = vehicle.y - powerUp.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < vehicle.width/2 + powerUp.radius) {
+                powerUp.collected = true;
+                activatePowerUp(powerUp.type);
+                
+                // Create collection particles
+                for (let i = 0; i < 20; i++) {
+                    game.particles.push(new Particle(
+                        powerUp.x,
+                        powerUp.y,
+                        Math.random() * 8 - 4,
+                        Math.random() * -8 - 2,
+                        powerUp.type.color,
+                        'explosion'
+                    ));
+                }
+            }
+        }
+        
+        // Activate power-up
+        function activatePowerUp(type) {
+            switch (type) {
+                case POWER_UP_TYPES.SPEED:
+                    game.vehicle.boostActive = true;
+                    game.vehicle.boostDuration = type.duration;
+                    game.vehicle.speed *= 1.5;
+                    game.vehicle.maxSpeed *= 1.5;
+                    updatePowerUpIndicator('SPEED BOOST!', type.duration);
+                    break;
+                    
+                case POWER_UP_TYPES.MAGNET:
+                    game.vehicle.magnetActive = true;
+                    game.vehicle.magnetDuration = type.duration;
+                    game.vehicle.magnetRange = 150;
+                    updatePowerUpIndicator('COIN MAGNET!', type.duration);
+                    break;
+                    
+                case POWER_UP_TYPES.DOUBLE_VALUE:
+                    game.vehicle.doubleValueActive = true;
+                    game.vehicle.doubleValueDuration = type.duration;
+                    updatePowerUpIndicator('DOUBLE VALUE!', type.duration);
+                    break;
+                    
+                case POWER_UP_TYPES.INSTANT_COLLECT:
+                    // Instantly collect all coins
+                    let collectedValue = 0;
+                    for (const coin of game.coins) {
+                        if (!coin.inCollector) {
+                            collectedValue += coin.value;
+                            coin.inCollector = true;
+                            game.collected++;
+                            game.totalCoinsCollected++;
+                            
+                            // Create particles
+                            for (let i = 0; i < 10; i++) {
+                                game.particles.push(new Particle(
+                                    coin.x,
+                                    coin.y,
+                                    Math.random() * 6 - 3,
+                                    Math.random() * -6 - 2,
+                                    '#FFD700'
+                                ));
+                            }
+                        }
+                    }
+                    
+                    game.currency += collectedValue;
+                    updateUI();
+                    updateProgress();
+                    updatePowerUpIndicator('INSTANT COLLECT!', type.duration);
+                    
+                    if (game.collected >= game.targetAmount) {
+                        completeStage();
+                    }
+                    break;
             }
         }
         
@@ -737,6 +1299,24 @@
         
         document.addEventListener('keydown', (e) => {
             keys[e.key.toLowerCase()] = true;
+            
+            // Prevent default for WASD and arrow keys to avoid scrolling
+            if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(e.key.toLowerCase())) {
+                e.preventDefault();
+            }
+            
+            // Special abilities
+            if (e.key === ' ' && game.gems >= 5) {
+                // Activate speed boost
+                game.gems -= 5;
+                activatePowerUp(POWER_UP_TYPES.SPEED);
+            }
+            
+            if (e.key.toLowerCase() === 'e' && game.gems >= 5) {
+                // Activate magnet
+                game.gems -= 5;
+                activatePowerUp(POWER_UP_TYPES.MAGNET);
+            }
         });
         
         document.addEventListener('keyup', (e) => {
@@ -814,6 +1394,31 @@
             while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
             
             v.angle += angleDiff * 0.1;
+            
+            // Update power-up durations
+            if (v.boostDuration > 0) {
+                v.boostDuration -= 16; // Assuming 60fps
+                if (v.boostDuration <= 0) {
+                    v.boostActive = false;
+                    v.speed /= 1.5;
+                    v.maxSpeed /= 1.5;
+                }
+            }
+            
+            if (v.magnetDuration > 0) {
+                v.magnetDuration -= 16;
+                if (v.magnetDuration <= 0) {
+                    v.magnetActive = false;
+                    v.magnetRange = 100;
+                }
+            }
+            
+            if (v.doubleValueDuration > 0) {
+                v.doubleValueDuration -= 16;
+                if (v.doubleValueDuration <= 0) {
+                    v.doubleValueActive = false;
+                }
+            }
         }
         
         // Game loop
@@ -824,44 +1429,79 @@
             // Update vehicle movement
             updateVehicleMovement();
             
+            // Update combo timer
+            if (game.comboTimer > 0) {
+                game.comboTimer--;
+                if (game.comboTimer === 0) {
+                    game.combo = 0;
+                    updateComboDisplay();
+                }
+            }
+            
             // Draw background
             drawBackground();
             
             // Draw collector
             drawCollector();
             
-            // Draw obstacles
-            for (const obstacle of game.obstacles) {
-                obstacle.draw();
+            // Update and draw obstacles
+            for (let i = 0; i < game.obstacles.length; i++) {
+                const obstacle = game.obstacles[i];
+                if (obstacle && typeof obstacle.update === 'function') {
+                    obstacle.update();
+                    obstacle.draw();
+                }
+            }
+            
+            // Update and draw power-ups
+            for (let i = game.powerUps.length - 1; i >= 0; i--) {
+                const powerUp = game.powerUps[i];
+                if (powerUp) {
+                    powerUp.update();
+                    powerUp.draw();
+                    
+                    // Check collision with vehicle
+                    checkVehiclePowerUpCollision(game.vehicle, powerUp);
+                    
+                    if (powerUp.opacity <= 0) {
+                        game.powerUps.splice(i, 1);
+                    }
+                }
             }
             
             // Update and draw coins
             for (let i = game.coins.length - 1; i >= 0; i--) {
                 const coin = game.coins[i];
-                coin.update();
-                coin.draw();
-                
-                // Check collision with vehicle
-                checkVehicleCoinCollision(game.vehicle, coin);
-                
-                // Check collision with obstacles
-                for (const obstacle of game.obstacles) {
-                    checkCoinObstacleCollision(coin, obstacle);
-                }
-                
-                if (coin.opacity <= 0) {
-                    game.coins.splice(i, 1);
+                if (coin) {
+                    coin.update();
+                    coin.draw();
+                    
+                    // Check collision with vehicle
+                    checkVehicleCoinCollision(game.vehicle, coin);
+                    
+                    // Check collision with obstacles
+                    for (const obstacle of game.obstacles) {
+                        if (obstacle) {
+                            checkCoinObstacleCollision(coin, obstacle);
+                        }
+                    }
+                    
+                    if (coin.opacity <= 0) {
+                        game.coins.splice(i, 1);
+                    }
                 }
             }
             
             // Update and draw particles
             for (let i = game.particles.length - 1; i >= 0; i--) {
                 const particle = game.particles[i];
-                particle.update();
-                particle.draw();
-                
-                if (particle.life <= 0) {
-                    game.particles.splice(i, 1);
+                if (particle) {
+                    particle.update();
+                    particle.draw();
+                    
+                    if (particle.life <= 0) {
+                        game.particles.splice(i, 1);
+                    }
                 }
             }
             
@@ -873,7 +1513,8 @@
             if (now - game.lastCoinTime > game.coinInterval) {
                 const x = Math.random() * (canvas.width - 100) + 50;
                 const y = canvas.height - 80;
-                game.coins.push(new Coin(x, y));
+                const isSpecial = Math.random() < 0.1 && game.stage > 2; // 10% chance for special coins
+                game.coins.push(new Coin(x, y, isSpecial));
                 game.lastCoinTime = now;
             }
             
@@ -882,29 +1523,42 @@
         
         // Button event listeners
         document.getElementById('upgradeBtn').addEventListener('click', () => {
-            if (game.currency >= 50 * game.vehicleLevel) {
-                game.currency -= 50 * game.vehicleLevel;
+            const cost = 50 * game.vehicleLevel;
+            if (game.currency >= cost) {
+                game.currency -= cost;
                 game.vehicleLevel++;
                 game.vehicle.speed += 0.5;
                 game.vehicle.maxSpeed += 0.5;
                 game.vehicle.bladeWidth += 5;
+                game.vehicle.acceleration += 0.05;
                 game.coinInterval = Math.max(300, game.coinInterval - 100);
                 updateUI();
                 showMessage("Bulldozer Upgraded!");
             } else {
-                showMessage("Not enough currency!");
+                showMessage(`Not enough currency! Need $${cost}`);
+            }
+        });
+        
+        document.getElementById('powerBtn').addEventListener('click', () => {
+            if (game.gems >= 10) {
+                game.gems -= 10;
+                // Activate random power-up
+                const types = Object.values(POWER_UP_TYPES);
+                const randomType = types[Math.floor(Math.random() * types.length)];
+                activatePowerUp(randomType);
+            } else {
+                showMessage("Not enough gems! Need 10 gems");
             }
         });
         
         document.getElementById('gemsBtn').addEventListener('click', () => {
-            if (game.gems >= 10) {
-                game.gems -= 10;
-                game.currency += 100 * game.stage;
+            // Watch ad for gems (simulated)
+            showMessage("Watch ad to get 5 gems!");
+            setTimeout(() => {
+                game.gems += 5;
                 updateUI();
-                showMessage("Bonus currency!");
-            } else {
-                showMessage("Not enough gems!");
-            }
+                showMessage("You got 5 gems!");
+            }, 2000);
         });
         
         // Initialize and start game
