@@ -57,6 +57,8 @@
 ,
   "Shooter/Shooting.html": {"title": "Alien Shooting Range", "desc": "A target practice game where you aim and shoot alien targets to earn points.", "tags": ["Alien","Shooting Game","Target Practice","HTML5"]}
 ,
+  "index0.html": {"title": "Kingvornex | Open.MP & SA-MP Developer Portfolio", "desc": "Kingvornex - Open.MP & SA-MP contributor. Explore projects, repos, and skills in multiplayer game scripting.", "tags": ["Kingvornex","Open.MP","SA-MP","filterscripts","multiplayer game","scripting","pawn"]}
+,
   "Blog/Mobile.html": {"title": "Crazy Interactive Blog", "desc": "A mobile-friendly blog interface designed for fast loading and smooth reading experience.", "tags": ["Blog","Mobile","HTML Template","Responsive","Reading"]}
 ,
   "Blog/crazy blog old.html": {"title": "Crazy Interactive Blog", "desc": "A mobile-friendly blog interface designed for fast loading and smooth reading experience.", "tags": ["Blog","Mobile","HTML Template","Responsive","Reading"]}
@@ -80,7 +82,5 @@
   "Visual novel/novel.html": {"title": "Sakura Dreams - Interactive Anime Novel", "desc": "An interactive visual novel set in a beautiful sakura-filled world with branching storylines.", "tags": ["Visual Novel","Anime","Interactive Story","HTML5 Game"]}
 ,
   "Bubble Pop/Bubble Pop.html": {"title": "Satisfactory Bubble Pop", "desc": "", "tags": []}
-,
-  "index.html": {"title": "Kingvornex | Open.MP & SA-MP Developer Portfolio", "desc": "Kingvornex - Open.MP & SA-MP contributor. Explore projects, repos, and skills in multiplayer game scripting.", "tags": ["Kingvornex","Open.MP","SA-MP","filterscripts","multiplayer game","scripting","pawn"]}
 
 }
