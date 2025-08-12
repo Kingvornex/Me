@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kingvornex — Gold Rush Portfolio</title>
+  <meta name="description" content="Kingvornex — Open.MP & SA-MP developer. Cartoonish, bright portfolio with shiny gold visuals." />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --sky1:#7ed6ff;
+      --sky2:#fff7d6;
+      --gold:#ffd700;
+      --deep-gold:#ffb700;
+      --accent-blue:#00bfff;
+      --card-bg:#fff8e6;
+      --shadow: 0 8px 30px rgba(0,0,0,0.12);
+    }
+
+    /* Reset */
+    * { box-sizing: border-box; margin:0; padding:0; }
+    html,body { height:100%; }
+    body {
+      font-family: "Comic Neue", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: linear-gradient(180deg,var(--sky1),var(--sky2));
+      color:#112;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      overflow-x:hidden;
+      padding: 24px;
+    }
+
+    /* Decorative sky with subtle coin pattern */
+    .page {
+      max-width:1200px; margin: 0 auto;
+      position:relative;
+    }
+    .clouds {
+      pointer-events:none;
+      position:absolute; left:0; right:0; top:0; height:220px; overflow:visible;
+      z-index:0;
+    }
+    .cloud {
+      position:absolute; top:20px; width:260px; height:80px; border-radius:80px;
+      background: #ffffffcc; filter: blur(6px); opacity:0.95;
+      animation: cloudFloat 30s linear infinite;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+    }
+    .cloud.c2 { left: 60%; top:10px; transform:scale(1.2); animation-duration:45s; }
+    .cloud.c1 { left: -20%; top:0; animation-duration:40s; }
+    @keyframes cloudFloat { 0%{transform:translateX(-30%)} 100%{transform:translateX(130%)} }
+
+    /* Header / hero */
+    header {
+      display:flex; gap:30px; align-items:center;
+      background: linear-gradient(90deg, rgba(255,236,139,0.95), rgba(255,223,64,0.95));
+      border-radius:20px; padding:28px;
+      box-shadow: var(--shadow), 0 0 40px rgba(255,215,0,0.12);
+      position:relative; z-index:1;
+    }
+
+    .profile {
+      width:280px; text-align:center; position:relative;
+    }
+    .avatar {
+      width:180px; height:180px; border-radius:50%;
+      border:12px solid var(--gold);
+      background: radial-gradient(circle at 30% 20%, #fff7d6, #ffeaa7);
+      box-shadow: 0 10px 40px rgba(255,183,0,0.35), 0 6px 0 rgba(0,0,0,0.06);
+      display:inline-block; overflow:hidden;
+      transform-origin:center;
+      animation: float 3.6s ease-in-out infinite;
+    }
+    .avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+    @keyframes float {
+      0%,100%{ transform: translateY(0) }
+      50% { transform: translateY(-12px) rotate(-1deg) }
+    }
+
+    .profile h1 {
+      margin-top:14px; font-size:28px; letter-spacing:0.5px;
+      font-weight:700; color:#112; text-shadow: 0 2px 0 rgba(255,255,255,0.5);
+    }
+    .profile p { margin-top:6px; color:#3b3b3b; font-size:13px; line-height:1.25; max-width:230px; margin-left:auto; margin-right:auto; }
+
+    /* Game-styled hero right column */
+    .hero-right {
+      flex:1; display:flex; flex-direction:column; gap:18px; align-items:stretch;
+    }
+
+    /* Vehicle + coins canvas */
+    .play-area {
+      background: linear-gradient(180deg,#fffdf5,#fff4d6);
+      border-radius:16px; padding:18px; display:flex; gap:18px; align-items:center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.08), inset 0 -6px 12px rgba(0,0,0,0.03);
+      position:relative; overflow:visible;
+    }
+    .vehicle {
+      width:160px; height:120px; flex:0 0 160px; position:relative;
+      display:flex; align-items:center; justify-content:center;
+    }
+
+    /* Simple stylized "vehicle" */
+    .cart {
+      width:140px; height:72px; border-radius:14px;
+      background: linear-gradient(180deg,#00bfff,#008ecb);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.12), 0 0 20px rgba(0,191,255,0.18);
+      position:relative; transform:translateY(-6px);
+      transition: transform .15s ease;
+    }
+    .cart:after{
+      content:''; position:absolute; right:-18px; bottom:-10px; width:36px; height:36px;
+      border-radius:50%; background: radial-gradient(circle,#ffd700,#ffb700); box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+    }
+    .cart .window { position:absolute; left:14px; top:10px; width:48px; height:28px; border-radius:6px; background:linear-gradient(180deg,#ffffffaa,#ffffff66); }
+
+    /* Coin pile */
+    .coins {
+      flex:1; min-height:80px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    }
+    .coin {
+      width:60px; height:60px; border-radius:50%;
+      background: radial-gradient(circle at 35% 25%, #fff7b2 0%, #ffd700 30%, #ffb700 70%);
+      border:3px solid #ffea7a; box-shadow: 0 10px 20px rgba(0,0,0,0.12), 0 0 12px rgba(255,215,0,0.35);
+      display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-family: "Press Start 2P", monospace;
+      transform-origin:center center; transition: transform .18s ease;
+    }
+    .coin:hover { transform: translateY(-10px) scale(1.08); cursor:pointer; }
+
+    /* CTA coin button */
+    .btn-cta {
+      display:inline-block; padding:14px 22px; margin-top:6px; border-radius:999px;
+      background: linear-gradient(180deg,var(--gold),var(--deep-gold));
+      color:#112; font-weight:700; text-decoration:none; box-shadow: 0 10px 30px rgba(255,183,0,0.22);
+      border: 3px solid rgba(255,255,255,0.6);
+      font-size:14px;
+    }
+    .btn-cta:active { transform: translateY(2px) scale(.995); }
+
+    /* Content sections */
+    .content {
+      margin-top:18px; display:grid; grid-template-columns: 1fr 360px; gap:20px;
+      align-items:start;
+    }
+
+    /* Left: cards and lists */
+    .left-col {
+      display:flex; flex-direction:column; gap:18px;
+    }
+
+    .cards-grid {
+      display:grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap:14px;
+    }
+    .card {
+      background:var(--card-bg); border-radius:14px; padding:14px; box-shadow: var(--shadow);
+      border: 4px solid rgba(255,215,0,0.15);
+      position:relative; overflow:visible; transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .card:hover { transform: translateY(-8px); box-shadow: 0 18px 48px rgba(0,0,0,0.12); }
+    .card strong a { color: var(--accent-blue); text-decoration:none; font-size:13px; display:inline-block; margin-bottom:6px; }
+    .card p { color:#3b3b3b; font-size:13px; line-height:1.3; margin-top:6px; }
+
+    .tag { display:inline-block; background: rgba(0,191,255,0.08); color:#066; padding:6px 8px; border-radius:8px; font-size:11px; margin-right:6px; margin-top:8px; }
+
+    /* Right column: skills / about boxed */
+    .about-box, .skills-box {
+      background: linear-gradient(180deg,#fffaf0,#fff1c6);
+      padding:14px; border-radius:14px; box-shadow: var(--shadow);
+      border: 3px solid rgba(255,215,0,0.12);
+    }
+    .about-box h2, .skills-box h2 { font-size:13px; color:#112; margin-bottom:8px; }
+
+    footer {
+      margin-top:26px; text-align:center; font-size:13px; color:#333; opacity:.85;
+    }
+
+    /* Nav (small pill links) */
+    .mini-nav { display:flex; gap:8px; flex-wrap:wrap; }
+    .mini-nav a {
+      padding:8px 12px; border-radius:999px; background: rgba(0,191,255,0.12); color:#022f4a; font-weight:700; font-size:12px; text-decoration:none;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    }
+
+    /* Responsive */
+    @media (max-width:980px){
+      .content { grid-template-columns: 1fr; }
+      header { flex-direction:column; align-items:center; text-align:center; }
+      .profile { width:auto; }
+      .avatar { width:140px; height:140px; }
+      .vehicle { order:2; width:120px; }
+      .coins { order:3; }
+    }
+
+    /* Particle container */
+    #particles {
+      pointer-events:none;
+      position:fixed; left:0; top:0; width:100%; height:100%; z-index:9999;
+    }
+    /* small subtle coin glow bursts on load */
+    .intro-burst { position:absolute; left:50%; transform:translateX(-50%); top:-28px; width:160px; height:40px; filter: blur(18px); opacity:.9; }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <div class="clouds" aria-hidden="true">
+      <div class="cloud c1"></div>
+      <div class="cloud c2"></div>
+    </div>
+
+    <header role="banner" aria-label="Hero">
+      <div class="profile" role="region" aria-labelledby="profile-name">
+        <div class="avatar" id="avatar">
+          <img src="https://avatars.githubusercontent.com/u/161863111?v=4" alt="Kingvornex profile picture">
+        </div>
+        <h1 id="profile-name">Kingvornex</h1>
+        <p>Open.MP contributor • SA-MP filterscripts • Game systems & UI</p>
+        <div style="margin-top:10px;">
+          <a class="btn-cta" href="https://github.com/Kingvornex" target="_blank" rel="noopener">Visit GitHub →</a>
+        </div>
+      </div>
+
+      <div class="hero-right" role="region" aria-label="Game demo">
+        <div class="play-area" aria-hidden="false">
+          <div class="vehicle" title="Vehicle">
+            <div class="cart" id="cart">
+              <div class="window"></div>
+            </div>
+          </div>
+
+          <div class="coins" id="coin-pile" aria-hidden="false" role="img" aria-label="Pile of shiny coins">
+            <!-- initial coins (JS may augment) -->
+            <div class="coin" data-value="50">50</div>
+            <div class="coin" data-value="20">20</div>
+            <div class="coin" data-value="10">10</div>
+            <div class="coin" data-value="5">5</div>
+            <div class="coin" data-value="1">1</div>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div class="mini-nav" role="navigation" aria-label="Quick links">
+            <a href="#about">About</a>
+            <a href="#repos">Repos</a>
+            <a href="#projects">Projects</a>
+            <a href="#skills">Skills</a>
+          </div>
+          <div style="text-align:right; font-size:12px; color:#333;">
+            <div style="font-weight:700;">Wealth</div>
+            <div id="wealth" style="font-family:'Press Start 2P', monospace; color:#333;">0</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="content" role="main">
+      <section class="left-col" aria-label="Main content">
+        <div id="about" class="about-box" role="article" aria-labelledby="about-heading">
+          <h2 id="about-heading">About</h2>
+          <p>Kingvornex improves multiplayer gameplay through filterscripts, vehicle systems, and UI solutions for Open.MP and SA-MP. This portfolio is styled like a playful idle game menu — the faster you hover & click, the more gold (visually) you get!</p>
+        </div>
+
+        <div id="repos" class="cards-grid" aria-labelledby="repos-heading">
+          <!-- repo cards (static examples) -->
+          <article class="card" role="article" aria-label="Open.mp actor robbery">
+            <strong><a href="https://github.com/Kingvornex/Open.mp-actor-robbery" target="_blank" rel="noopener">Open.mp-actor-robbery</a></strong>
+            <p>Actor-based robbery systems for Open.MP — flexible and realistic. Hover to get sparkles!</p>
+          </article>
+
+          <article class="card" role="article">
+            <strong><a href="https://github.com/Kingvornex/OPEN.MP-VEHICLE-TUNE-MENU" target="_blank" rel="noopener">Vehicle Tune Menu</a></strong>
+            <p>Vehicle tuning UI built with dialogs and PVars.</p>
+          </article>
+
+          <article class="card" role="article">
+            <strong><a href="https://github.com/Kingvornex/SA-MP-Open.MP-Vehicle-Streamer-FilterScript" target="_blank" rel="noopener">Vehicle Streamer FS</a></strong>
+            <p>Filterscript for streaming dynamic vehicles and optimizations.</p>
+          </article>
+
+          <article class="card" role="article">
+            <strong><a href="https://github.com/Kingvornex/SA-MP-OPEN-MP-OBJECT-MOVER" target="_blank" rel="noopener">Object Mover</a></strong>
+            <p>Smooth object movement using timers and interpolation.</p>
+          </article>
+        </div>
+
+        <div id="projects" class="card" style="margin-top:12px;">
+          <strong>Projects (loaded from projects.json)</strong>
+          <p>Project cards will appear below — keep your <code>projects.json</code> in the same folder.</p>
+          <div id="projects-container" style="margin-top:10px; display:grid; gap:8px;"></div>
+        </div>
+
+      </section>
+
+      <aside class="right-col" style="display:flex;flex-direction:column;gap:14px;">
+        <div class="skills-box" id="skills" aria-labelledby="skills-heading">
+          <h2 id="skills-heading">Skills</h2>
+          <ul style="margin-top:8px; color:#333;">
+            <li>PAWN (SA-MP scripting)</li>
+            <li>Open.MP API</li>
+            <li>Game mechanics & filterscripts</li>
+            <li>UI + dialogs</li>
+            <li>Optimization for multiplayer</li>
+          </ul>
+        </div>
+
+        <div class="about-box" aria-labelledby="contact-heading">
+          <h2 id="contact-heading">Contact</h2>
+          <p style="font-size:13px;">Find me on GitHub — <a href="https://github.com/Kingvornex" target="_blank" rel="noopener">github.com/Kingvornex</a></p>
+          <p style="margin-top:8px;"><strong>Tip:</strong> Click or hover coins & cards to spawn gold particles and increase your on-page "Wealth".</p>
+        </div>
+      </aside>
+    </main>
+
+    <footer>
+      © <span id="year"></span> Kingvornex — Styled like a little arcade game 🪙
+    </footer>
+
+    <!-- Particle container -->
+    <div id="particles" aria-hidden="true"></div>
+  </div>
+
+  <script>
+    // set year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // wealth counter & utility
+    let wealth = 0;
+    const wealthEl = document.getElementById('wealth');
+    function addWealth(amount){
+      wealth += Number(amount || 1);
+      wealthEl.textContent = wealth;
+      // tiny bounce on avatar
+      const avatar = document.getElementById('avatar');
+      avatar.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-6px)' }, { transform: 'translateY(0)' }], { duration: 260, easing: 'ease-out' });
+    }
+
+    // particle emitter for gold coins & sparkles
+    const particleContainer = document.getElementById('particles');
+    function spawnParticle(x,y,opts = {}) {
+      const el = document.createElement('div');
+      const size = opts.size || (8 + Math.random()*22);
+      el.style.position = 'fixed';
+      el.style.left = (x - size/2) + 'px';
+      el.style.top = (y - size/2) + 'px';
+      el.style.width = size + 'px';
+      el.style.height = size + 'px';
+      el.style.pointerEvents = 'none';
+      el.style.borderRadius = '50%';
+      if (opts.coin) {
+        el.style.background = 'radial-gradient(circle at 30% 25%, #fff7b2, #ffd700 35%, #ffb700 70%)';
+        el.style.boxShadow = '0 6px 12px rgba(0,0,0,0.14), 0 0 10px rgba(255,215,0,0.25)';
+      } else {
+        el.style.background = 'linear-gradient(90deg, rgba(255,255,255,0.9), rgba(255,240,200,0.8))';
+        el.style.filter = 'blur(0.6px)';
+        el.style.opacity = '0.95';
+      }
+      particleContainer.appendChild(el);
+      // random throw
+      const angle = (Math.random()*Math.PI) - Math.PI/2;
+      const velocity = 80 + Math.random()*220;
+      const vx = Math.cos(angle)*velocity;
+      const vy = Math.sin(angle)*velocity - (50 + Math.random()*120);
+      const duration = 700 + Math.random()*700;
+      el.animate([
+        { transform: `translate(0px,0px) scale(1)`, opacity:1 },
+        { transform: `translate(${vx}px, ${vy}px) scale(.6)`, opacity:0.05 }
+      ], { duration, easing: 'cubic-bezier(.2,.8,.2,1)' });
+      setTimeout(()=> el.remove(), duration+40);
+    }
+
+    // Click/hover interactions
+    const coinPile = document.getElementById('coin-pile');
+    coinPile.addEventListener('click', function(e){
+      // find clicked coin
+      let coinEl = e.target.closest('.coin');
+      if (!coinEl) {
+        // spawn a few coins anyway
+        for(let i=0;i<8;i++){
+          spawnParticle(e.clientX + (Math.random()*40-20), e.clientY + (Math.random()*40-20), {coin:true, size: 18 + Math.random()*28});
+        }
+        addWealth(5);
+        return;
+      }
+      const val = coinEl.dataset.value || 1;
+      // spawn burst
+      for(let i=0;i<18;i++){
+        spawnParticle(e.clientX + (Math.random()*40-20), e.clientY + (Math.random()*40-20), {coin:true, size: 10 + Math.random()*30});
+      }
+      // coin pop animation
+      coinEl.animate([{ transform:'translateY(0) scale(1)' }, { transform:'translateY(-26px) scale(1.15) rotate(-6deg)' }, { transform:'translateY(6px) scale(.95)'}], { duration:420, easing:'cubic-bezier(.2,.8,.2,1)' });
+      addWealth(Number(val));
+    });
+
+    // hover sparkle when hovering cards
+    document.querySelectorAll('.card, .btn-cta, .coin').forEach(el => {
+      el.addEventListener('mouseenter', (e) => {
+        const rect = e.target.getBoundingClientRect();
+        // spawn small sparkles
+        for(let i=0;i<6;i++){
+          spawnParticle(rect.left + Math.random()*rect.width, rect.top + Math.random()*rect.height, { size:6 + Math.random()*14 });
+        }
+      });
+    });
+
+    // animate cart bobbing on clicking cart
+    document.getElementById('cart').addEventListener('click', (e) => {
+      for(let i=0;i<14;i++){
+        spawnParticle(e.clientX + (Math.random()*50-25), e.clientY + (Math.random()*50-25), { coin:true, size: 10 + Math.random()*28 });
+      }
+      addWealth(25);
+      e.currentTarget.animate([{ transform:'translateY(-2px) rotate(0deg)' }, { transform:'translateY(-18px) rotate(-6deg)' }, { transform:'translateY(0) rotate(0deg)'}], { duration:520, easing:'cubic-bezier(.2,.8,.2,1)' });
+    });
+
+    // Load projects.json (like original)
+    fetch('projects.json').then(r => {
+      if (!r.ok) throw new Error('no projects.json');
+      return r.json();
+    }).then(data => {
+      const container = document.getElementById('projects-container');
+      Object.keys(data).sort().forEach(fp => {
+        const proj = data[fp];
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `<strong><a href="${fp}" target="_blank" rel="noopener">${proj.title || fp}</a></strong>
+                         <p style="margin-top:8px;">${proj.desc || ''}</p>
+                         <div style="margin-top:8px;">${(proj.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>`;
+        container.appendChild(div);
+        // quick sparkle on added card
+        const rect = div.getBoundingClientRect();
+        setTimeout(()=> {
+          spawnParticle(rect.left + rect.width/2, rect.top + rect.height/2, { size: 18 });
+        }, 120);
+      });
+    }).catch(e => {
+      // projects.json not found — show nothing (console)
+      console.warn('projects.json not loaded', e);
+    });
+
+    // accessibility: update active nav based on scroll
+    const navLinks = document.querySelectorAll('.mini-nav a');
+    function activateNav(){
+      const top = window.scrollY + 96;
+      const ids = ['about','repos','projects','skills'];
+      let active = ids[0];
+      for (let id of ids) {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top + window.scrollY <= top) active = id;
+      }
+      navLinks.forEach(a => a.classList.remove('active'));
+      const link = document.querySelector(`.mini-nav a[href="#${active}"]`);
+      if (link) link.classList.add('active');
+    }
+    window.addEventListener('scroll', activateNav);
+    activateNav();
+
+    // initial subtle burst
+    (function introBurst(){
+      const hero = document.querySelector('header');
+      const rb = hero.getBoundingClientRect();
+      for(let i=0;i<12;i++){
+        spawnParticle(rb.left + rb.width/2 + (Math.random()*200-100), rb.top + 20 + (Math.random()*40-20), {coin:true, size: 10 + Math.random()*36});
+      }
+    })();
+
+  </script>
+</body>
+</html>
