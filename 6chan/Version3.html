@@ -6,41 +6,40 @@
     <title>6chan - Community Imageboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         :root {
-            --primary: #4f46e5;
-            --primary-dark: #4338ca;
-            --secondary: #7c3aed;
-            --accent: #ec4899;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --light: #f9fafb;
-            --dark: #111827;
-            --gray: #6b7280;
-            --gray-light: #f3f4f6;
-            --border: #e5e7eb;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --radius: 0.5rem;
-            --transition: all 0.3s ease;
+            --primary-color: #5e72e4;
+            --secondary-color: #825ee4;
+            --success-color: #2dce89;
+            --info-color: #11cdef;
+            --warning-color: #fb6340;
+            --danger-color: #f5365c;
+            --light: #f8f9fe;
+            --dark: #32325d;
+            --white: #ffffff;
+            --gray: #8898aa;
+            --border-radius: 0.375rem;
+            --box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         [data-theme="dark"] {
-            --light: #1f2937;
-            --dark: #f9fafb;
-            --gray: #9ca3af;
-            --gray-light: #374151;
-            --border: #4b5563;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            --light: #1a1d29;
+            --dark: #f4f5f7;
+            --white: #212530;
+            --gray: #8898aa;
+            --card-bg: #212530;
+            --text-color: #f4f5f7;
+            --border-color: #343845;
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background-color: var(--light);
             color: var(--dark);
             line-height: 1.6;
@@ -48,520 +47,390 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 1rem;
+            padding: 20px;
+            min-height: 100vh;
         }
 
-        /* Header Styles */
         header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            padding: 1.5rem 0;
-            box-shadow: var(--shadow-lg);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 1rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border-radius: var(--border-radius);
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .logo h1 {
-            font-size: 1.875rem;
-            font-weight: 700;
-            letter-spacing: -0.025em;
-        }
-
-        .header-nav {
-            display: flex;
-            gap: 1.5rem;
-            align-items: center;
-        }
-
-        .nav-item {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius);
-            transition: var(--transition);
-        }
-
-        .nav-item:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 0.5rem 1rem;
-            border-radius: 2rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .user-menu:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-
-        .user-avatar {
-            width: 2rem;
-            height: 2rem;
-            border-radius: 50%;
-            background-color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .notification-badge {
-            position: absolute;
-            top: -0.5rem;
-            right: -0.5rem;
-            background-color: var(--danger);
-            color: white;
-            font-size: 0.75rem;
-            width: 1.25rem;
-            height: 1.25rem;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Main Layout */
-        .main-layout {
-            display: grid;
-            grid-template-columns: 250px 1fr 300px;
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-
-        @media (max-width: 1024px) {
-            .main-layout {
-                grid-template-columns: 1fr;
-            }
-            
-            .sidebar-left, .sidebar-right {
-                display: none;
-            }
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            background-color: white;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 1.5rem;
-            height: fit-content;
-            position: sticky;
-            top: 6rem;
-        }
-
-        [data-theme="dark"] .sidebar {
-            background-color: var(--gray-light);
-        }
-
-        .sidebar-section {
-            margin-bottom: 2rem;
-        }
-
-        .sidebar-title {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--gray);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .board-list {
-            list-style: none;
-        }
-
-        .board-item {
-            padding: 0.75rem 1rem;
-            border-radius: var(--radius);
-            margin-bottom: 0.5rem;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .board-item:hover {
-            background-color: var(--gray-light);
-        }
-
-        [data-theme="dark"] .board-item:hover {
-            background-color: var(--border);
-        }
-
-        .board-item.active {
-            background-color: var(--primary);
-            color: white;
-        }
-
-        .board-icon {
-            width: 2rem;
-            height: 2rem;
-            border-radius: var(--radius);
-            background-color: var(--gray-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
-        }
-
-        .board-item.active .board-icon {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
-        }
-
-        .board-info {
-            flex: 1;
-        }
-
-        .board-name {
-            font-weight: 600;
-            margin-bottom: 0.125rem;
-        }
-
-        .board-stats {
-            font-size: 0.75rem;
-            color: var(--gray);
-        }
-
-        .board-item.active .board-stats {
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        /* Community Features */
-        .community-widget {
-            background-color: white;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        [data-theme="dark"] .community-widget {
-            background-color: var(--gray-light);
-        }
-
-        .widget-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .widget-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-        }
-
-        .widget-action {
-            color: var(--primary);
-            font-size: 0.875rem;
-            cursor: pointer;
-        }
-
-        .leaderboard-list {
-            list-style: none;
-        }
-
-        .leaderboard-item {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        [data-theme="dark"] .leaderboard-item {
-            border-color: var(--border);
-        }
-
-        .leaderboard-item:last-child {
-            border-bottom: none;
-        }
-
-        .leaderboard-rank {
-            width: 1.5rem;
-            font-weight: 600;
-            color: var(--gray);
-        }
-
-        .leaderboard-user {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            flex: 1;
-        }
-
-        .leaderboard-avatar {
-            width: 2rem;
-            height: 2rem;
-            border-radius: 50%;
-            background-color: var(--primary);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 0.875rem;
-        }
-
-        .leaderboard-info {
-            flex: 1;
-        }
-
-        .leaderboard-name {
-            font-weight: 500;
-            margin-bottom: 0.125rem;
-        }
-
-        .leaderboard-rep {
-            font-size: 0.75rem;
-            color: var(--gray);
-        }
-
-        .leaderboard-score {
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        /* Shoutbox */
-        .shoutbox {
-            background-color: white;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        [data-theme="dark"] .shoutbox {
-            background-color: var(--gray-light);
-        }
-
-        .shoutbox-messages {
-            height: 200px;
-            overflow-y: auto;
-            margin-bottom: 1rem;
-            padding-right: 0.5rem;
-        }
-
-        .shoutbox-message {
-            padding: 0.75rem;
-            border-radius: var(--radius);
-            margin-bottom: 0.75rem;
-            background-color: var(--gray-light);
-        }
-
-        [data-theme="dark"] .shoutbox-message {
-            background-color: var(--border);
-        }
-
-        .shoutbox-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-
-        .shoutbox-user {
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .shoutbox-time {
-            font-size: 0.75rem;
-            color: var(--gray);
-        }
-
-        .shoutbox-form {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .shoutbox-input {
-            flex: 1;
-            padding: 0.5rem 1rem;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            font-size: 0.875rem;
-        }
-
-        [data-theme="dark"] .shoutbox-input {
-            background-color: var(--border);
-            border-color: var(--gray);
-            color: var(--dark);
-        }
-
-        .shoutbox-btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: var(--radius);
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .shoutbox-btn:hover {
-            background-color: var(--primary-dark);
-        }
-
-        /* Content Area */
-        .content {
-            background-color: white;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
+            position: relative;
             overflow: hidden;
         }
 
-        [data-theme="dark"] .content {
-            background-color: var(--gray-light);
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSg0NSkiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0icmdiYSgyNTUsIDI1NSwgMjU1LCAwLjA1KSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNwYXR0ZXJuKSIvPjwvc3ZnPg==');
+            opacity: 0.1;
         }
 
-        .content-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border);
+        header h1 a {
+            text-decoration: none;
+            color: var(--white);
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            position: relative;
+            z-index: 1;
+            transition: var(--transition);
+        }
+
+        header h1 a:hover {
+            transform: translateY(-2px);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: var(--white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(15deg);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .user-profile:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .user-info {
+            color: var(--white);
+        }
+
+        .user-reputation {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .board-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .board {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        [data-theme="dark"] .board {
+            background: var(--card-bg);
+        }
+
+        .board:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(50, 50, 93, 0.15), 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .board-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            position: relative;
+        }
+
+        .board-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
+            display: flex;
+            align-items: flex-end;
+            padding: 20px;
+        }
+
+        .board-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--white);
+            font-size: 0.85rem;
+        }
+
+        .board-content {
+            padding: 20px;
+        }
+
+        .board-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        [data-theme="dark"] .board-title {
+            color: var(--text-color);
+        }
+
+        .board-description {
+            color: var(--gray);
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+
+        .board-actions {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        [data-theme="dark"] .content-header {
-            border-color: var(--border);
-        }
-
-        .content-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        .content-actions {
-            display: flex;
-            gap: 0.75rem;
-        }
-
         .btn {
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius);
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--border-radius);
             font-weight: 500;
             cursor: pointer;
+            transition: var(--transition);
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            border: none;
-            transition: var(--transition);
-            font-size: 0.875rem;
+            gap: 8px;
         }
 
         .btn-primary {
-            background-color: var(--primary);
-            color: white;
+            background: var(--primary-color);
+            color: var(--white);
         }
 
         .btn-primary:hover {
-            background-color: var(--primary-dark);
+            background: #4c63d2;
+            transform: translateY(-2px);
         }
 
         .btn-secondary {
-            background-color: var(--gray-light);
-            color: var(--dark);
-        }
-
-        [data-theme="dark"] .btn-secondary {
-            background-color: var(--border);
-            color: var(--dark);
+            background: var(--info-color);
+            color: var(--white);
         }
 
         .btn-secondary:hover {
-            background-color: var(--border);
+            background: #0da5c0;
+            transform: translateY(-2px);
         }
 
-        [data-theme="dark"] .btn-secondary:hover {
-            background-color: var(--gray);
+        .community-section {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
         }
 
-        /* Thread System */
-        .thread-list {
-            padding: 1rem;
+        [data-theme="dark"] .community-section {
+            background: var(--card-bg);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        [data-theme="dark"] .section-title {
+            color: var(--text-color);
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .event-card {
+            background: var(--light);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            border-left: 4px solid var(--info-color);
+            transition: var(--transition);
+        }
+
+        [data-theme="dark"] .event-card {
+            background: var(--border-color);
+        }
+
+        .event-card:hover {
+            transform: translateX(5px);
+        }
+
+        .event-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        [data-theme="dark"] .event-title {
+            color: var(--text-color);
+        }
+
+        .event-date {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .event-participants {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .participants-avatars {
+            display: flex;
+        }
+
+        .participant-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            margin-left: -10px;
+            border: 2px solid var(--white);
+        }
+
+        [data-theme="dark"] .participant-avatar {
+            border-color: var(--card-bg);
+        }
+
+        .participant-avatar:first-child {
+            margin-left: 0;
+        }
+
+        .threads-container {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+        }
+
+        [data-theme="dark"] .threads-container {
+            background: var(--card-bg);
         }
 
         .thread {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border);
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
             transition: var(--transition);
         }
 
         [data-theme="dark"] .thread {
-            border-color: var(--border);
+            border-color: var(--border-color);
         }
 
         .thread:hover {
-            background-color: var(--gray-light);
+            background: var(--light);
         }
 
         [data-theme="dark"] .thread:hover {
-            background-color: var(--border);
+            background: var(--border-color);
         }
 
         .thread-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 1rem;
+            margin-bottom: 15px;
         }
 
         .thread-meta {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 15px;
         }
 
         .thread-author {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 8px;
         }
 
         .author-avatar {
-            width: 2rem;
-            height: 2rem;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            background-color: var(--primary);
-            color: white;
+            background: var(--primary-color);
+            color: var(--white);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            font-size: 0.875rem;
+            font-size: 0.9rem;
         }
 
         .author-info {
@@ -571,70 +440,47 @@
 
         .author-name {
             font-weight: 600;
+            color: var(--dark);
+        }
+
+        [data-theme="dark"] .author-name {
+            color: var(--text-color);
         }
 
         .author-flair {
             font-size: 0.75rem;
-            padding: 0.125rem 0.5rem;
-            border-radius: 1rem;
-            background-color: var(--gray-light);
-            color: var(--gray);
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: var(--info-color);
+            color: var(--white);
             display: inline-block;
-        }
-
-        [data-theme="dark"] .author-flair {
-            background-color: var(--border);
         }
 
         .thread-stats {
             display: flex;
-            gap: 1rem;
+            gap: 15px;
         }
 
-        .stat {
+        .stat-item {
             display: flex;
             align-items: center;
-            gap: 0.25rem;
+            gap: 5px;
             color: var(--gray);
-            font-size: 0.875rem;
+            font-size: 0.9rem;
         }
 
         .thread-content {
             display: flex;
-            gap: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .thread-image-container {
-            flex-shrink: 0;
-            width: 120px;
-            height: 120px;
-            border-radius: var(--radius);
-            overflow: hidden;
-            cursor: pointer;
-            position: relative;
+            gap: 20px;
+            margin-bottom: 15px;
         }
 
         .thread-image {
-            width: 100%;
-            height: 100%;
+            width: 120px;
+            height: 120px;
+            border-radius: var(--border-radius);
             object-fit: cover;
-            transition: var(--transition);
-        }
-
-        .thread-image-container:hover .thread-image {
-            transform: scale(1.05);
-        }
-
-        .image-badge {
-            position: absolute;
-            bottom: 0.5rem;
-            right: 0.5rem;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            font-size: 0.75rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: var(--radius);
+            flex-shrink: 0;
         }
 
         .thread-text {
@@ -642,41 +488,24 @@
         }
 
         .thread-title {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 600;
-            margin-bottom: 0.5rem;
+            margin-bottom: 10px;
             color: var(--dark);
+        }
+
+        [data-theme="dark"] .thread-title {
+            color: var(--text-color);
         }
 
         .thread-excerpt {
             color: var(--gray);
             line-height: 1.5;
-            margin-bottom: 1rem;
-        }
-
-        .thread-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .tag {
-            background-color: var(--gray-light);
-            color: var(--gray);
-            font-size: 0.75rem;
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-            display: inline-block;
-        }
-
-        [data-theme="dark"] .tag {
-            background-color: var(--border);
         }
 
         .thread-actions {
             display: flex;
-            gap: 1rem;
+            gap: 15px;
         }
 
         .action-btn {
@@ -686,522 +515,29 @@
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 5px;
             transition: var(--transition);
-            font-size: 0.875rem;
         }
 
         .action-btn:hover {
-            color: var(--primary);
+            color: var(--primary-color);
         }
 
         .action-btn.upvoted {
-            color: var(--success);
+            color: var(--success-color);
         }
 
-        .action-btn.saved {
-            color: var(--warning);
+        .action-btn.reported {
+            color: var(--danger-color);
         }
 
-        /* Thread Detail View */
-        .thread-detail {
-            padding: 1.5rem;
-        }
-
-        .op-post {
-            background-color: var(--gray-light);
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            position: relative;
-        }
-
-        [data-theme="dark"] .op-post {
-            background-color: var(--border);
-        }
-
-        .op-badge {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background-color: var(--primary);
-            color: white;
-            font-size: 0.75rem;
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-        }
-
-        .post-content {
-            margin-bottom: 1.5rem;
-        }
-
-        .post-text {
-            margin-bottom: 1.5rem;
-            line-height: 1.7;
-        }
-
-        .post-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .gallery-item {
-            position: relative;
-            border-radius: var(--radius);
-            overflow: hidden;
-            aspect-ratio: 1/1;
-            cursor: pointer;
-        }
-
-        .gallery-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: var(--transition);
-        }
-
-        .gallery-item:hover .gallery-image {
-            transform: scale(1.05);
-        }
-
-        .gallery-badge {
-            position: absolute;
-            bottom: 0.5rem;
-            right: 0.5rem;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            font-size: 0.75rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: var(--radius);
-        }
-
-        .post-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .post-stats {
-            display: flex;
-            gap: 1.5rem;
-        }
-
-        .post-action-buttons {
-            display: flex;
-            gap: 1rem;
-        }
-
-        /* Replies System */
-        .replies-container {
-            margin-top: 2rem;
-        }
-
-        .replies-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        [data-theme="dark"] .replies-header {
-            border-color: var(--border);
-        }
-
-        .replies-sort {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .sort-btn {
-            background: none;
-            border: none;
-            color: var(--gray);
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: var(--radius);
-            transition: var(--transition);
-        }
-
-        .sort-btn:hover {
-            color: var(--primary);
-            background-color: var(--gray-light);
-        }
-
-        [data-theme="dark"] .sort-btn:hover {
-            background-color: var(--border);
-        }
-
-        .sort-btn.active {
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .replies-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .reply {
-            background-color: white;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 1.5rem;
-            position: relative;
-            transition: var(--transition);
-        }
-
-        [data-theme="dark"] .reply {
-            background-color: var(--border);
-        }
-
-        .reply:hover {
-            box-shadow: var(--shadow-lg);
-        }
-
-        .reply-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-        }
-
-        .reply-level {
-            position: absolute;
-            top: 1.5rem;
-            left: -1.5rem;
-            width: 1.5rem;
-            height: 1.5rem;
-            background-color: var(--primary);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .reply-content {
-            margin-bottom: 1rem;
-        }
-
-        .reply-text {
-            margin-bottom: 1rem;
-            line-height: 1.6;
-        }
-
-        .reply-quote {
-            background-color: var(--gray-light);
-            border-left: 3px solid var(--primary);
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 0 var(--radius) var(--radius) 0;
-        }
-
-        [data-theme="dark"] .reply-quote {
-            background-color: var(--border);
-        }
-
-        .quote-author {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--primary);
-        }
-
-        .reply-image {
-            max-width: 100%;
-            border-radius: var(--radius);
-            margin: 1rem 0;
-        }
-
-        .reply-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .reply-action-buttons {
-            display: flex;
-            gap: 1rem;
-        }
-
-        /* Reply Form */
-        .reply-form {
-            background-color: white;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        [data-theme="dark"] .reply-form {
-            background-color: var(--border);
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-
-        [data-theme="dark"] .form-control {
-            background-color: var(--gray-light);
-            border-color: var(--gray);
-            color: var(--dark);
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-
-        textarea.form-control {
-            min-height: 120px;
-            resize: vertical;
-        }
-
-        .form-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .form-options {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .file-input-wrapper {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-        }
-
-        .file-input {
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        .file-input-label {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background-color: var(--gray-light);
-            color: var(--dark);
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        [data-theme="dark"] .file-input-label {
-            background-color: var(--border);
-        }
-
-        .file-input-label:hover {
-            background-color: var(--border);
-        }
-
-        [data-theme="dark"] .file-input-label:hover {
-            background-color: var(--gray);
-        }
-
-        /* Image Lightbox */
-        .lightbox {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: var(--transition);
-        }
-
-        .lightbox.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .lightbox-content {
-            max-width: 90%;
-            max-height: 90%;
-            position: relative;
-        }
-
-        .lightbox-image {
-            max-width: 100%;
-            max-height: 90vh;
-            border-radius: var(--radius);
-        }
-
-        .lightbox-close {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
-            width: 3rem;
-            height: 3rem;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .lightbox-close:hover {
-            background-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .lightbox-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
-            width: 3rem;
-            height: 3rem;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .lightbox-nav:hover {
-            background-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .lightbox-prev {
-            left: 1rem;
-        }
-
-        .lightbox-next {
-            right: 1rem;
-        }
-
-        /* Notifications */
-        .notification-container {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .notification {
-            background-color: white;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-lg);
-            padding: 1rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            min-width: 300px;
-            transform: translateX(120%);
-            transition: transform 0.3s ease;
-        }
-
-        [data-theme="dark"] .notification {
-            background-color: var(--gray-light);
-        }
-
-        .notification.show {
-            transform: translateX(0);
-        }
-
-        .notification-icon {
-            width: 2.5rem;
-            height: 2.5rem;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .notification-success .notification-icon {
-            background-color: var(--success);
-            color: white;
-        }
-
-        .notification-error .notification-icon {
-            background-color: var(--danger);
-            color: white;
-        }
-
-        .notification-info .notification-icon {
-            background-color: var(--primary);
-            color: white;
-        }
-
-        .notification-warning .notification-icon {
-            background-color: var(--warning);
-            color: white;
-        }
-
-        .notification-content {
-            flex: 1;
-        }
-
-        .notification-title {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-
-        .notification-message {
-            font-size: 0.875rem;
-            color: var(--gray);
-        }
-
-        .notification-close {
-            background: none;
-            border: none;
-            color: var(--gray);
-            cursor: pointer;
-            font-size: 1.25rem;
-        }
-
-        /* User Settings Modal */
         .modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.5);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -1211,644 +547,431 @@
             transition: var(--transition);
         }
 
-        .modal.active {
+        .modal.show {
             opacity: 1;
             visibility: visible;
         }
 
         .modal-content {
-            background-color: white;
-            border-radius: var(--radius);
+            background: var(--white);
+            border-radius: var(--border-radius);
             width: 90%;
-            max-width: 600px;
+            max-width: 500px;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             transform: translateY(20px);
-            transition: transform 0.3s ease;
+            transition: var(--transition);
         }
 
         [data-theme="dark"] .modal-content {
-            background-color: var(--gray-light);
+            background: var(--card-bg);
         }
 
-        .modal.active .modal-content {
+        .modal.show .modal-content {
             transform: translateY(0);
         }
 
         .modal-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border);
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         [data-theme="dark"] .modal-header {
-            border-color: var(--border);
+            border-color: var(--border-color);
         }
 
         .modal-title {
             font-size: 1.25rem;
             font-weight: 600;
+            color: var(--dark);
         }
 
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--gray);
-            cursor: pointer;
+        [data-theme="dark"] .modal-title {
+            color: var(--text-color);
         }
 
         .modal-body {
-            padding: 1.5rem;
+            padding: 20px;
         }
 
         .modal-footer {
-            padding: 1.5rem;
-            border-top: 1px solid var(--border);
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: flex-end;
-            gap: 1rem;
+            gap: 10px;
         }
 
         [data-theme="dark"] .modal-footer {
-            border-color: var(--border);
+            border-color: var(--border-color);
         }
 
-        .settings-section {
-            margin-bottom: 2rem;
+        .form-group {
+            margin-bottom: 20px;
         }
 
-        .settings-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-
-        .settings-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .settings-label {
+        .form-label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 8px;
             font-weight: 500;
+            color: var(--dark);
         }
 
-        .settings-description {
-            font-size: 0.875rem;
-            color: var(--gray);
-            margin-bottom: 0.75rem;
+        [data-theme="dark"] .form-label {
+            color: var(--text-color);
         }
 
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 3rem;
-            height: 1.5rem;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: var(--gray-light);
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background: var(--white);
+            color: var(--dark);
             transition: var(--transition);
-            border-radius: 1.5rem;
         }
 
-        [data-theme="dark"] .toggle-slider {
-            background-color: var(--border);
+        [data-theme="dark"] .form-control {
+            background: var(--border-color);
+            color: var(--text-color);
+            border-color: var(--border-color);
         }
 
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 1.25rem;
-            width: 1.25rem;
-            left: 0.125rem;
-            bottom: 0.125rem;
-            background-color: white;
-            transition: var(--transition);
-            border-radius: 50%;
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(94, 114, 228, 0.1);
         }
 
-        input:checked + .toggle-slider {
-            background-color: var(--primary);
-        }
-
-        input:checked + .toggle-slider:before {
-            transform: translateX(1.5rem);
-        }
-
-        .settings-row {
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
+            gap: 10px;
+            z-index: 2000;
+            transform: translateX(120%);
+            transition: var(--transition);
         }
 
-        /* Utility Classes */
-        .text-center {
-            text-align: center;
+        .notification.show {
+            transform: translateX(0);
         }
 
-        .mt-1 {
-            margin-top: 0.25rem;
+        .notification.success {
+            background: var(--success-color);
+            color: var(--white);
         }
 
-        .mt-2 {
-            margin-top: 0.5rem;
+        .notification.error {
+            background: var(--danger-color);
+            color: var(--white);
         }
 
-        .mt-3 {
-            margin-top: 1rem;
-        }
-
-        .mt-4 {
-            margin-top: 1.5rem;
-        }
-
-        .mb-1 {
-            margin-bottom: 0.25rem;
-        }
-
-        .mb-2 {
-            margin-bottom: 0.5rem;
-        }
-
-        .mb-3 {
-            margin-bottom: 1rem;
-        }
-
-        .mb-4 {
-            margin-bottom: 1.5rem;
+        .notification.info {
+            background: var(--info-color);
+            color: var(--white);
         }
 
         .hidden {
-            display: none;
+            display: none !important;
         }
 
-        /* Loading Spinner */
-        .spinner {
-            border: 3px solid var(--gray-light);
-            border-top: 3px solid var(--primary);
-            border-radius: 50%;
-            width: 2rem;
-            height: 2rem;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
-            .header-nav {
-                display: none;
+            .container {
+                padding: 15px;
             }
             
-            .content-header {
+            header {
                 flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
+                text-align: center;
+                gap: 15px;
             }
             
-            .content-actions {
-                width: 100%;
-                justify-content: space-between;
+            .board-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .events-grid {
+                grid-template-columns: 1fr;
             }
             
             .thread-content {
                 flex-direction: column;
             }
             
-            .thread-image-container {
+            .thread-image {
                 width: 100%;
                 height: 200px;
-            }
-            
-            .post-gallery {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .form-actions {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            .form-options {
-                width: 100%;
-                justify-content: space-between;
             }
         }
     </style>
 </head>
 <body>
-    <div class="notification-container" id="notification-container"></div>
-    
-    <header>
-        <div class="header-content">
-            <div class="logo">
-                <i class="fas fa-comments"></i>
-                <h1>6chan</h1>
-            </div>
-            <nav class="header-nav">
-                <a href="#" class="nav-item" id="home-link">
-                    <i class="fas fa-home"></i> Home
-                </a>
-                <a href="#" class="nav-item" id="boards-link">
-                    <i class="fas fa-th-large"></i> Boards
-                </a>
-                <a href="#" class="nav-item" id="events-link">
-                    <i class="fas fa-calendar-alt"></i> Events
-                </a>
-                <a href="#" class="nav-item" id="wiki-link">
-                    <i class="fas fa-book"></i> Wiki
-                </a>
-                <div class="nav-item" id="notifications-btn">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge">3</span>
-                </div>
-                <div class="user-menu" id="user-menu">
-                    <div class="user-avatar">A</div>
-                    <span>Anonymous</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-            </nav>
-        </div>
-    </header>
-
     <div class="container">
-        <div class="main-layout">
-            <!-- Left Sidebar -->
-            <aside class="sidebar sidebar-left">
-                <div class="sidebar-section">
-                    <h3 class="sidebar-title">Boards</h3>
-                    <ul class="board-list">
-                        <li class="board-item active" data-board="random">
-                            <div class="board-icon">
-                                <i class="fas fa-random"></i>
-                            </div>
-                            <div class="board-info">
-                                <div class="board-name">/b/ Random</div>
-                                <div class="board-stats">1.2k threads</div>
-                            </div>
-                        </li>
-                        <li class="board-item" data-board="tech">
-                            <div class="board-icon">
-                                <i class="fas fa-microchip"></i>
-                            </div>
-                            <div class="board-info">
-                                <div class="board-name">/tech/ Technology</div>
-                                <div class="board-stats">856 threads</div>
-                            </div>
-                        </li>
-                        <li class="board-item" data-board="anime">
-                            <div class="board-icon">
-                                <i class="fas fa-tv"></i>
-                            </div>
-                            <div class="board-info">
-                                <div class="board-name">/a/ Anime</div>
-                                <div class="board-stats">642 threads</div>
-                            </div>
-                        </li>
-                        <li class="board-item" data-board="games">
-                            <div class="board-icon">
-                                <i class="fas fa-gamepad"></i>
-                            </div>
-                            <div class="board-info">
-                                <div class="board-name">/v/ Games</div>
-                                <div class="board-stats">923 threads</div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                
-                <div class="sidebar-section">
-                    <h3 class="sidebar-title">Community</h3>
-                    <div class="community-widget">
-                        <div class="widget-header">
-                            <div class="widget-title">Leaderboard</div>
-                            <a href="#" class="widget-action">View All</a>
-                        </div>
-                        <ul class="leaderboard-list">
-                            <li class="leaderboard-item">
-                                <div class="leaderboard-rank">1</div>
-                                <div class="leaderboard-user">
-                                    <div class="leaderboard-avatar">J</div>
-                                    <div class="leaderboard-info">
-                                        <div class="leaderboard-name">JohnDoe</div>
-                                        <div class="leaderboard-rep">Top Contributor</div>
-                                    </div>
-                                </div>
-                                <div class="leaderboard-score">2,450</div>
-                            </li>
-                            <li class="leaderboard-item">
-                                <div class="leaderboard-rank">2</div>
-                                <div class="leaderboard-user">
-                                    <div class="leaderboard-avatar">A</div>
-                                    <div class="leaderboard-info">
-                                        <div class="leaderboard-name">AnimeFan</div>
-                                        <div class="leaderboard-rep">Expert</div>
-                                    </div>
-                                </div>
-                                <div class="leaderboard-score">1,890</div>
-                            </li>
-                            <li class="leaderboard-item">
-                                <div class="leaderboard-rank">3</div>
-                                <div class="leaderboard-user">
-                                    <div class="leaderboard-avatar">T</div>
-                                    <div class="leaderboard-info">
-                                        <div class="leaderboard-name">TechGuru</div>
-                                        <div class="leaderboard-rep">Expert</div>
-                                    </div>
-                                </div>
-                                <div class="leaderboard-score">1,765</div>
-                            </li>
-                        </ul>
+        <header>
+            <h1><a href="#" id="home-link">6chan</a></h1>
+            <div class="header-actions">
+                <button class="theme-toggle" id="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="user-profile">
+                    <div class="user-avatar">A</div>
+                    <div class="user-info">
+                        <div>Anonymous</div>
+                        <div class="user-reputation"><i class="fas fa-star"></i> 120 Rep</div>
                     </div>
                 </div>
-            </aside>
+            </div>
+        </header>
 
-            <!-- Main Content -->
-            <main class="content" id="main-content">
-                <!-- Home Page -->
-                <div id="home-page">
-                    <div class="content-header">
-                        <h2 class="content-title">Community Boards</h2>
-                        <div class="content-actions">
-                            <button class="btn btn-secondary" id="settings-btn">
-                                <i class="fas fa-cog"></i> Settings
-                            </button>
-                            <button class="btn btn-primary" id="create-thread-btn">
-                                <i class="fas fa-plus"></i> New Thread
-                            </button>
+        <!-- Home Page -->
+        <div id="home-page">
+            <div class="board-list">
+                <div class="board">
+                    <img class="board-image" src="https://picsum.photos/seed/random/400/200.jpg" alt="Random board">
+                    <div class="board-overlay">
+                        <div class="board-stats">
+                            <div class="stat"><i class="fas fa-comments"></i> 1.2k Threads</div>
+                            <div class="stat"><i class="fas fa-users"></i> 5.4k Members</div>
                         </div>
                     </div>
-                    
-                    <div class="thread-list" id="thread-list">
-                        <!-- Threads will be dynamically loaded here -->
-                    </div>
-                </div>
-
-                <!-- Board Page -->
-                <div id="board-page" class="hidden">
-                    <div class="content-header">
-                        <h2 class="content-title" id="board-title">/b/ - Random</h2>
-                        <div class="content-actions">
-                            <button class="btn btn-secondary" id="propose-image-btn">
+                    <div class="board-content">
+                        <h3 class="board-title">/b/ - Random</h3>
+                        <p class="board-description">Random content and discussions</p>
+                        <div class="board-actions">
+                            <button class="btn btn-primary board-link" data-board="random">
+                                <i class="fas fa-arrow-right"></i> Enter Board
+                            </button>
+                            <button class="btn btn-secondary propose-image" data-board="random">
                                 <i class="fas fa-image"></i> Change Image
                             </button>
-                            <button class="btn btn-primary" id="new-thread-btn">
-                                <i class="fas fa-plus"></i> New Thread
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="board">
+                    <img class="board-image" src="https://picsum.photos/seed/tech/400/200.jpg" alt="Tech board">
+                    <div class="board-overlay">
+                        <div class="board-stats">
+                            <div class="stat"><i class="fas fa-comments"></i> 856 Threads</div>
+                            <div class="stat"><i class="fas fa-users"></i> 3.2k Members</div>
+                        </div>
+                    </div>
+                    <div class="board-content">
+                        <h3 class="board-title">/tech/ - Technology</h3>
+                        <p class="board-description">Computers, gadgets, and tech news</p>
+                        <div class="board-actions">
+                            <button class="btn btn-primary board-link" data-board="tech">
+                                <i class="fas fa-arrow-right"></i> Enter Board
+                            </button>
+                            <button class="btn btn-secondary propose-image" data-board="tech">
+                                <i class="fas fa-image"></i> Change Image
                             </button>
                         </div>
                     </div>
-                    
-                    <!-- Image Proposal Section -->
-                    <div id="image-proposal" class="hidden">
-                        <div class="op-post">
-                            <span class="op-badge">PROPOSAL</span>
-                            <h3>Board Image Proposal</h3>
-                            <div class="post-content">
-                                <img id="proposal-image" class="thread-image" src="" alt="Proposed board image">
-                                <div class="post-text">
-                                    <p id="proposal-info">No active proposal</p>
-                                    <div class="vote-buttons">
-                                        <button class="btn btn-success" id="upvote-btn">
-                                            <i class="fas fa-thumbs-up"></i> Upvote
-                                        </button>
-                                        <button class="btn btn-danger" id="downvote-btn">
-                                            <i class="fas fa-thumbs-down"></i> Downvote
-                                        </button>
-                                    </div>
-                                    <div class="vote-count">
-                                        <span id="upvote-count">0 upvotes</span>
-                                        <span id="downvote-count">0 downvotes</span>
-                                    </div>
-                                    <div class="vote-progress">
-                                        <div class="vote-progress-bar" id="vote-progress-bar"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="thread-list" id="board-thread-list">
-                        <!-- Board threads will be dynamically loaded here -->
-                    </div>
                 </div>
-
-                <!-- Thread Detail Page -->
-                <div id="thread-page" class="hidden">
-                    <div class="thread-detail">
-                        <!-- OP Post will be dynamically loaded here -->
-                        
-                        <div class="replies-container">
-                            <div class="replies-header">
-                                <h3>Replies</h3>
-                                <div class="replies-sort">
-                                    <button class="sort-btn active" data-sort="newest">Newest</button>
-                                    <button class="sort-btn" data-sort="oldest">Oldest</button>
-                                    <button class="sort-btn" data-sort="top">Top</button>
-                                </div>
-                            </div>
-                            
-                            <div class="replies-list" id="replies-list">
-                                <!-- Replies will be dynamically loaded here -->
-                            </div>
-                            
-                            <div class="load-more" id="load-more-replies">
-                                <button class="btn btn-secondary" id="load-more-btn">
-                                    <i class="fas fa-plus"></i> Load More Replies
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="reply-form">
-                            <h3>Post a Reply</h3>
-                            <form id="reply-form">
-                                <div class="form-group">
-                                    <label class="form-label" for="reply-text">Your Reply</label>
-                                    <textarea class="form-control" id="reply-text" placeholder="Write your reply..." required></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Add Images (Optional)</label>
-                                    <div class="form-options">
-                                        <div class="file-input-wrapper">
-                                            <input type="file" id="reply-image" class="file-input" accept="image/*" multiple>
-                                            <label for="reply-image" class="file-input-label">
-                                                <i class="fas fa-image"></i> Choose Images
-                                            </label>
-                                        </div>
-                                        <div class="file-input-wrapper">
-                                            <input type="file" id="reply-gif" class="file-input" accept="image/gif">
-                                            <label for="reply-gif" class="file-input-label">
-                                                <i class="fas fa-film"></i> Add GIF
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-actions">
-                                    <div class="form-options">
-                                        <button type="button" class="btn btn-secondary" id="quote-btn">
-                                            <i class="fas fa-quote-left"></i> Quote
-                                        </button>
-                                        <button type="button" class="btn btn-secondary" id="preview-btn">
-                                            <i class="fas fa-eye"></i> Preview
-                                        </button>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-paper-plane"></i> Post Reply
-                                    </button>
-                                </div>
-                            </form>
+                
+                <div class="board">
+                    <img class="board-image" src="https://picsum.photos/seed/anime/400/200.jpg" alt="Anime board">
+                    <div class="board-overlay">
+                        <div class="board-stats">
+                            <div class="stat"><i class="fas fa-comments"></i> 642 Threads</div>
+                            <div class="stat"><i class="fas fa-users"></i> 2.8k Members</div>
                         </div>
                     </div>
-                </div>
-            </main>
-
-            <!-- Right Sidebar -->
-            <aside class="sidebar sidebar-right">
-                <div class="sidebar-section">
-                    <h3 class="sidebar-title">Community Shoutbox</h3>
-                    <div class="shoutbox">
-                        <div class="shoutbox-messages" id="shoutbox-messages">
-                            <div class="shoutbox-message">
-                                <div class="shoutbox-header">
-                                    <div class="shoutbox-user">
-                                        <div class="leaderboard-avatar">J</div>
-                                        <span>JohnDoe</span>
-                                    </div>
-                                    <div class="shoutbox-time">2 min ago</div>
-                                </div>
-                                <div>Anyone up for a game night tonight?</div>
-                            </div>
-                            <div class="shoutbox-message">
-                                <div class="shoutbox-header">
-                                    <div class="shoutbox-user">
-                                        <div class="leaderboard-avatar">A</div>
-                                        <span>AnimeFan</span>
-                                    </div>
-                                    <div class="shoutbox-time">5 min ago</div>
-                                </div>
-                                <div>New episode of my favorite anime just dropped!</div>
-                            </div>
-                            <div class="shoutbox-message">
-                                <div class="shoutbox-header">
-                                    <div class="shoutbox-user">
-                                        <div class="leaderboard-avatar">T</div>
-                                        <span>TechGuru</span>
-                                    </div>
-                                    <div class="shoutbox-time">12 min ago</div>
-                                </div>
-                                <div>Just built a new PC. It's blazing fast!</div>
-                            </div>
-                        </div>
-                        <div class="shoutbox-form">
-                            <input type="text" class="shoutbox-input" id="shoutbox-input" placeholder="Type a message...">
-                            <button class="shoutbox-btn" id="shoutbox-btn">Send</button>
+                    <div class="board-content">
+                        <h3 class="board-title">/a/ - Anime</h3>
+                        <p class="board-description">Japanese animation and manga</p>
+                        <div class="board-actions">
+                            <button class="btn btn-primary board-link" data-board="anime">
+                                <i class="fas fa-arrow-right"></i> Enter Board
+                            </button>
+                            <button class="btn btn-secondary propose-image" data-board="anime">
+                                <i class="fas fa-image"></i> Change Image
+                            </button>
                         </div>
                     </div>
                 </div>
                 
-                <div class="sidebar-section">
-                    <h3 class="sidebar-title">Upcoming Events</h3>
-                    <div class="community-widget">
-                        <div class="widget-header">
-                            <div class="widget-title">Events</div>
-                            <a href="#" class="widget-action">View All</a>
+                <div class="board">
+                    <img class="board-image" src="https://picsum.photos/seed/games/400/200.jpg" alt="Games board">
+                    <div class="board-overlay">
+                        <div class="board-stats">
+                            <div class="stat"><i class="fas fa-comments"></i> 923 Threads</div>
+                            <div class="stat"><i class="fas fa-users"></i> 4.1k Members</div>
                         </div>
-                        <ul class="leaderboard-list">
-                            <li class="leaderboard-item">
-                                <div class="leaderboard-user">
-                                    <div class="leaderboard-avatar">
-                                        <i class="fas fa-gamepad"></i>
-                                    </div>
-                                    <div class="leaderboard-info">
-                                        <div class="leaderboard-name">Game Night</div>
-                                        <div class="leaderboard-rep">Tonight, 8 PM</div>
-                                    </div>
-                                </div>
-                                <button class="btn btn-primary btn-sm">Join</button>
-                            </li>
-                            <li class="leaderboard-item">
-                                <div class="leaderboard-user">
-                                    <div class="leaderboard-avatar">
-                                        <i class="fas fa-tv"></i>
-                                    </div>
-                                    <div class="leaderboard-info">
-                                        <div class="leaderboard-name">Anime Stream</div>
-                                        <div class="leaderboard-rep">Friday, 7 PM</div>
-                                    </div>
-                                </div>
-                                <button class="btn btn-primary btn-sm">Join</button>
-                            </li>
-                            <li class="leaderboard-item">
-                                <div class="leaderboard-user">
-                                    <div class="leaderboard-avatar">
-                                        <i class="fas fa-microchip"></i>
-                                    </div>
-                                    <div class="leaderboard-info">
-                                        <div class="leaderboard-name">Tech Talk</div>
-                                        <div class="leaderboard-rep">Saturday, 3 PM</div>
-                                    </div>
-                                </div>
-                                <button class="btn btn-primary btn-sm">Join</button>
-                            </li>
-                        </ul>
                     </div>
-                </div>
-                
-                <div class="sidebar-section">
-                    <h3 class="sidebar-title">Trending Tags</h3>
-                    <div class="community-widget">
-                        <div class="thread-tags">
-                            <span class="tag">#gaming</span>
-                            <span class="tag">#anime</span>
-                            <span class="tag">#tech</span>
-                            <span class="tag">#discussion</span>
-                            <span class="tag">#help</span>
-                            <span class="tag">#showcase</span>
-                            <span class="tag">#news</span>
-                            <span class="tag">#meme</span>
+                    <div class="board-content">
+                        <h3 class="board-title">/v/ - Video Games</h3>
+                        <p class="board-description">Gaming discussions and news</p>
+                        <div class="board-actions">
+                            <button class="btn btn-primary board-link" data-board="games">
+                                <i class="fas fa-arrow-right"></i> Enter Board
+                            </button>
+                            <button class="btn btn-secondary propose-image" data-board="games">
+                                <i class="fas fa-image"></i> Change Image
+                            </button>
                         </div>
                     </div>
                 </div>
-            </aside>
+            </div>
+            
+            <!-- Community Events Section -->
+            <div class="community-section">
+                <div class="section-header">
+                    <h2 class="section-title">Community Events</h2>
+                    <button class="btn btn-primary" id="create-event">
+                        <i class="fas fa-plus"></i> Create Event
+                    </button>
+                </div>
+                <div class="events-grid" id="events-grid">
+                    <div class="event-card">
+                        <h3 class="event-title">Game Night: Among Us</h3>
+                        <div class="event-date"><i class="far fa-calendar"></i> July 20, 2024 - 8:00 PM</div>
+                        <p>Join us for a fun evening of deception and teamwork in Among Us!</p>
+                        <div class="event-participants">
+                            <div class="participants-avatars">
+                                <div class="participant-avatar">A</div>
+                                <div class="participant-avatar">B</div>
+                                <div class="participant-avatar">C</div>
+                                <div class="participant-avatar">+12</div>
+                            </div>
+                            <button class="btn btn-primary btn-sm">Join</button>
+                        </div>
+                    </div>
+                    
+                    <div class="event-card">
+                        <h3 class="event-title">Anime Stream: Attack on Titan</h3>
+                        <div class="event-date"><i class="far fa-calendar"></i> July 22, 2024 - 7:00 PM</div>
+                        <p>Watch the latest episodes together and discuss theories!</p>
+                        <div class="event-participants">
+                            <div class="participants-avatars">
+                                <div class="participant-avatar">D</div>
+                                <div class="participant-avatar">E</div>
+                                <div class="participant-avatar">F</div>
+                                <div class="participant-avatar">+8</div>
+                            </div>
+                            <button class="btn btn-primary btn-sm">Join</button>
+                        </div>
+                    </div>
+                    
+                    <div class="event-card">
+                        <h3 class="event-title">Tech Talk: AI Future</h3>
+                        <div class="event-date"><i class="far fa-calendar"></i> July 25, 2024 - 6:00 PM</div>
+                        <p>Discussion about the future of artificial intelligence</p>
+                        <div class="event-participants">
+                            <div class="participants-avatars">
+                                <div class="participant-avatar">G</div>
+                                <div class="participant-avatar">H</div>
+                                <div class="participant-avatar">I</div>
+                                <div class="participant-avatar">+5</div>
+                            </div>
+                            <button class="btn btn-primary btn-sm">Join</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Board Page -->
+        <div id="board-page" class="hidden">
+            <div class="board-header">
+                <h2 id="board-title">/b/ - Random</h2>
+                <div class="board-actions">
+                    <button class="btn btn-primary" id="new-thread">
+                        <i class="fas fa-plus"></i> New Thread
+                    </button>
+                    <button class="btn btn-secondary" id="propose-image">
+                        <i class="fas fa-image"></i> Change Board Image
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Image Proposal Section -->
+            <div id="image-proposal" class="community-section hidden">
+                <div class="section-header">
+                    <h3 class="section-title">Board Image Proposal</h3>
+                </div>
+                <img id="proposal-image" class="proposal-image" src="" alt="Proposed board image">
+                <p id="proposal-info">No active proposal</p>
+                <div class="vote-buttons">
+                    <button class="btn btn-success" id="upvote-btn">
+                        <i class="fas fa-thumbs-up"></i> Upvote
+                    </button>
+                    <button class="btn btn-danger" id="downvote-btn">
+                        <i class="fas fa-thumbs-down"></i> Downvote
+                    </button>
+                </div>
+                <div class="vote-count">
+                    <span id="upvote-count">0 upvotes</span>
+                    <span id="downvote-count">0 downvotes</span>
+                </div>
+                <div class="vote-progress">
+                    <div class="vote-progress-bar" id="vote-progress-bar"></div>
+                </div>
+            </div>
+            
+            <div class="threads-container" id="threads-container">
+                <!-- Threads will be dynamically loaded here -->
+            </div>
+        </div>
+
+        <!-- Thread Page -->
+        <div id="thread-page" class="hidden">
+            <div class="thread-header">
+                <button class="btn btn-secondary" id="back-to-board">
+                    <i class="fas fa-arrow-left"></i> Back to Board
+                </button>
+            </div>
+            
+            <div id="thread-view" class="thread-view">
+                <!-- Thread and replies will be dynamically loaded here -->
+            </div>
+            
+            <div class="community-section">
+                <h3 class="section-title">Post a Reply</h3>
+                <form id="reply-form">
+                    <div class="form-group">
+                        <textarea class="form-control" placeholder="Write your reply..." rows="4" required></textarea>
+                    </div>
+                    <div class="form-options">
+                        <input type="file" id="file-upload" accept="image/*" class="hidden">
+                        <label for="file-upload" class="btn btn-secondary">
+                            <i class="fas fa-image"></i> Add Image
+                        </label>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Post Reply
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     <!-- Image Proposal Modal -->
-    <div class="modal" id="proposal-modal">
+    <div id="proposal-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">Propose New Board Image</h3>
-                <button class="modal-close" id="close-proposal-modal">&times;</button>
+                <button class="close-modal" id="close-modal">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="form-label" for="proposal-image-url">Image URL</label>
-                    <input type="text" class="form-control" id="proposal-image-url" placeholder="https://example.com/image.jpg">
+                    <label class="form-label">Image URL</label>
+                    <input type="text" class="form-control" id="image-url" placeholder="https://example.com/image.jpg">
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="proposal-reason">Reason for Change (Optional)</label>
-                    <textarea class="form-control" id="proposal-reason" rows="3" placeholder="Explain why this image would be better for the board..."></textarea>
+                    <label class="form-label">Reason for Change (Optional)</label>
+                    <textarea class="form-control" rows="3" placeholder="Explain why this image would be better for the board..."></textarea>
                 </div>
             </div>
             <div class="modal-footer">
@@ -1858,123 +981,38 @@
         </div>
     </div>
 
-    <!-- User Settings Modal -->
-    <div class="modal" id="settings-modal">
+    <!-- Event Creation Modal -->
+    <div id="event-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">User Settings</h3>
-                <button class="modal-close" id="close-settings-modal">&times;</button>
+                <h3 class="modal-title">Create Community Event</h3>
+                <button class="close-modal" id="close-event-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="settings-section">
-                    <h4 class="settings-title">Appearance</h4>
-                    <div class="settings-group">
-                        <div class="settings-row">
-                            <div>
-                                <div class="settings-label">Dark Mode</div>
-                                <div class="settings-description">Switch between light and dark themes</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="dark-mode-toggle">
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="settings-row">
-                            <div>
-                                <div class="settings-label">Compact View</div>
-                                <div class="settings-description">Show more content in less space</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="compact-view-toggle">
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label">Event Title</label>
+                    <input type="text" class="form-control" id="event-title" placeholder="Game Night, Movie Stream, etc.">
                 </div>
-                
-                <div class="settings-section">
-                    <h4 class="settings-title">Content Preferences</h4>
-                    <div class="settings-group">
-                        <div class="settings-row">
-                            <div>
-                                <div class="settings-label">Show NSFW Content</div>
-                                <div class="settings-description">Display potentially sensitive content</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="nsfw-toggle">
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="settings-row">
-                            <div>
-                                <div class="settings-label">Auto-play GIFs</div>
-                                <div class="settings-description">Automatically play animated GIFs</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="autoplay-gifs-toggle" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label">Event Date</label>
+                    <input type="datetime-local" class="form-control" id="event-date">
                 </div>
-                
-                <div class="settings-section">
-                    <h4 class="settings-title">Notifications</h4>
-                    <div class="settings-group">
-                        <div class="settings-row">
-                            <div>
-                                <div class="settings-label">Reply Notifications</div>
-                                <div class="settings-description">Get notified when someone replies to you</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="reply-notifications-toggle" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="settings-row">
-                            <div>
-                                <div class="settings-label">Mention Notifications</div>
-                                <div class="settings-description">Get notified when someone mentions you</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="mention-notifications-toggle" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="settings-row">
-                            <div>
-                                <div class="settings-label">Event Reminders</div>
-                                <div class="settings-description">Get reminders for upcoming events</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="event-reminders-toggle" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" rows="3" id="event-description" placeholder="Describe your event..."></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancel-settings">Cancel</button>
-                <button class="btn btn-primary" id="save-settings">Save Changes</button>
+                <button class="btn btn-secondary" id="cancel-event">Cancel</button>
+                <button class="btn btn-primary" id="submit-event">Create Event</button>
             </div>
         </div>
     </div>
 
-    <!-- Image Lightbox -->
-    <div class="lightbox" id="lightbox">
-        <div class="lightbox-content">
-            <img src="" alt="" class="lightbox-image" id="lightbox-image">
-            <button class="lightbox-close" id="lightbox-close">
-                <i class="fas fa-times"></i>
-            </button>
-            <button class="lightbox-nav lightbox-prev" id="lightbox-prev">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <button class="lightbox-nav lightbox-next" id="lightbox-next">
-                <i class="fas fa-chevron-right"></i>
-            </button>
-        </div>
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-text">Notification message</span>
     </div>
 
     <script>
@@ -2021,48 +1059,35 @@
                     title: "What's your favorite color?",
                     content: 'This is a random thread about nothing in particular. What\'s your favorite color?', 
                     timestamp: '07/15/24(Sun)12:34', 
-                    images: [
-                        { url: 'https://picsum.photos/seed/6chan1/600/400.jpg', type: 'image' },
-                        { url: 'https://picsum.photos/seed/6chan2/600/400.jpg', type: 'image' }
-                    ],
+                    image: 'https://picsum.photos/seed/6chan1/150/150.jpg',
                     author: 'Anonymous',
                     flair: 'Regular',
                     upvotes: 24,
                     downvotes: 3,
-                    replies: 15,
-                    tags: ['discussion', 'random']
+                    replies: 15
                 },
                 { 
                     id: 2, 
                     title: "Cool sunset I found",
                     content: 'Just found this cool image. Thoughts?', 
                     timestamp: '07/15/24(Sun)11:22', 
-                    images: [
-                        { url: 'https://picsum.photos/seed/sunset/600/400.jpg', type: 'image' }
-                    ],
+                    image: 'https://picsum.photos/seed/6chan2/150/150.jpg',
                     author: 'Anonymous',
                     flair: 'Newbie',
                     upvotes: 42,
                     downvotes: 1,
-                    replies: 8,
-                    tags: ['showcase', 'nature']
+                    replies: 8
                 },
                 { 
                     id: 3, 
                     title: "Share your favorite memes",
                     content: 'ITT: We share our favorite memes', 
                     timestamp: '07/15/24(Sun)09:45',
-                    images: [
-                        { url: 'https://picsum.photos/seed/meme1/600/400.jpg', type: 'image' },
-                        { url: 'https://picsum.photos/seed/meme2/600/400.jpg', type: 'image' },
-                        { url: 'https://picsum.photos/seed/meme3/600/400.jpg', type: 'image' }
-                    ],
                     author: 'Anonymous',
                     flair: 'Contributor',
                     upvotes: 67,
                     downvotes: 2,
-                    replies: 32,
-                    tags: ['meme', 'fun']
+                    replies: 32
                 }
             ],
             tech: [
@@ -2071,13 +1096,11 @@
                     title: "Best programming language?",
                     content: 'What do you think is the best programming language and why?', 
                     timestamp: '07/15/24(Sun)10:15',
-                    images: [],
                     author: 'Anonymous',
                     flair: 'Expert',
                     upvotes: 89,
                     downvotes: 5,
-                    replies: 45,
-                    tags: ['discussion', 'tech', 'programming']
+                    replies: 45
                 }
             ],
             anime: [
@@ -2086,15 +1109,11 @@
                     title: "What are you watching this season?",
                     content: 'What are you watching this season?', 
                     timestamp: '07/15/24(Sun)08:30',
-                    images: [
-                        { url: 'https://picsum.photos/seed/anime1/600/400.jpg', type: 'image' }
-                    ],
                     author: 'Anonymous',
                     flair: 'Regular',
                     upvotes: 56,
                     downvotes: 3,
-                    replies: 28,
-                    tags: ['discussion', 'anime']
+                    replies: 28
                 }
             ],
             games: [
@@ -2103,477 +1122,260 @@
                     title: "Upcoming games you're excited about?",
                     content: 'Any upcoming games you\'re excited about?', 
                     timestamp: '07/15/24(Sun)13:20',
-                    images: [
-                        { url: 'https://picsum.photos/seed/game1/600/400.jpg', type: 'image' },
-                        { url: 'https://picsum.photos/seed/game2/600/400.jpg', type: 'image' }
-                    ],
                     author: 'Anonymous',
                     flair: 'Newbie',
                     upvotes: 73,
                     downvotes: 4,
-                    replies: 39,
-                    tags: ['discussion', 'gaming', 'news']
+                    replies: 39
                 }
             ]
         };
 
         const posts = {
             1: [
-                { 
-                    id: 1, 
-                    content: 'Blue, no question about it. What about you OP?', 
-                    timestamp: '07/15/24(Sun)12:45', 
-                    author: 'Anonymous', 
-                    flair: 'Regular',
-                    images: [],
-                    upvotes: 5,
-                    downvotes: 0,
-                    level: 1
-                },
-                { 
-                    id: 2, 
-                    content: 'Green is the superior color. Nature agrees with me.', 
-                    timestamp: '07/15/24(Sun)12:52', 
-                    author: 'Anonymous', 
-                    flair: 'Contributor',
-                    images: [
-                        { url: 'https://picsum.photos/seed/green/600/400.jpg', type: 'image' }
-                    ],
-                    upvotes: 8,
-                    downvotes: 1,
-                    level: 1
-                },
-                { 
-                    id: 3, 
-                    content: 'Red. It\'s the color of passion and energy.', 
-                    timestamp: '07/15/24(Sun)13:05', 
-                    author: 'Anonymous', 
-                    flair: 'Newbie',
-                    images: [],
-                    upvotes: 3,
-                    downvotes: 0,
-                    level: 1
-                },
-                { 
-                    id: 4, 
-                    content: 'I prefer purple. It\'s the color of royalty and creativity.', 
-                    timestamp: '07/15/24(Sun)13:15', 
-                    author: 'Anonymous', 
-                    flair: 'Regular',
-                    images: [],
-                    upvotes: 7,
-                    downvotes: 0,
-                    level: 1,
-                    quote: {
-                        author: 'Anonymous',
-                        content: 'Blue, no question about it. What about you OP?'
-                    }
-                },
-                { 
-                    id: 5, 
-                    content: 'Yellow is the happiest color! It reminds me of sunshine.', 
-                    timestamp: '07/15/24(Sun)13:20', 
-                    author: 'Anonymous', 
-                    flair: 'Newbie',
-                    images: [
-                        { url: 'https://picsum.photos/seed/yellow/600/400.jpg', type: 'image' }
-                    ],
-                    upvotes: 4,
-                    downvotes: 1,
-                    level: 1
-                },
-                { 
-                    id: 6, 
-                    content: 'I like black. It goes with everything and looks sleek.', 
-                    timestamp: '07/15/24(Sun)13:25', 
-                    author: 'Anonymous', 
-                    flair: 'Regular',
-                    images: [],
-                    upvotes: 6,
-                    downvotes: 0,
-                    level: 1
-                },
-                { 
-                    id: 7, 
-                    content: 'White is the best. It\'s clean, pure, and minimalist.', 
-                    timestamp: '07/15/24(Sun)13:30', 
-                    author: 'Anonymous', 
-                    flair: 'Contributor',
-                    images: [],
-                    upvotes: 5,
-                    downvotes: 0,
-                    level: 1
-                },
-                { 
-                    id: 8, 
-                    content: 'Orange is such a vibrant and energetic color. Love it!', 
-                    timestamp: '07/15/24(Sun)13:35', 
-                    author: 'Anonymous', 
-                    flair: 'Newbie',
-                    images: [
-                        { url: 'https://picsum.photos/seed/orange/600/400.jpg', type: 'image' }
-                    ],
-                    upvotes: 3,
-                    downvotes: 0,
-                    level: 1
-                },
-                { 
-                    id: 9, 
-                    content: 'Pink is underrated. It\'s a beautiful color that represents compassion and love.', 
-                    timestamp: '07/15/24(Sun)13:40', 
-                    author: 'Anonymous', 
-                    flair: 'Regular',
-                    images: [],
-                    upvotes: 4,
-                    downvotes: 0,
-                    level: 1,
-                    quote: {
-                        author: 'Anonymous',
-                        content: 'Red. It\'s the color of passion and energy.'
-                    }
-                },
-                { 
-                    id: 10, 
-                    content: 'Brown is the color of earth and stability. Very grounding.', 
-                    timestamp: '07/15/24(Sun)13:45', 
-                    author: 'Anonymous', 
-                    flair: 'Newbie',
-                    images: [],
-                    upvotes: 2,
-                    downvotes: 0,
-                    level: 1
-                }
+                { id: 1, content: 'Blue, no question about it. What about you OP?', timestamp: '07/15/24(Sun)12:45', author: 'Anonymous', flair: 'Regular' },
+                { id: 2, content: 'Green is the superior color. Nature agrees with me.', timestamp: '07/15/24(Sun)12:52', author: 'Anonymous', flair: 'Contributor', image: 'https://picsum.photos/seed/6chan3/100/100.jpg' },
+                { id: 3, content: 'Red. It\'s the color of passion and energy.', timestamp: '07/15/24(Sun)13:05', author: 'Anonymous', flair: 'Newbie' }
             ],
             2: [
-                { 
-                    id: 11, 
-                    content: 'Looks like a sunset! Where was this taken?', 
-                    timestamp: '07/15/24(Sun)11:30', 
-                    author: 'Anonymous', 
-                    flair: 'Regular',
-                    images: [],
-                    upvotes: 4,
-                    downvotes: 0,
-                    level: 1
-                },
-                { 
-                    id: 12, 
-                    content: 'This reminds me of the sunset I saw last week at the beach. Absolutely beautiful!', 
-                    timestamp: '07/15/24(Sun)11:35', 
-                    author: 'Anonymous', 
-                    flair: 'Contributor',
-                    images: [
-                        { url: 'https://picsum.photos/seed/beach/600/400.jpg', type: 'image' }
-                    ],
-                    upvotes: 7,
-                    downvotes: 0,
-                    level: 1
-                },
-                { 
-                    id: 13, 
-                    content: 'The colors are amazing. Is this edited or natural?', 
-                    timestamp: '07/15/24(Sun)11:40', 
-                    author: 'Anonymous', 
-                    flair: 'Newbie',
-                    images: [],
-                    upvotes: 3,
-                    downvotes: 0,
-                    level: 1
-                },
-                { 
-                    id: 14, 
-                    content: 'I think it\'s natural. The lighting is just perfect.', 
-                    timestamp: '07/15/24(Sun)11:45', 
-                    author: 'Anonymous', 
-                    flair: 'Regular',
-                    images: [],
-                    upvotes: 5,
-                    downvotes: 0,
-                    level: 1
-                },
-                { 
-                    id: 15, 
-                    content: 'This would make a great wallpaper. Any chance of a higher resolution version?', 
-                    timestamp: '07/15/24(Sun)11:50', 
-                    author: 'Anonymous', 
-                    flair: 'Contributor',
-                    images: [],
-                    upvotes: 6,
-                    downvotes: 0,
-                    level: 1
-                }
+                { id: 4, content: 'Looks like a sunset!', timestamp: '07/15/24(Sun)11:30', author: 'Anonymous', flair: 'Regular' }
+            ],
+            4: [
+                { id: 5, content: 'JavaScript is the best because it runs everywhere!', timestamp: '07/15/24(Sun)10:30', author: 'Anonymous', flair: 'Expert' },
+                { id: 6, content: 'Rust is the future. Memory safety without garbage collection.', timestamp: '07/15/24(Sun)10:45', author: 'Anonymous', flair: 'Contributor' }
+            ],
+            5: [
+                { id: 7, content: 'Watching Oshi no Ko, it\'s amazing!', timestamp: '07/15/24(Sun)09:00', author: 'Anonymous', flair: 'Regular' },
+                { id: 8, content: 'Jujutsu Kaisen season 2 is great too.', timestamp: '07/15/24(Sun)09:15', author: 'Anonymous', flair: 'Newbie' }
+            ],
+            6: [
+                { id: 9, content: 'Really looking forward to Starfield!', timestamp: '07/15/24(Sun)14:00', author: 'Anonymous', flair: 'Contributor' },
+                { id: 10, content: 'I\'m more excited for Spider-Man 2.', timestamp: '07/15/24(Sun)14:15', author: 'Anonymous', flair: 'Regular' }
             ]
         };
 
         // Current state
-        let currentBoard = 'random';
+        let currentBoard = null;
         let currentThread = null;
         let userVotes = {}; // Track user votes to prevent multiple votes
         let userReports = {}; // Track user reports
         let darkMode = false;
-        let compactView = false;
-        let lightboxImages = [];
-        let currentLightboxIndex = 0;
-        let repliesLoaded = 5; // Number of replies initially loaded
-        const repliesPerLoad = 5; // Number of replies to load each time
 
         // DOM elements
         const homePage = document.getElementById('home-page');
         const boardPage = document.getElementById('board-page');
         const threadPage = document.getElementById('thread-page');
         const boardTitle = document.getElementById('board-title');
-        const threadList = document.getElementById('thread-list');
-        const boardThreadList = document.getElementById('board-thread-list');
+        const threadsContainer = document.getElementById('threads-container');
         const threadView = document.getElementById('thread-view');
-        const repliesList = document.getElementById('replies-list');
-        const loadMoreBtn = document.getElementById('load-more-btn');
-        const loadMoreReplies = document.getElementById('load-more-replies');
+        const backToBoard = document.getElementById('back-to-board');
         const replyForm = document.getElementById('reply-form');
-        const notificationContainer = document.getElementById('notification-container');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notification-text');
         const imageProposal = document.getElementById('image-proposal');
         const proposalModal = document.getElementById('proposal-modal');
-        const settingsModal = document.getElementById('settings-modal');
-        const lightbox = document.getElementById('lightbox');
-        const lightboxImage = document.getElementById('lightbox-image');
-        const shoutboxMessages = document.getElementById('shoutbox-messages');
-        const shoutboxInput = document.getElementById('shoutbox-input');
-        const shoutboxBtn = document.getElementById('shoutbox-btn');
+        const eventModal = document.getElementById('event-modal');
+        const closeModal = document.getElementById('close-modal');
+        const closeEventModal = document.getElementById('close-event-modal');
+        const submitProposal = document.getElementById('submit-proposal');
+        const submitEvent = document.getElementById('submit-event');
+        const cancelProposal = document.getElementById('cancel-proposal');
+        const cancelEvent = document.getElementById('cancel-event');
+        const imageUrl = document.getElementById('image-url');
+        const upvoteBtn = document.getElementById('upvote-btn');
+        const downvoteBtn = document.getElementById('downvote-btn');
+        const upvoteCount = document.getElementById('upvote-count');
+        const downvoteCount = document.getElementById('downvote-count');
+        const voteProgressBar = document.getElementById('vote-progress-bar');
+        const proposalImage = document.getElementById('proposal-image');
+        const proposalInfo = document.getElementById('proposal-info');
+        const themeToggle = document.getElementById('theme-toggle');
+        const createEvent = document.getElementById('create-event');
+        const eventsGrid = document.getElementById('events-grid');
 
-        // Initialize the app
-        document.addEventListener('DOMContentLoaded', () => {
-            // Check for saved theme preference
-            if (localStorage.getItem('darkMode') === 'true') {
-                darkMode = true;
-                document.documentElement.setAttribute('data-theme', 'dark');
-                document.getElementById('dark-mode-toggle').checked = true;
-            }
-            
-            // Load home page threads
-            loadHomePageThreads();
-            
-            // Set up event listeners
-            setupEventListeners();
+        // Theme toggle
+        themeToggle.addEventListener('click', () => {
+            darkMode = !darkMode;
+            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+            themeToggle.innerHTML = darkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            localStorage.setItem('darkMode', darkMode);
         });
 
-        function setupEventListeners() {
-            // Navigation
-            document.getElementById('home-link').addEventListener('click', (e) => {
-                e.preventDefault();
-                showHomePage();
-            });
-            
-            document.getElementById('boards-link').addEventListener('click', (e) => {
-                e.preventDefault();
-                showBoardPage(currentBoard);
-            });
-            
-            document.querySelectorAll('.board-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    const board = item.dataset.board;
-                    showBoardPage(board);
-                    
-                    // Update active board in sidebar
-                    document.querySelectorAll('.board-item').forEach(b => b.classList.remove('active'));
-                    item.classList.add('active');
-                });
-            });
-            
-            // Thread creation
-            document.getElementById('create-thread-btn').addEventListener('click', () => {
-                showNotification('Thread creation form would open here', 'info');
-            });
-            
-            document.getElementById('new-thread-btn').addEventListener('click', () => {
-                showNotification('Thread creation form would open here', 'info');
-            });
-            
-            // Image proposal
-            document.getElementById('propose-image-btn').addEventListener('click', () => {
-                proposalModal.classList.add('active');
-            });
-            
-            document.getElementById('close-proposal-modal').addEventListener('click', () => {
-                proposalModal.classList.remove('active');
-            });
-            
-            document.getElementById('cancel-proposal').addEventListener('click', () => {
-                proposalModal.classList.remove('active');
-            });
-            
-            document.getElementById('submit-proposal').addEventListener('click', () => {
-                const url = document.getElementById('proposal-image-url').value.trim();
-                if (url) {
-                    // Create a new proposal
-                    boards[currentBoard].proposal = {
-                        url: url,
-                        upvotes: 0,
-                        downvotes: 0,
-                        timestamp: new Date().toISOString()
-                    };
-                    
-                    // Reset user votes for this board
-                    userVotes[currentBoard] = null;
-                    
-                    // Update the UI
-                    updateImageProposal();
-                    proposalModal.classList.remove('active');
-                    document.getElementById('proposal-image-url').value = '';
-                    
-                    showNotification('Image proposal submitted! Community voting is now open.', 'success');
-                } else {
-                    showNotification('Please enter a valid image URL.', 'error');
-                }
-            });
-            
-            // Vote buttons
-            document.getElementById('upvote-btn').addEventListener('click', () => {
-                if (userVotes[currentBoard] !== 'up') {
-                    if (boards[currentBoard].proposal) {
-                        if (userVotes[currentBoard] === 'down') {
-                            boards[currentBoard].proposal.downvotes--;
-                        }
-                        boards[currentBoard].proposal.upvotes++;
-                        userVotes[currentBoard] = 'up';
-                        updateImageProposal();
-                        checkProposalApproval();
-                    }
-                }
-            });
-            
-            document.getElementById('downvote-btn').addEventListener('click', () => {
-                if (userVotes[currentBoard] !== 'down') {
-                    if (boards[currentBoard].proposal) {
-                        if (userVotes[currentBoard] === 'up') {
-                            boards[currentBoard].proposal.upvotes--;
-                        }
-                        boards[currentBoard].proposal.downvotes++;
-                        userVotes[currentBoard] = 'down';
-                        updateImageProposal();
-                    }
-                }
-            });
-            
-            // Settings
-            document.getElementById('settings-btn').addEventListener('click', () => {
-                settingsModal.classList.add('active');
-            });
-            
-            document.getElementById('close-settings-modal').addEventListener('click', () => {
-                settingsModal.classList.remove('active');
-            });
-            
-            document.getElementById('cancel-settings').addEventListener('click', () => {
-                settingsModal.classList.remove('active');
-            });
-            
-            document.getElementById('save-settings').addEventListener('click', () => {
-                // Save settings
-                darkMode = document.getElementById('dark-mode-toggle').checked;
-                compactView = document.getElementById('compact-view-toggle').checked;
-                
-                // Apply theme
-                document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-                localStorage.setItem('darkMode', darkMode);
-                
-                settingsModal.classList.remove('active');
-                showNotification('Settings saved successfully!', 'success');
-            });
-            
-            // Dark mode toggle
-            document.getElementById('dark-mode-toggle').addEventListener('change', (e) => {
-                darkMode = e.target.checked;
-                document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-                localStorage.setItem('darkMode', darkMode);
-            });
-            
-            // Reply form
-            replyForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const replyText = document.getElementById('reply-text').value.trim();
-                if (replyText) {
-                    // In a real app, this would be submitted to a server
-                    showNotification('Reply posted successfully!', 'success');
-                    replyForm.reset();
-                    
-                    // Reload replies
-                    if (currentThread) {
-                        loadThreadReplies(currentThread, true);
-                    }
-                }
-            });
-            
-            // Quote button
-            document.getElementById('quote-btn').addEventListener('click', () => {
-                const replyText = document.getElementById('reply-text');
-                const selectedText = window.getSelection().toString();
-                if (selectedText) {
-                    replyText.value = `> ${selectedText}\n\n`;
-                    replyText.focus();
-                } else {
-                    showNotification('Please select text to quote', 'info');
-                }
-            });
-            
-            // Preview button
-            document.getElementById('preview-btn').addEventListener('click', () => {
-                showNotification('Preview feature would show a formatted preview of your reply', 'info');
-            });
-            
-            // Load more replies
-            loadMoreBtn.addEventListener('click', () => {
-                repliesLoaded += repliesPerLoad;
-                loadThreadReplies(currentThread);
-            });
-            
-            // Lightbox
-            document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
-            document.getElementById('lightbox-prev').addEventListener('click', () => {
-                currentLightboxIndex = (currentLightboxIndex - 1 + lightboxImages.length) % lightboxImages.length;
-                updateLightboxImage();
-            });
-            document.getElementById('lightbox-next').addEventListener('click', () => {
-                currentLightboxIndex = (currentLightboxIndex + 1) % lightboxImages.length;
-                updateLightboxImage();
-            });
-            
-            // Shoutbox
-            shoutboxBtn.addEventListener('click', () => {
-                const message = shoutboxInput.value.trim();
-                if (message) {
-                    addShoutboxMessage('Anonymous', message);
-                    shoutboxInput.value = '';
-                }
-            });
-            
-            shoutboxInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    shoutboxBtn.click();
-                }
-            });
-            
-            // Sort buttons
-            document.querySelectorAll('.sort-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    
-                    // Reload replies with new sort order
-                    if (currentThread) {
-                        loadThreadReplies(currentThread, true);
-                    }
-                });
-            });
+        // Check for saved theme preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            darkMode = true;
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
         }
 
+        // Navigation
+        document.getElementById('home-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            showHomePage();
+        });
+
+        document.querySelectorAll('.board-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const board = e.currentTarget.dataset.board;
+                showBoardPage(board);
+            });
+        });
+
+        document.querySelectorAll('.propose-image').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                currentBoard = e.currentTarget.dataset.board;
+                proposalModal.classList.add('show');
+            });
+        });
+
+        document.getElementById('new-thread').addEventListener('click', () => {
+            showNotification('New thread created! (This is a demo)', 'success');
+        });
+
+        document.getElementById('propose-image').addEventListener('click', () => {
+            proposalModal.classList.add('show');
+        });
+
+        closeModal.addEventListener('click', () => {
+            proposalModal.classList.remove('show');
+            imageUrl.value = '';
+        });
+
+        closeEventModal.addEventListener('click', () => {
+            eventModal.classList.remove('show');
+            document.getElementById('event-title').value = '';
+            document.getElementById('event-date').value = '';
+            document.getElementById('event-description').value = '';
+        });
+
+        cancelProposal.addEventListener('click', () => {
+            proposalModal.classList.remove('show');
+            imageUrl.value = '';
+        });
+
+        cancelEvent.addEventListener('click', () => {
+            eventModal.classList.remove('show');
+            document.getElementById('event-title').value = '';
+            document.getElementById('event-date').value = '';
+            document.getElementById('event-description').value = '';
+        });
+
+        submitProposal.addEventListener('click', () => {
+            const url = imageUrl.value.trim();
+            if (url) {
+                // Create a new proposal
+                boards[currentBoard].proposal = {
+                    url: url,
+                    upvotes: 0,
+                    downvotes: 0,
+                    timestamp: new Date().toISOString()
+                };
+                
+                // Reset user votes for this board
+                userVotes[currentBoard] = null;
+                
+                // Update the UI
+                updateImageProposal();
+                proposalModal.classList.remove('show');
+                imageUrl.value = '';
+                
+                showNotification('Image proposal submitted! Community voting is now open.', 'success');
+            } else {
+                showNotification('Please enter a valid image URL.', 'error');
+            }
+        });
+
+        createEvent.addEventListener('click', () => {
+            eventModal.classList.add('show');
+        });
+
+        submitEvent.addEventListener('click', () => {
+            const title = document.getElementById('event-title').value.trim();
+            const date = document.getElementById('event-date').value;
+            const description = document.getElementById('event-description').value.trim();
+            
+            if (title && date && description) {
+                // Create new event card
+                const eventCard = document.createElement('div');
+                eventCard.className = 'event-card';
+                
+                const eventDate = new Date(date);
+                const formattedDate = eventDate.toLocaleDateString() + ' - ' + eventDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                eventCard.innerHTML = `
+                    <h3 class="event-title">${title}</h3>
+                    <div class="event-date"><i class="far fa-calendar"></i> ${formattedDate}</div>
+                    <p>${description}</p>
+                    <div class="event-participants">
+                        <div class="participants-avatars">
+                            <div class="participant-avatar">A</div>
+                            <div class="participant-avatar">+0</div>
+                        </div>
+                        <button class="btn btn-primary btn-sm">Join</button>
+                    </div>
+                `;
+                
+                eventsGrid.appendChild(eventCard);
+                
+                // Reset form and close modal
+                document.getElementById('event-title').value = '';
+                document.getElementById('event-date').value = '';
+                document.getElementById('event-description').value = '';
+                eventModal.classList.remove('show');
+                
+                showNotification('Event created successfully!', 'success');
+            } else {
+                showNotification('Please fill in all fields.', 'error');
+            }
+        });
+
+        upvoteBtn.addEventListener('click', () => {
+            if (userVotes[currentBoard] !== 'up') {
+                if (boards[currentBoard].proposal) {
+                    if (userVotes[currentBoard] === 'down') {
+                        boards[currentBoard].proposal.downvotes--;
+                    }
+                    boards[currentBoard].proposal.upvotes++;
+                    userVotes[currentBoard] = 'up';
+                    updateImageProposal();
+                    checkProposalApproval();
+                }
+            }
+        });
+
+        downvoteBtn.addEventListener('click', () => {
+            if (userVotes[currentBoard] !== 'down') {
+                if (boards[currentBoard].proposal) {
+                    if (userVotes[currentBoard] === 'up') {
+                        boards[currentBoard].proposal.upvotes--;
+                    }
+                    boards[currentBoard].proposal.downvotes++;
+                    userVotes[currentBoard] = 'down';
+                    updateImageProposal();
+                }
+            }
+        });
+
+        backToBoard.addEventListener('click', (e) => {
+            e.preventDefault();
+            showBoardPage(currentBoard);
+        });
+
+        replyForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            showNotification('Reply posted! (This is a demo)', 'success');
+            replyForm.reset();
+        });
+
+        // Functions to show different pages
         function showHomePage() {
             homePage.classList.remove('hidden');
             boardPage.classList.add('hidden');
             threadPage.classList.add('hidden');
-            
-            // Load home page threads if not already loaded
-            if (threadList.children.length === 0) {
-                loadHomePageThreads();
-            }
+            currentBoard = null;
+            currentThread = null;
         }
 
         function showBoardPage(boardId) {
@@ -2590,8 +1392,8 @@
             // Update image proposal section
             updateImageProposal();
             
-            // Load board threads
-            loadBoardThreads(boardId);
+            // Load threads
+            loadThreads(boardId);
         }
 
         function showThreadPage(threadId) {
@@ -2603,195 +1405,205 @@
             
             // Load thread and replies
             loadThread(threadId);
-            loadThreadReplies(threadId);
         }
 
-        function loadHomePageThreads() {
-            threadList.innerHTML = '';
-            
-            // Get threads from all boards
-            const allThreads = [];
-            for (const board in threads) {
-                threads[board].forEach(thread => {
-                    allThreads.push({...thread, board});
-                });
+        function updateImageProposal() {
+            if (boards[currentBoard].proposal) {
+                imageProposal.classList.remove('hidden');
+                proposalImage.src = boards[currentBoard].proposal.url;
+                
+                const totalVotes = boards[currentBoard].proposal.upvotes + boards[currentBoard].proposal.downvotes;
+                const upvotePercentage = totalVotes > 0 ? 
+                    (boards[currentBoard].proposal.upvotes / totalVotes) * 100 : 0;
+                
+                upvoteCount.textContent = `${boards[currentBoard].proposal.upvotes} upvotes`;
+                downvoteCount.textContent = `${boards[currentBoard].proposal.downvotes} downvotes`;
+                voteProgressBar.style.width = `${upvotePercentage}%`;
+                
+                // Update button states based on user's vote
+                if (userVotes[currentBoard] === 'up') {
+                    upvoteBtn.style.opacity = '0.7';
+                    downvoteBtn.style.opacity = '1';
+                } else if (userVotes[currentBoard] === 'down') {
+                    upvoteBtn.style.opacity = '1';
+                    downvoteBtn.style.opacity = '0.7';
+                } else {
+                    upvoteBtn.style.opacity = '1';
+                    downvoteBtn.style.opacity = '1';
+                }
+                
+                // Update proposal info
+                const date = new Date(boards[currentBoard].proposal.timestamp);
+                proposalInfo.textContent = `Proposed on ${date.toLocaleDateString()} at ${date.toLocaleTimeString()}`;
+            } else {
+                imageProposal.classList.add('hidden');
             }
-            
-            // Sort by upvotes (most popular first)
-            allThreads.sort((a, b) => (a.upvotes - a.downvotes) - (b.upvotes - b.downvotes));
-            
-            // Display top threads
-            allThreads.slice(0, 6).forEach(thread => {
-                const threadEl = createThreadElement(thread);
-                threadList.appendChild(threadEl);
-            });
         }
 
-        function loadBoardThreads(boardId) {
-            boardThreadList.innerHTML = '';
+        function checkProposalApproval() {
+            if (boards[currentBoard].proposal) {
+                const totalVotes = boards[currentBoard].proposal.upvotes + boards[currentBoard].proposal.downvotes;
+                const upvotePercentage = totalVotes > 0 ? 
+                    (boards[currentBoard].proposal.upvotes / totalVotes) * 100 : 0;
+                
+                // Approval criteria: at least 10 votes and 75% upvotes
+                if (totalVotes >= 10 && upvotePercentage >= 75) {
+                    // Approve the proposal
+                    boards[currentBoard].image = boards[currentBoard].proposal.url;
+                    boards[currentBoard].proposal = null;
+                    userVotes[currentBoard] = null;
+                    
+                    // Update the board image on the home page
+                    const boardElements = document.querySelectorAll('.board-link');
+                    boardElements.forEach(el => {
+                        if (el.dataset.board === currentBoard) {
+                            const boardEl = el.closest('.board');
+                            const boardImage = boardEl.querySelector('.board-image');
+                            boardImage.src = boards[currentBoard].image;
+                        }
+                    });
+                    
+                    // Hide the proposal section
+                    imageProposal.classList.add('hidden');
+                    
+                    showNotification('Community vote passed! Board image updated.', 'success');
+                }
+            }
+        }
+
+        function loadThreads(boardId) {
+            threadsContainer.innerHTML = '';
             
             if (threads[boardId]) {
                 threads[boardId].forEach(thread => {
-                    const threadEl = createThreadElement(thread);
-                    boardThreadList.appendChild(threadEl);
+                    const threadEl = document.createElement('div');
+                    threadEl.className = 'thread';
+                    
+                    const threadHeader = document.createElement('div');
+                    threadHeader.className = 'thread-header';
+                    
+                    const threadMeta = document.createElement('div');
+                    threadMeta.className = 'thread-meta';
+                    
+                    const threadAuthor = document.createElement('div');
+                    threadAuthor.className = 'thread-author';
+                    
+                    const authorAvatar = document.createElement('div');
+                    authorAvatar.className = 'author-avatar';
+                    authorAvatar.textContent = thread.author.charAt(0).toUpperCase();
+                    
+                    const authorInfo = document.createElement('div');
+                    authorInfo.className = 'author-info';
+                    
+                    const authorName = document.createElement('div');
+                    authorName.className = 'author-name';
+                    authorName.textContent = thread.author;
+                    
+                    const authorFlair = document.createElement('div');
+                    authorFlair.className = 'author-flair';
+                    authorFlair.textContent = thread.flair;
+                    
+                    authorInfo.appendChild(authorName);
+                    authorInfo.appendChild(authorFlair);
+                    
+                    threadAuthor.appendChild(authorAvatar);
+                    threadAuthor.appendChild(authorInfo);
+                    
+                    const threadStats = document.createElement('div');
+                    threadStats.className = 'thread-stats';
+                    
+                    const upvotes = document.createElement('div');
+                    upvotes.className = 'stat-item';
+                    upvotes.innerHTML = `<i class="fas fa-thumbs-up"></i> ${thread.upvotes}`;
+                    
+                    const downvotes = document.createElement('div');
+                    downvotes.className = 'stat-item';
+                    downvotes.innerHTML = `<i class="fas fa-thumbs-down"></i> ${thread.downvotes}`;
+                    
+                    const replies = document.createElement('div');
+                    replies.className = 'stat-item';
+                    replies.innerHTML = `<i class="fas fa-comment"></i> ${thread.replies}`;
+                    
+                    threadStats.appendChild(upvotes);
+                    threadStats.appendChild(downvotes);
+                    threadStats.appendChild(replies);
+                    
+                    threadMeta.appendChild(threadAuthor);
+                    threadMeta.appendChild(threadStats);
+                    
+                    const threadContent = document.createElement('div');
+                    threadContent.className = 'thread-content';
+                    
+                    if (thread.image) {
+                        const img = document.createElement('img');
+                        img.src = thread.image;
+                        img.alt = 'Thread image';
+                        img.className = 'thread-image';
+                        threadContent.appendChild(img);
+                    }
+                    
+                    const threadText = document.createElement('div');
+                    threadText.className = 'thread-text';
+                    
+                    const threadTitle = document.createElement('h3');
+                    threadTitle.className = 'thread-title';
+                    threadTitle.textContent = thread.title;
+                    
+                    const threadExcerpt = document.createElement('p');
+                    threadExcerpt.className = 'thread-excerpt';
+                    threadExcerpt.textContent = thread.content;
+                    
+                    threadText.appendChild(threadTitle);
+                    threadText.appendChild(threadExcerpt);
+                    
+                    threadContent.appendChild(threadText);
+                    
+                    const threadActions = document.createElement('div');
+                    threadActions.className = 'thread-actions';
+                    
+                    const replyBtn = document.createElement('button');
+                    replyBtn.className = 'action-btn';
+                    replyBtn.innerHTML = '<i class="fas fa-reply"></i> Reply';
+                    replyBtn.addEventListener('click', () => {
+                        showThreadPage(thread.id);
+                    });
+                    
+                    const upvoteBtn = document.createElement('button');
+                    upvoteBtn.className = 'action-btn';
+                    upvoteBtn.innerHTML = '<i class="fas fa-thumbs-up"></i> Upvote';
+                    upvoteBtn.addEventListener('click', () => {
+                        if (!userVotes[`thread-${thread.id}`]) {
+                            thread.upvotes++;
+                            userVotes[`thread-${thread.id}`] = 'up';
+                            upvoteBtn.classList.add('upvoted');
+                            showNotification('Thread upvoted!', 'success');
+                        }
+                    });
+                    
+                    const reportBtn = document.createElement('button');
+                    reportBtn.className = 'action-btn';
+                    reportBtn.innerHTML = '<i class="fas fa-flag"></i> Report';
+                    reportBtn.addEventListener('click', () => {
+                        if (!userReports[`thread-${thread.id}`]) {
+                            userReports[`thread-${thread.id}`] = true;
+                            reportBtn.classList.add('reported');
+                            showNotification('Thread reported for review', 'info');
+                        }
+                    });
+                    
+                    threadActions.appendChild(replyBtn);
+                    threadActions.appendChild(upvoteBtn);
+                    threadActions.appendChild(reportBtn);
+                    
+                    threadHeader.appendChild(threadMeta);
+                    
+                    threadEl.appendChild(threadHeader);
+                    threadEl.appendChild(threadContent);
+                    threadEl.appendChild(threadActions);
+                    
+                    threadsContainer.appendChild(threadEl);
                 });
             }
-        }
-
-        function createThreadElement(thread) {
-            const threadEl = document.createElement('div');
-            threadEl.className = 'thread';
-            
-            const threadHeader = document.createElement('div');
-            threadHeader.className = 'thread-header';
-            
-            const threadMeta = document.createElement('div');
-            threadMeta.className = 'thread-meta';
-            
-            const threadAuthor = document.createElement('div');
-            threadAuthor.className = 'thread-author';
-            
-            const authorAvatar = document.createElement('div');
-            authorAvatar.className = 'author-avatar';
-            authorAvatar.textContent = thread.author.charAt(0).toUpperCase();
-            
-            const authorInfo = document.createElement('div');
-            authorInfo.className = 'author-info';
-            
-            const authorName = document.createElement('div');
-            authorName.className = 'author-name';
-            authorName.textContent = thread.author;
-            
-            const authorFlair = document.createElement('div');
-            authorFlair.className = 'author-flair';
-            authorFlair.textContent = thread.flair;
-            
-            authorInfo.appendChild(authorName);
-            authorInfo.appendChild(authorFlair);
-            
-            threadAuthor.appendChild(authorAvatar);
-            threadAuthor.appendChild(authorInfo);
-            
-            const threadStats = document.createElement('div');
-            threadStats.className = 'thread-stats';
-            
-            const upvotes = document.createElement('div');
-            upvotes.className = 'stat';
-            upvotes.innerHTML = `<i class="fas fa-thumbs-up"></i> ${thread.upvotes}`;
-            
-            const downvotes = document.createElement('div');
-            downvotes.className = 'stat';
-            downvotes.innerHTML = `<i class="fas fa-thumbs-down"></i> ${thread.downvotes}`;
-            
-            const replies = document.createElement('div');
-            replies.className = 'stat';
-            replies.innerHTML = `<i class="fas fa-comment"></i> ${thread.replies}`;
-            
-            threadStats.appendChild(upvotes);
-            threadStats.appendChild(downvotes);
-            threadStats.appendChild(replies);
-            
-            threadMeta.appendChild(threadAuthor);
-            threadMeta.appendChild(threadStats);
-            
-            const threadContent = document.createElement('div');
-            threadContent.className = 'thread-content';
-            
-            if (thread.images && thread.images.length > 0) {
-                const imageContainer = document.createElement('div');
-                imageContainer.className = 'thread-image-container';
-                
-                const image = document.createElement('img');
-                image.className = 'thread-image';
-                image.src = thread.images[0].url;
-                image.alt = 'Thread image';
-                
-                const imageBadge = document.createElement('div');
-                imageBadge.className = 'image-badge';
-                imageBadge.textContent = thread.images.length > 1 ? `+${thread.images.length - 1}` : 'IMAGE';
-                
-                imageContainer.appendChild(image);
-                imageContainer.appendChild(imageBadge);
-                
-                // Add click event to open lightbox
-                imageContainer.addEventListener('click', () => {
-                    openLightbox(thread.images, 0);
-                });
-                
-                threadContent.appendChild(imageContainer);
-            }
-            
-            const threadText = document.createElement('div');
-            threadText.className = 'thread-text';
-            
-            const threadTitle = document.createElement('h3');
-            threadTitle.className = 'thread-title';
-            threadTitle.textContent = thread.title;
-            
-            const threadExcerpt = document.createElement('p');
-            threadExcerpt.className = 'thread-excerpt';
-            threadExcerpt.textContent = thread.content;
-            
-            threadText.appendChild(threadTitle);
-            threadText.appendChild(threadExcerpt);
-            
-            if (thread.tags && thread.tags.length > 0) {
-                const threadTags = document.createElement('div');
-                threadTags.className = 'thread-tags';
-                
-                thread.tags.forEach(tag => {
-                    const tagEl = document.createElement('span');
-                    tagEl.className = 'tag';
-                    tagEl.textContent = `#${tag}`;
-                    threadTags.appendChild(tagEl);
-                });
-                
-                threadText.appendChild(threadTags);
-            }
-            
-            threadContent.appendChild(threadText);
-            
-            const threadActions = document.createElement('div');
-            threadActions.className = 'thread-actions';
-            
-            const replyBtn = document.createElement('button');
-            replyBtn.className = 'action-btn';
-            replyBtn.innerHTML = '<i class="fas fa-reply"></i> Reply';
-            replyBtn.addEventListener('click', () => {
-                showThreadPage(thread.id);
-            });
-            
-            const upvoteBtn = document.createElement('button');
-            upvoteBtn.className = 'action-btn';
-            upvoteBtn.innerHTML = '<i class="fas fa-thumbs-up"></i> Upvote';
-            upvoteBtn.addEventListener('click', () => {
-                if (!userVotes[`thread-${thread.id}`]) {
-                    thread.upvotes++;
-                    userVotes[`thread-${thread.id}`] = 'up';
-                    upvoteBtn.classList.add('upvoted');
-                    showNotification('Thread upvoted!', 'success');
-                }
-            });
-            
-            const saveBtn = document.createElement('button');
-            saveBtn.className = 'action-btn';
-            saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> Save';
-            saveBtn.addEventListener('click', () => {
-                saveBtn.classList.toggle('saved');
-                showNotification(saveBtn.classList.contains('saved') ? 'Thread saved!' : 'Thread unsaved', 'success');
-            });
-            
-            threadActions.appendChild(replyBtn);
-            threadActions.appendChild(upvoteBtn);
-            threadActions.appendChild(saveBtn);
-            
-            threadHeader.appendChild(threadMeta);
-            
-            threadEl.appendChild(threadHeader);
-            threadEl.appendChild(threadContent);
-            threadEl.appendChild(threadActions);
-            
-            return threadEl;
         }
 
         function loadThread(threadId) {
@@ -2799,12 +1611,10 @@
             
             // Find the thread
             let thread = null;
-            let threadBoard = null;
             for (const board in threads) {
                 const found = threads[board].find(t => t.id === parseInt(threadId));
                 if (found) {
                     thread = found;
-                    threadBoard = board;
                     break;
                 }
             }
@@ -2812,14 +1622,10 @@
             if (thread) {
                 // Create OP post
                 const opPost = document.createElement('div');
-                opPost.className = 'op-post';
+                opPost.className = 'thread';
                 
-                const opBadge = document.createElement('span');
-                opBadge.className = 'op-badge';
-                opBadge.textContent = 'OP';
-                
-                const postHeader = document.createElement('div');
-                postHeader.className = 'thread-header';
+                const threadHeader = document.createElement('div');
+                threadHeader.className = 'thread-header';
                 
                 const threadMeta = document.createElement('div');
                 threadMeta.className = 'thread-meta';
@@ -2849,529 +1655,181 @@
                 threadAuthor.appendChild(authorInfo);
                 
                 const postInfo = document.createElement('div');
-                postInfo.className = 'stat';
+                postInfo.className = 'stat-item';
                 postInfo.innerHTML = `<i class="far fa-clock"></i> ${thread.timestamp}`;
                 
                 threadMeta.appendChild(threadAuthor);
                 threadMeta.appendChild(postInfo);
                 
-                postHeader.appendChild(threadMeta);
+                const threadContent = document.createElement('div');
+                threadContent.className = 'thread-content';
                 
-                const postContent = document.createElement('div');
-                postContent.className = 'post-content';
-                
-                const postText = document.createElement('div');
-                postText.className = 'post-text';
-                
-                const postTitle = document.createElement('h3');
-                postTitle.className = 'thread-title';
-                postTitle.textContent = thread.title;
-                
-                const postExcerpt = document.createElement('p');
-                postExcerpt.textContent = thread.content;
-                
-                postText.appendChild(postTitle);
-                postText.appendChild(postExcerpt);
-                
-                postContent.appendChild(postText);
-                
-                // Add images if any
-                if (thread.images && thread.images.length > 0) {
-                    const postGallery = document.createElement('div');
-                    postGallery.className = 'post-gallery';
-                    
-                    thread.images.forEach((image, index) => {
-                        const galleryItem = document.createElement('div');
-                        galleryItem.className = 'gallery-item';
-                        
-                        const galleryImage = document.createElement('img');
-                        galleryImage.className = 'gallery-image';
-                        galleryImage.src = image.url;
-                        galleryImage.alt = `Thread image ${index + 1}`;
-                        
-                        const imageBadge = document.createElement('div');
-                        imageBadge.className = 'gallery-badge';
-                        imageBadge.textContent = image.type.toUpperCase();
-                        
-                        galleryItem.appendChild(galleryImage);
-                        galleryItem.appendChild(imageBadge);
-                        
-                        // Add click event to open lightbox
-                        galleryItem.addEventListener('click', () => {
-                            openLightbox(thread.images, index);
-                        });
-                        
-                        postGallery.appendChild(galleryItem);
-                    });
-                    
-                    postContent.appendChild(postGallery);
+                if (thread.image) {
+                    const img = document.createElement('img');
+                    img.src = thread.image;
+                    img.alt = 'Thread image';
+                    img.className = 'thread-image';
+                    threadContent.appendChild(img);
                 }
                 
-                // Add tags if any
-                if (thread.tags && thread.tags.length > 0) {
-                    const threadTags = document.createElement('div');
-                    threadTags.className = 'thread-tags';
-                    
-                    thread.tags.forEach(tag => {
-                        const tagEl = document.createElement('span');
-                        tagEl.className = 'tag';
-                        tagEl.textContent = `#${tag}`;
-                        threadTags.appendChild(tagEl);
-                    });
-                    
-                    postContent.appendChild(threadTags);
-                }
+                const threadText = document.createElement('div');
+                threadText.className = 'thread-text';
                 
-                const postActions = document.createElement('div');
-                postActions.className = 'post-actions';
+                const threadTitle = document.createElement('h3');
+                threadTitle.className = 'thread-title';
+                threadTitle.textContent = thread.title;
                 
-                const postStats = document.createElement('div');
-                postStats.className = 'post-stats';
+                const threadExcerpt = document.createElement('p');
+                threadExcerpt.className = 'thread-excerpt';
+                threadExcerpt.textContent = thread.content;
                 
-                const upvotes = document.createElement('div');
-                upvotes.className = 'stat';
-                upvotes.innerHTML = `<i class="fas fa-thumbs-up"></i> ${thread.upvotes}`;
+                threadText.appendChild(threadTitle);
+                threadText.appendChild(threadExcerpt);
                 
-                const downvotes = document.createElement('div');
-                downvotes.className = 'stat';
-                downvotes.innerHTML = `<i class="fas fa-thumbs-down"></i> ${thread.downvotes}`;
+                threadContent.appendChild(threadText);
                 
-                const replies = document.createElement('div');
-                replies.className = 'stat';
-                replies.innerHTML = `<i class="fas fa-comment"></i> ${thread.replies}`;
+                threadHeader.appendChild(threadMeta);
                 
-                postStats.appendChild(upvotes);
-                postStats.appendChild(downvotes);
-                postStats.appendChild(replies);
-                
-                const postActionButtons = document.createElement('div');
-                postActionButtons.className = 'post-action-buttons';
-                
-                const upvoteBtn = document.createElement('button');
-                upvoteBtn.className = 'action-btn';
-                upvoteBtn.innerHTML = '<i class="fas fa-thumbs-up"></i> Upvote';
-                upvoteBtn.addEventListener('click', () => {
-                    if (!userVotes[`thread-${thread.id}`]) {
-                        thread.upvotes++;
-                        userVotes[`thread-${thread.id}`] = 'up';
-                        upvoteBtn.classList.add('upvoted');
-                        showNotification('Thread upvoted!', 'success');
-                    }
-                });
-                
-                const saveBtn = document.createElement('button');
-                saveBtn.className = 'action-btn';
-                saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> Save';
-                saveBtn.addEventListener('click', () => {
-                    saveBtn.classList.toggle('saved');
-                    showNotification(saveBtn.classList.contains('saved') ? 'Thread saved!' : 'Thread unsaved', 'success');
-                });
-                
-                const shareBtn = document.createElement('button');
-                shareBtn.className = 'action-btn';
-                shareBtn.innerHTML = '<i class="fas fa-share"></i> Share';
-                shareBtn.addEventListener('click', () => {
-                    showNotification('Share link copied to clipboard!', 'success');
-                });
-                
-                postActionButtons.appendChild(upvoteBtn);
-                postActionButtons.appendChild(saveBtn);
-                postActionButtons.appendChild(shareBtn);
-                
-                postActions.appendChild(postStats);
-                postActions.appendChild(postActionButtons);
-                
-                opPost.appendChild(opBadge);
-                opPost.appendChild(postHeader);
-                opPost.appendChild(postContent);
-                opPost.appendChild(postActions);
+                opPost.appendChild(threadHeader);
+                opPost.appendChild(threadContent);
                 
                 threadView.appendChild(opPost);
-            }
-        }
-
-        function loadThreadReplies(threadId, reset = false) {
-            if (reset) {
-                repliesList.innerHTML = '';
-                repliesLoaded = repliesPerLoad;
-            }
-            
-            if (posts[threadId]) {
-                // Get the active sort method
-                const activeSort = document.querySelector('.sort-btn.active').dataset.sort;
                 
-                // Sort replies based on selected method
-                let sortedReplies = [...posts[threadId]];
-                if (activeSort === 'top') {
-                    sortedReplies.sort((a, b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes));
-                } else if (activeSort === 'oldest') {
-                    sortedReplies.sort((a, b) => a.id - b.id);
-                } else { // newest (default)
-                    sortedReplies.sort((a, b) => b.id - a.id);
-                }
+                // Create replies container
+                const repliesContainer = document.createElement('div');
+                repliesContainer.className = 'replies';
                 
-                // Load only the specified number of replies
-                const repliesToLoad = sortedReplies.slice(0, repliesLoaded);
-                
-                repliesToLoad.forEach(reply => {
-                    const replyEl = createReplyElement(reply);
-                    repliesList.appendChild(replyEl);
-                });
-                
-                // Show/hide load more button
-                if (repliesLoaded >= posts[threadId].length) {
-                    loadMoreReplies.classList.add('hidden');
-                } else {
-                    loadMoreReplies.classList.remove('hidden');
-                }
-            }
-        }
-
-        function createReplyElement(reply) {
-            const replyEl = document.createElement('div');
-            replyEl.className = 'reply';
-            
-            if (reply.level > 1) {
-                const replyLevel = document.createElement('div');
-                replyLevel.className = 'reply-level';
-                replyLevel.textContent = reply.level;
-                replyEl.appendChild(replyLevel);
-            }
-            
-            const replyHeader = document.createElement('div');
-            replyHeader.className = 'reply-header';
-            
-            const replyMeta = document.createElement('div');
-            replyMeta.className = 'thread-meta';
-            
-            const replyAuthor = document.createElement('div');
-            replyAuthor.className = 'thread-author';
-            
-            const authorAvatar = document.createElement('div');
-            authorAvatar.className = 'author-avatar';
-            authorAvatar.textContent = reply.author.charAt(0).toUpperCase();
-            
-            const authorInfo = document.createElement('div');
-            authorInfo.className = 'author-info';
-            
-            const authorName = document.createElement('div');
-            authorName.className = 'author-name';
-            authorName.textContent = reply.author;
-            
-            const authorFlair = document.createElement('div');
-            authorFlair.className = 'author-flair';
-            authorFlair.textContent = reply.flair;
-            
-            authorInfo.appendChild(authorName);
-            authorInfo.appendChild(authorFlair);
-            
-            replyAuthor.appendChild(authorAvatar);
-            replyAuthor.appendChild(authorInfo);
-            
-            const replyInfo = document.createElement('div');
-            replyInfo.className = 'stat';
-            replyInfo.innerHTML = `<i class="far fa-clock"></i> ${reply.timestamp}`;
-            
-            replyMeta.appendChild(replyAuthor);
-            replyMeta.appendChild(replyInfo);
-            
-            replyHeader.appendChild(replyMeta);
-            
-            const replyContent = document.createElement('div');
-            replyContent.className = 'reply-content';
-            
-            const replyText = document.createElement('div');
-            replyText.className = 'reply-text';
-            
-            // Add quote if present
-            if (reply.quote) {
-                const replyQuote = document.createElement('div');
-                replyQuote.className = 'reply-quote';
-                
-                const quoteAuthor = document.createElement('div');
-                quoteAuthor.className = 'quote-author';
-                quoteAuthor.textContent = `@${reply.quote.author}`;
-                
-                const quoteContent = document.createElement('div');
-                quoteContent.textContent = reply.quote.content;
-                
-                replyQuote.appendChild(quoteAuthor);
-                replyQuote.appendChild(quoteContent);
-                
-                replyText.appendChild(replyQuote);
-            }
-            
-            const replyContentText = document.createElement('p');
-            replyContentText.textContent = reply.content;
-            
-            replyText.appendChild(replyContentText);
-            
-            // Add images if any
-            if (reply.images && reply.images.length > 0) {
-                reply.images.forEach(image => {
-                    const replyImage = document.createElement('img');
-                    replyImage.className = 'reply-image';
-                    replyImage.src = image.url;
-                    replyImage.alt = 'Reply image';
-                    
-                    // Add click event to open lightbox
-                    replyImage.addEventListener('click', () => {
-                        openLightbox([image], 0);
-                    });
-                    
-                    replyText.appendChild(replyImage);
-                });
-            }
-            
-            replyContent.appendChild(replyText);
-            
-            const replyActions = document.createElement('div');
-            replyActions.className = 'reply-actions';
-            
-            const replyActionButtons = document.createElement('div');
-            replyActionButtons.className = 'reply-action-buttons';
-            
-            const upvoteBtn = document.createElement('button');
-            upvoteBtn.className = 'action-btn';
-            upvoteBtn.innerHTML = '<i class="fas fa-thumbs-up"></i> Upvote';
-            upvoteBtn.addEventListener('click', () => {
-                if (!userVotes[`reply-${reply.id}`]) {
-                    reply.upvotes++;
-                    userVotes[`reply-${reply.id}`] = 'up';
-                    upvoteBtn.classList.add('upvoted');
-                    showNotification('Reply upvoted!', 'success');
-                }
-            });
-            
-            const replyBtn = document.createElement('button');
-            replyBtn.className = 'action-btn';
-            replyBtn.innerHTML = '<i class="fas fa-reply"></i> Reply';
-            replyBtn.addEventListener('click', () => {
-                // Scroll to reply form and focus on it
-                document.getElementById('reply-text').focus();
-                
-                // Add quote if text is selected
-                const selectedText = window.getSelection().toString();
-                if (selectedText) {
-                    document.getElementById('reply-text').value = `> ${selectedText}\n\n`;
-                }
-            });
-            
-            const reportBtn = document.createElement('button');
-            reportBtn.className = 'action-btn';
-            reportBtn.innerHTML = '<i class="fas fa-flag"></i> Report';
-            reportBtn.addEventListener('click', () => {
-                if (!userReports[`reply-${reply.id}`]) {
-                    userReports[`reply-${reply.id}`] = true;
-                    reportBtn.classList.add('reported');
-                    showNotification('Reply reported for review', 'info');
-                }
-            });
-            
-            replyActionButtons.appendChild(upvoteBtn);
-            replyActionButtons.appendChild(replyBtn);
-            replyActionButtons.appendChild(reportBtn);
-            
-            const replyStats = document.createElement('div');
-            replyStats.className = 'post-stats';
-            
-            const upvotes = document.createElement('div');
-            upvotes.className = 'stat';
-            upvotes.innerHTML = `<i class="fas fa-thumbs-up"></i> ${reply.upvotes}`;
-            
-            const downvotes = document.createElement('div');
-            downvotes.className = 'stat';
-            downvotes.innerHTML = `<i class="fas fa-thumbs-down"></i> ${reply.downvotes}`;
-            
-            replyStats.appendChild(upvotes);
-            replyStats.appendChild(downvotes);
-            
-            replyActions.appendChild(replyStats);
-            replyActions.appendChild(replyActionButtons);
-            
-            replyEl.appendChild(replyHeader);
-            replyEl.appendChild(replyContent);
-            replyEl.appendChild(replyActions);
-            
-            return replyEl;
-        }
-
-        function updateImageProposal() {
-            if (boards[currentBoard].proposal) {
-                imageProposal.classList.remove('hidden');
-                document.getElementById('proposal-image').src = boards[currentBoard].proposal.url;
-                
-                const totalVotes = boards[currentBoard].proposal.upvotes + boards[currentBoard].proposal.downvotes;
-                const upvotePercentage = totalVotes > 0 ? 
-                    (boards[currentBoard].proposal.upvotes / totalVotes) * 100 : 0;
-                
-                document.getElementById('upvote-count').textContent = `${boards[currentBoard].proposal.upvotes} upvotes`;
-                document.getElementById('downvote-count').textContent = `${boards[currentBoard].proposal.downvotes} downvotes`;
-                document.getElementById('vote-progress-bar').style.width = `${upvotePercentage}%`;
-                
-                // Update button states based on user's vote
-                if (userVotes[currentBoard] === 'up') {
-                    document.getElementById('upvote-btn').style.opacity = '0.7';
-                    document.getElementById('downvote-btn').style.opacity = '1';
-                } else if (userVotes[currentBoard] === 'down') {
-                    document.getElementById('upvote-btn').style.opacity = '1';
-                    document.getElementById('downvote-btn').style.opacity = '0.7';
-                } else {
-                    document.getElementById('upvote-btn').style.opacity = '1';
-                    document.getElementById('downvote-btn').style.opacity = '1';
-                }
-                
-                // Update proposal info
-                const date = new Date(boards[currentBoard].proposal.timestamp);
-                document.getElementById('proposal-info').textContent = `Proposed on ${date.toLocaleDateString()} at ${date.toLocaleTimeString()}`;
-            } else {
-                imageProposal.classList.add('hidden');
-            }
-        }
-
-        function checkProposalApproval() {
-            if (boards[currentBoard].proposal) {
-                const totalVotes = boards[currentBoard].proposal.upvotes + boards[currentBoard].proposal.downvotes;
-                const upvotePercentage = totalVotes > 0 ? 
-                    (boards[currentBoard].proposal.upvotes / totalVotes) * 100 : 0;
-                
-                // Approval criteria: at least 10 votes and 75% upvotes
-                if (totalVotes >= 10 && upvotePercentage >= 75) {
-                    // Approve the proposal
-                    boards[currentBoard].image = boards[currentBoard].proposal.url;
-                    boards[currentBoard].proposal = null;
-                    userVotes[currentBoard] = null;
-                    
-                    // Update the board image on the home page
-                    const boardElements = document.querySelectorAll('.board-item');
-                    boardElements.forEach(el => {
-                        if (el.dataset.board === currentBoard) {
-                            const boardImage = el.querySelector('.board-image');
-                            if (boardImage) {
-                                boardImage.src = boards[currentBoard].image;
-                            }
+                // Add replies
+                if (posts[threadId]) {
+                    posts[threadId].forEach(post => {
+                        const postEl = document.createElement('div');
+                        postEl.className = 'thread';
+                        
+                        const postHeader = document.createElement('div');
+                        postHeader.className = 'thread-header';
+                        
+                        const postMeta = document.createElement('div');
+                        postMeta.className = 'thread-meta';
+                        
+                        const postAuthor = document.createElement('div');
+                        postAuthor.className = 'thread-author';
+                        
+                        const authorAvatar = document.createElement('div');
+                        authorAvatar.className = 'author-avatar';
+                        authorAvatar.textContent = post.author.charAt(0).toUpperCase();
+                        
+                        const authorInfo = document.createElement('div');
+                        authorInfo.className = 'author-info';
+                        
+                        const authorName = document.createElement('div');
+                        authorName.className = 'author-name';
+                        authorName.textContent = post.author;
+                        
+                        const authorFlair = document.createElement('div');
+                        authorFlair.className = 'author-flair';
+                        authorFlair.textContent = post.flair;
+                        
+                        authorInfo.appendChild(authorName);
+                        authorInfo.appendChild(authorFlair);
+                        
+                        postAuthor.appendChild(authorAvatar);
+                        postAuthor.appendChild(authorInfo);
+                        
+                        const postInfo = document.createElement('div');
+                        postInfo.className = 'stat-item';
+                        postInfo.innerHTML = `<i class="far fa-clock"></i> ${post.timestamp}`;
+                        
+                        postMeta.appendChild(postAuthor);
+                        postMeta.appendChild(postInfo);
+                        
+                        const postContent = document.createElement('div');
+                        postContent.className = 'thread-content';
+                        
+                        if (post.image) {
+                            const img = document.createElement('img');
+                            img.src = post.image;
+                            img.alt = 'Reply image';
+                            img.className = 'thread-image';
+                            postContent.appendChild(img);
                         }
+                        
+                        const postText = document.createElement('div');
+                        postText.className = 'thread-text';
+                        
+                        const postExcerpt = document.createElement('p');
+                        postExcerpt.className = 'thread-excerpt';
+                        postExcerpt.textContent = post.content;
+                        
+                        postText.appendChild(postExcerpt);
+                        
+                        postContent.appendChild(postText);
+                        
+                        const postActions = document.createElement('div');
+                        postActions.className = 'thread-actions';
+                        
+                        const upvoteBtn = document.createElement('button');
+                        upvoteBtn.className = 'action-btn';
+                        upvoteBtn.innerHTML = '<i class="fas fa-thumbs-up"></i> Upvote';
+                        upvoteBtn.addEventListener('click', () => {
+                            if (!userVotes[`post-${post.id}`]) {
+                                userVotes[`post-${post.id}`] = 'up';
+                                upvoteBtn.classList.add('upvoted');
+                                showNotification('Reply upvoted!', 'success');
+                            }
+                        });
+                        
+                        const reportBtn = document.createElement('button');
+                        reportBtn.className = 'action-btn';
+                        reportBtn.innerHTML = '<i class="fas fa-flag"></i> Report';
+                        reportBtn.addEventListener('click', () => {
+                            if (!userReports[`post-${post.id}`]) {
+                                userReports[`post-${post.id}`] = true;
+                                reportBtn.classList.add('reported');
+                                showNotification('Reply reported for review', 'info');
+                            }
+                        });
+                        
+                        postActions.appendChild(upvoteBtn);
+                        postActions.appendChild(reportBtn);
+                        
+                        postHeader.appendChild(postMeta);
+                        
+                        postEl.appendChild(postHeader);
+                        postEl.appendChild(postContent);
+                        postEl.appendChild(postActions);
+                        
+                        repliesContainer.appendChild(postEl);
                     });
-                    
-                    // Hide the proposal section
-                    imageProposal.classList.add('hidden');
-                    
-                    showNotification('Community vote passed! Board image updated.', 'success');
                 }
+                
+                threadView.appendChild(repliesContainer);
             }
-        }
-
-        function openLightbox(images, index) {
-            lightboxImages = images;
-            currentLightboxIndex = index;
-            updateLightboxImage();
-            lightbox.classList.add('active');
-        }
-
-        function updateLightboxImage() {
-            if (lightboxImages.length > 0) {
-                lightboxImage.src = lightboxImages[currentLightboxIndex].url;
-            }
-        }
-
-        function closeLightbox() {
-            lightbox.classList.remove('active');
-        }
-
-        function addShoutboxMessage(author, message) {
-            const messageEl = document.createElement('div');
-            messageEl.className = 'shoutbox-message';
-            
-            const messageHeader = document.createElement('div');
-            messageHeader.className = 'shoutbox-header';
-            
-            const messageUser = document.createElement('div');
-            messageUser.className = 'shoutbox-user';
-            
-            const userAvatar = document.createElement('div');
-            userAvatar.className = 'leaderboard-avatar';
-            userAvatar.textContent = author.charAt(0).toUpperCase();
-            
-            messageUser.appendChild(userAvatar);
-            messageUser.appendChild(document.createTextNode(author));
-            
-            const messageTime = document.createElement('div');
-            messageTime.className = 'shoutbox-time';
-            messageTime.textContent = 'Just now';
-            
-            messageHeader.appendChild(messageUser);
-            messageHeader.appendChild(messageTime);
-            
-            const messageContent = document.createElement('div');
-            messageContent.textContent = message;
-            
-            messageEl.appendChild(messageHeader);
-            messageEl.appendChild(messageContent);
-            
-            shoutboxMessages.appendChild(messageEl);
-            shoutboxMessages.scrollTop = shoutboxMessages.scrollHeight;
         }
 
         function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.className = `notification notification-${type}`;
+            notificationText.textContent = message;
+            notification.className = 'notification';
+            notification.classList.add(type);
             
-            const icon = document.createElement('div');
-            icon.className = 'notification-icon';
-            
+            // Update icon based on type
+            const icon = notification.querySelector('i');
             if (type === 'success') {
-                icon.innerHTML = '<i class="fas fa-check-circle"></i>';
+                icon.className = 'fas fa-check-circle';
             } else if (type === 'error') {
-                icon.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+                icon.className = 'fas fa-exclamation-circle';
             } else if (type === 'info') {
-                icon.innerHTML = '<i class="fas fa-info-circle"></i>';
-            } else if (type === 'warning') {
-                icon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+                icon.className = 'fas fa-info-circle';
             }
             
-            const content = document.createElement('div');
-            content.className = 'notification-content';
+            notification.classList.add('show');
             
-            const title = document.createElement('div');
-            title.className = 'notification-title';
-            title.textContent = type.charAt(0).toUpperCase() + type.slice(1);
-            
-            const messageEl = document.createElement('div');
-            messageEl.className = 'notification-message';
-            messageEl.textContent = message;
-            
-            content.appendChild(title);
-            content.appendChild(messageEl);
-            
-            const closeBtn = document.createElement('button');
-            closeBtn.className = 'notification-close';
-            closeBtn.innerHTML = '&times;';
-            closeBtn.addEventListener('click', () => {
-                notification.classList.remove('show');
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            });
-            
-            notification.appendChild(icon);
-            notification.appendChild(content);
-            notification.appendChild(closeBtn);
-            
-            notificationContainer.appendChild(notification);
-            
-            // Trigger animation
-            setTimeout(() => {
-                notification.classList.add('show');
-            }, 10);
-            
-            // Auto remove after 5 seconds
             setTimeout(() => {
                 notification.classList.remove('show');
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            }, 5000);
+            }, 3000);
         }
+
+        // Initialize the app
+        showHomePage();
     </script>
 </body>
 </html>
