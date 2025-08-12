@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Gold Bulldozer Collector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Comic Sans MS', cursive;
+        }
+        
+        body {
+            background: linear-gradient(to bottom, #87CEEB, #E0F7FA);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .game-container {
+            width: 100%;
+            max-width: 500px;
+            height: 100vh;
+            max-height: 900px;
+            background: linear-gradient(to bottom, #87CEEB, #8BC34A);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .top-bar {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+        
+        .currency {
+            display: flex;
+            align-items: center;
+            background-color: #FFD700;
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: 0 3px 0 #DAA520;
+        }
+        
+        .currency-icon {
+            width: 24px;
+            height: 24px;
+            background-color: '#FFD700';
+            border-radius: 50%;
+            margin-right: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #8B4513;
+        }
+        
+        .currency-text {
+            font-weight: bold;
+            color: #8B4513;
+            font-size: 18px;
+        }
+        
+        .gems {
+            display: flex;
+            align-items: center;
+            background-color: #E91E63';
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: 0 3px 0 #AD1457;
+        }
+        
+        .gems-icon {
+            width: 24px;
+            height: 24px;
+            background-color: '#E91E63';
+            border-radius: 50%;
+            margin-right: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .gems-text {
+            font-weight: bold;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .game-area {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        .stage-info {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.8);
+            color: #FF5722;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 8px 20px;
+            border-radius: 30px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            z-index: 5;
+            text-align: center;
+        }
+        
+        .progress-container {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 20px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+            z-index: 5;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: #4CAF50;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .bottom-controls {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+        
+        .control-btn {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 12px 20px;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 4px 0 #1565C0;
+            cursor: pointer;
+            transition: all 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .control-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #1565C0;
+        }
+        
+        .control-btn.gems {
+            background-color: #E91E63;
+            box-shadow: 0 4px 0 #AD1457;
+        }
+        
+        .control-btn.gems:active {
+            box-shadow: 0 2px 0 #AD1457;
+        }
+        
+        .control-btn.upgrade {
+            background-color: #FF9800;
+            box-shadow: 0 4px 0 #E65100;
+        }
+        
+        .control-btn.upgrade:active {
+            box-shadow: 0 2px 0 #E65100;
+        }
+        
+        .btn-icon {
+            margin-right: 5px;
+        }
+        
+        .message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #FF5722;
+            padding: 15px 25px;
+            border-radius: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            display: none;
+        }
+        
+        .message.show {
+            display: block;
+            animation: messagePopup 1.5s forwards;
+        }
+        
+        @keyframes messagePopup {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            20% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            80% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        }
+        
+        .controls-hint {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="top-bar">
+            <div class="currency">
+                <div class="currency-icon">$</div>
+                <div class="currency-text"><span id="currency">220.01</span> AE</div>
+            </div>
+            <div class="gems">
+                <div class="gems-icon">💎</div>
+                <div class="currency-text"><span id="gems">15</span></div>
+            </div>
+        </div>
+        
+        <div class="game-area">
+            <div class="stage-info">
+                Stage <span id="stage">1</span><br>
+                <span id="target">0</span>/<span id="targetAmount">10</span> coins
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <canvas id="gameCanvas"></canvas>
+            <div class="message" id="message"></div>
+            <div class="controls-hint">Use WASD or Arrow Keys to move</div>
+        </div>
+        
+        <div class="bottom-controls">
+            <button class="control-btn upgrade" id="upgradeBtn">
+                <span class="btn-icon">🔧</span> Upgrade
+            </button>
+            <button class="control-btn gems" id="gemsBtn">
+                <span class="btn-icon">💎</span> GEMS
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gameArea = document.querySelector('.game-area');
+        
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = gameArea.clientWidth;
+            canvas.height = gameArea.clientHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Game state
+        const game = {
+            currency: 220.01,
+            gems: 15,
+            stage: 1,
+            targetAmount: 10,
+            collected: 0,
+            vehicle: {
+                x: canvas.width / 2,
+                y: canvas.height / 2,
+                width: 60,
+                height: 40,
+                speed: 4,
+                maxSpeed: 6,
+                acceleration: 0.3,
+                deceleration: 0.2,
+                color: '#FF5722',
+                angle: 0,
+                targetAngle: 0,
+                velocityX: 0,
+                velocityY: 0,
+                bladeWidth: 50,
+                bladeHeight: 30,
+                bladeOffset: 35
+            },
+            coins: [],
+            particles: [],
+            collector: {
+                x: canvas.width / 2 - 60,
+                y: 80,
+                width: 120,
+                height: 80
+            },
+            obstacles: [],
+            lastCoinTime: 0,
+            coinInterval: 2000,
+            coinValue: 1.25,
+            vehicleLevel: 1
+        };
+        
+        // Coin class with physics
+        class Coin {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 12;
+                this.value = game.coinValue;
+                this.collected = false;
+                this.inCollector = false;
+                this.opacity = 1;
+                this.pulsePhase = Math.random() * Math.PI * 2;
+                this.vx = 0;
+                this.vy = 0;
+                this.friction = 0.95;
+                this.bounce = 0.4;
+            }
+            
+            update() {
+                // Apply physics
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                // Apply friction
+                this.vx *= this.friction;
+                this.vy *= this.friction;
+                
+                // Keep coins on ground
+                if (this.y > canvas.height - 60) {
+                    this.y = canvas.height - 60;
+                    this.vy *= -this.bounce;
+                    
+                    // Stop tiny bounces
+                    if (Math.abs(this.vy) < 0.5) {
+                        this.vy = 0;
+                    }
+                }
+                
+                // Boundary checks
+                if (this.x < this.radius) {
+                    this.x = this.radius;
+                    this.vx *= -this.bounce;
+                }
+                if (this.x > canvas.width - this.radius) {
+                    this.x = canvas.width - this.radius;
+                    this.vx *= -this.bounce;
+                }
+                
+                // Check if coin is in collector
+                if (!this.inCollector && 
+                    this.x > game.collector.x && 
+                    this.x < game.collector.x + game.collector.width &&
+                    this.y > game.collector.y && 
+                    this.y < game.collector.y + game.collector.height) {
+                    this.inCollector = true;
+                    game.collected++;
+                    game.currency += this.value;
+                    updateUI();
+                    updateProgress();
+                    
+                    // Create particles
+                    for (let i = 0; i < 10; i++) {
+                        game.particles.push(new Particle(
+                            this.x,
+                            this.y,
+                            Math.random() * 4 - 2,
+                            Math.random() * -4 - 1,
+                            '#FFD700'
+                        ));
+                    }
+                    
+                    // Check if stage is complete
+                    if (game.collected >= game.targetAmount) {
+                        completeStage();
+                    }
+                }
+                
+                // Fade out if in collector
+                if (this.inCollector) {
+                    this.opacity -= 0.05;
+                    this.y -= 2; // Float up when collected
+                }
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                
+                // Draw coin
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw shine
+                ctx.fillStyle = '#FFFF99';
+                ctx.beginPath();
+                ctx.arc(this.x - this.radius/3, this.y - this.radius/3, this.radius/3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw dollar sign
+                ctx.fillStyle = '#8B4513';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('$', this.x, this.y);
+                
+                ctx.restore();
+            }
+            
+            applyForce(fx, fy) {
+                this.vx += fx;
+                this.vy += fy;
+            }
+        }
+        
+        // Obstacle class
+        class Obstacle {
+            constructor(x, y, width, height) {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+                this.color = '#795548';
+            }
+            
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                
+                // Draw details
+                ctx.fillStyle = '#5D4037';
+                ctx.fillRect(this.x + 5, this.y + 5, this.width - 10, 10);
+                ctx.fillRect(this.x + 5, this.y + this.height - 15, this.width - 10, 10);
+            }
+        }
+        
+        // Particle class
+        class Particle {
+            constructor(x, y, vx, vy, color) {
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.color = color;
+                this.size = Math.random() * 5 + 2;
+                this.life = 1;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.1; // gravity
+                this.life -= 0.02;
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+        
+        // Draw bulldozer
+        function drawVehicle() {
+            const v = game.vehicle;
+            
+            ctx.save();
+            ctx.translate(v.x, v.y);
+            ctx.rotate(v.angle);
+            
+            // Draw shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.ellipse(0, v.height/2 + 5, v.width/2, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw vehicle body
+            ctx.fillStyle = v.color;
+            ctx.fillRect(-v.width/2, -v.height/2, v.width, v.height);
+            
+            // Draw vehicle details
+            ctx.fillStyle = '#D84315';
+            ctx.fillRect(-v.width/2 + 5, -v.height/2 + 5, v.width - 10, v.height - 10);
+            
+            // Draw tracks
+            ctx.fillStyle = '#424242';
+            ctx.fillRect(-v.width/2, v.height/2 - 10, v.width, 10);
+            
+            // Draw track details
+            ctx.fillStyle = '#616161';
+            for (let i = -v.width/2; i < v.width/2; i += 8) {
+                ctx.fillRect(i, v.height/2 - 10, 4, 10);
+            }
+            
+            // Draw cabin
+            ctx.fillStyle = '#FFAB91';
+            ctx.fillRect(-v.width/2 + 10, -v.height/2 + 5, 20, 15);
+            
+            // Draw windshield
+            ctx.fillStyle = '#B3E5FC';
+            ctx.fillRect(-v.width/2 + 12, -v.height/2 + 7, 16, 10);
+            
+            // Draw blade
+            ctx.fillStyle = '#78909C';
+            ctx.fillRect(v.width/2, -v.bladeHeight/2, v.bladeWidth, v.bladeHeight);
+            
+            // Draw blade support
+            ctx.fillStyle = '#546E7A';
+            ctx.fillRect(v.width/2 - 5, -v.bladeHeight/2 - 5, 8, v.bladeHeight + 10);
+            
+            // Draw blade teeth
+            ctx.fillStyle = '#455A64';
+            for (let i = 0; i < 5; i++) {
+                ctx.fillRect(v.width/2 + v.bladeWidth - 5, -v.bladeHeight/2 + i * 6, 8, 4);
+            }
+            
+            ctx.restore();
+        }
+        
+        // Draw collector
+        function drawCollector() {
+            const c = game.collector;
+            
+            // Draw base
+            ctx.fillStyle = '#795548';
+            ctx.fillRect(c.x, c.y + c.height - 20, c.width, 20);
+            
+            // Draw container
+            ctx.fillStyle = '#A1887F';
+            ctx.fillRect(c.x, c.y, c.width, c.height - 20);
+            
+            // Draw opening
+            ctx.fillStyle = '#5D4037';
+            ctx.fillRect(c.x + 10, c.y + 10, c.width - 20, c.height - 40);
+            
+            // Draw coin symbol
+            ctx.fillStyle = '#FFD700';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('$', c.x + c.width/2, c.y + c.height/2);
+            
+            // Draw label
+            ctx.fillStyle = '#FFF';
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText('COLLECTOR', c.x + c.width/2, c.y - 10);
+        }
+        
+        // Draw background
+        function drawBackground() {
+            // Draw sky
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#87CEEB');
+            gradient.addColorStop(1, '#8BC34A');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw ground
+            ctx.fillStyle = '#8BC34A';
+            ctx.fillRect(0, canvas.height - 60, canvas.width, 60);
+            
+            // Draw ground details
+            ctx.fillStyle = '#7CB342';
+            for (let i = 0; i < canvas.width; i += 20) {
+                ctx.fillRect(i, canvas.height - 60, 10, 5);
+            }
+            
+            // Draw road
+            ctx.fillStyle = '#78909C';
+            ctx.fillRect(0, canvas.height - 80, canvas.width, 20);
+            
+            // Draw road lines
+            ctx.fillStyle = '#FFEB3B';
+            for (let i = 0; i < canvas.width; i += 40) {
+                ctx.fillRect(i, canvas.height - 70, 20, 5);
+            }
+        }
+        
+        // Update UI
+        function updateUI() {
+            document.getElementById('currency').textContent = game.currency.toFixed(2);
+            document.getElementById('gems').textContent = game.gems;
+            document.getElementById('stage').textContent = game.stage;
+            document.getElementById('target').textContent = game.collected;
+            document.getElementById('targetAmount').textContent = game.targetAmount;
+        }
+        
+        // Update progress bar
+        function updateProgress() {
+            const progress = Math.min(100, (game.collected / game.targetAmount) * 100);
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+        
+        // Complete stage and advance to next
+        function completeStage() {
+            game.stage++;
+            game.collected = 0;
+            game.targetAmount = 10 * game.stage;
+            
+            // Clear existing coins and obstacles
+            game.coins = [];
+            game.obstacles = [];
+            
+            // Add complexity for higher stages
+            if (game.stage > 2) {
+                // Add obstacles
+                const obstacleCount = Math.min(game.stage - 2, 5);
+                for (let i = 0; i < obstacleCount; i++) {
+                    const x = Math.random() * (canvas.width - 100) + 50;
+                    const y = canvas.height - 110;
+                    game.obstacles.push(new Obstacle(x, y, 60, 50));
+                }
+            }
+            
+            // Increase difficulty
+            game.coinInterval = Math.max(500, 2000 - (game.stage - 1) * 200);
+            
+            updateUI();
+            updateProgress();
+            showMessage(`Stage ${game.stage} Unlocked!`);
+        }
+        
+        // Show message
+        function showMessage(text) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.classList.add('show');
+            
+            setTimeout(() => {
+                messageEl.classList.remove('show');
+            }, 1500);
+        }
+        
+        // Check collision between vehicle blade and coin
+        function checkVehicleCoinCollision(vehicle, coin) {
+            // Calculate blade position
+            const bladeX = vehicle.x + Math.cos(vehicle.angle) * vehicle.bladeOffset;
+            const bladeY = vehicle.y + Math.sin(vehicle.angle) * vehicle.bladeOffset;
+            
+            // Calculate distance between blade and coin
+            const dx = bladeX - coin.x;
+            const dy = bladeY - coin.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Check if collision occurs
+            if (distance < vehicle.bladeWidth/2 + coin.radius) {
+                // Calculate push direction
+                const angle = Math.atan2(dy, dx);
+                const force = 6;
+                
+                // Apply force to coin
+                coin.applyForce(Math.cos(angle) * force, Math.sin(angle) * force);
+                
+                // Create push particles
+                for (let i = 0; i < 3; i++) {
+                    game.particles.push(new Particle(
+                        coin.x,
+                        coin.y,
+                        Math.random() * 2 - 1,
+                        Math.random() * -1,
+                        '#8BC34A'
+                    ));
+                }
+            }
+        }
+        
+        // Check collision between coin and obstacle
+        function checkCoinObstacleCollision(coin, obstacle) {
+            // Simple AABB collision
+            if (coin.x + coin.radius > obstacle.x &&
+                coin.x - coin.radius < obstacle.x + obstacle.width &&
+                coin.y + coin.radius > obstacle.y &&
+                coin.y - coin.radius < obstacle.y + obstacle.height) {
+                
+                // Calculate bounce direction
+                const coinCenterX = coin.x;
+                const coinCenterY = coin.y;
+                const obstacleCenterX = obstacle.x + obstacle.width/2;
+                const obstacleCenterY = obstacle.y + obstacle.height/2;
+                
+                const dx = coinCenterX - obstacleCenterX;
+                const dy = coinCenterY - obstacleCenterY;
+                
+                // Determine which side of the obstacle was hit
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    // Horizontal collision
+                    coin.vx = dx > 0 ? Math.abs(coin.vx) * coin.bounce : -Math.abs(coin.vx) * coin.bounce;
+                    coin.x = dx > 0 ? obstacle.x + obstacle.width + coin.radius : obstacle.x - coin.radius;
+                } else {
+                    // Vertical collision
+                    coin.vy = dy > 0 ? Math.abs(coin.vy) * coin.bounce : -Math.abs(coin.vy) * coin.bounce;
+                    coin.y = dy > 0 ? obstacle.y + obstacle.height + coin.radius : obstacle.y - coin.radius;
+                }
+            }
+        }
+        
+        // Handle keyboard controls
+        const keys = {};
+        
+        document.addEventListener('keydown', (e) => {
+            keys[e.key.toLowerCase()] = true;
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            keys[e.key.toLowerCase()] = false;
+        });
+        
+        // Update vehicle movement
+        function updateVehicleMovement() {
+            const v = game.vehicle;
+            
+            // Calculate target velocity based on input
+            let targetVelX = 0;
+            let targetVelY = 0;
+            
+            if (keys['w'] || keys['arrowup']) targetVelY = -v.speed;
+            if (keys['s'] || keys['arrowdown']) targetVelY = v.speed;
+            if (keys['a'] || keys['arrowleft']) targetVelX = -v.speed;
+            if (keys['d'] || keys['arrowright']) targetVelX = v.speed;
+            
+            // Normalize diagonal movement
+            if (targetVelX !== 0 && targetVelY !== 0) {
+                const length = Math.sqrt(targetVelX * targetVelX + targetVelY * targetVelY);
+                targetVelX = (targetVelX / length) * v.speed;
+                targetVelY = (targetVelY / length) * v.speed;
+            }
+            
+            // Smooth acceleration/deceleration
+            if (v.velocityX < targetVelX) {
+                v.velocityX += v.acceleration;
+                if (v.velocityX > targetVelX) v.velocityX = targetVelX;
+            } else if (v.velocityX > targetVelX) {
+                v.velocityX -= v.deceleration;
+                if (v.velocityX < targetVelX) v.velocityX = targetVelX;
+            }
+            
+            if (v.velocityY < targetVelY) {
+                v.velocityY += v.acceleration;
+                if (v.velocityY > targetVelY) v.velocityY = targetVelY;
+            } else if (v.velocityY > targetVelY) {
+                v.velocityY -= v.deceleration;
+                if (v.velocityY < targetVelY) v.velocityY = targetVelY;
+            }
+            
+            // Apply velocity to position
+            v.x += v.velocityX;
+            v.y += v.velocityY;
+            
+            // Boundary checks
+            const margin = v.width/2;
+            if (v.x < margin) {
+                v.x = margin;
+                v.velocityX = 0;
+            }
+            if (v.x > canvas.width - margin) {
+                v.x = canvas.width - margin;
+                v.velocityX = 0;
+            }
+            if (v.y < margin) {
+                v.y = margin;
+                v.velocityY = 0;
+            }
+            if (v.y > canvas.height - margin - 60) {
+                v.y = canvas.height - margin - 60;
+                v.velocityY = 0;
+            }
+            
+            // Update angle based on movement
+            if (v.velocityX !== 0 || v.velocityY !== 0) {
+                v.targetAngle = Math.atan2(v.velocityY, v.velocityX);
+            }
+            
+            // Smooth angle rotation
+            let angleDiff = v.targetAngle - v.angle;
+            while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+            while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+            
+            v.angle += angleDiff * 0.1;
+        }
+        
+        // Game loop
+        function gameLoop() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Update vehicle movement
+            updateVehicleMovement();
+            
+            // Draw background
+            drawBackground();
+            
+            // Draw collector
+            drawCollector();
+            
+            // Draw obstacles
+            for (const obstacle of game.obstacles) {
+                obstacle.draw();
+            }
+            
+            // Update and draw coins
+            for (let i = game.coins.length - 1; i >= 0; i--) {
+                const coin = game.coins[i];
+                coin.update();
+                coin.draw();
+                
+                // Check collision with vehicle
+                checkVehicleCoinCollision(game.vehicle, coin);
+                
+                // Check collision with obstacles
+                for (const obstacle of game.obstacles) {
+                    checkCoinObstacleCollision(coin, obstacle);
+                }
+                
+                if (coin.opacity <= 0) {
+                    game.coins.splice(i, 1);
+                }
+            }
+            
+            // Update and draw particles
+            for (let i = game.particles.length - 1; i >= 0; i--) {
+                const particle = game.particles[i];
+                particle.update();
+                particle.draw();
+                
+                if (particle.life <= 0) {
+                    game.particles.splice(i, 1);
+                }
+            }
+            
+            // Draw vehicle
+            drawVehicle();
+            
+            // Generate new coins
+            const now = Date.now();
+            if (now - game.lastCoinTime > game.coinInterval) {
+                const x = Math.random() * (canvas.width - 100) + 50;
+                const y = canvas.height - 80;
+                game.coins.push(new Coin(x, y));
+                game.lastCoinTime = now;
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Button event listeners
+        document.getElementById('upgradeBtn').addEventListener('click', () => {
+            if (game.currency >= 50 * game.vehicleLevel) {
+                game.currency -= 50 * game.vehicleLevel;
+                game.vehicleLevel++;
+                game.vehicle.speed += 0.5;
+                game.vehicle.maxSpeed += 0.5;
+                game.vehicle.bladeWidth += 5;
+                game.coinInterval = Math.max(300, game.coinInterval - 100);
+                updateUI();
+                showMessage("Bulldozer Upgraded!");
+            } else {
+                showMessage("Not enough currency!");
+            }
+        });
+        
+        document.getElementById('gemsBtn').addEventListener('click', () => {
+            if (game.gems >= 10) {
+                game.gems -= 10;
+                game.currency += 100 * game.stage;
+                updateUI();
+                showMessage("Bonus currency!");
+            } else {
+                showMessage("Not enough gems!");
+            }
+        });
+        
+        // Initialize and start game
+        updateUI();
+        updateProgress();
+        gameLoop();
+    </script>
+</body>
+</html>
