@@ -1,0 +1,2949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6chan - Community Imageboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --accent: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --light: #f8fafc;
+            --dark: #0f172a;
+            --gray: #64748b;
+            --gray-light: #e2e8f0;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius: 0.75rem;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        [data-theme="dark"] {
+            --light: #1e293b;
+            --dark: #f1f5f9;
+            --gray: #94a3b8;
+            --gray-light: #334155;
+            --border: #334155;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            transition: var(--transition);
+            overflow-x: hidden;
+        }
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .logo h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+        .header-nav {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        .nav-item {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            transition: var(--transition);
+        }
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .user-menu:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .user-avatar {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -0.5rem;
+            right: -0.5rem;
+            background-color: var(--danger);
+            color: white;
+            font-size: 0.75rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        /* Main Layout */
+        .main-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        /* Responsive Layout */
+        @media (max-width: 1400px) {
+            .main-container {
+                grid-template-columns: 250px 1fr 300px;
+            }
+        }
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 220px 1fr;
+            }
+            
+            .sidebar-right {
+                display: none;
+            }
+        }
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar-left {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .header-nav {
+                display: none;
+            }
+        }
+        /* Sidebar Styles */
+        .sidebar {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 6rem;
+            transition: var(--transition);
+        }
+        [data-theme="dark"] .sidebar {
+            background-color: var(--gray-light);
+        }
+        .sidebar-section {
+            margin-bottom: 2rem;
+        }
+        .sidebar-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .board-list {
+            list-style: none;
+        }
+        .board-item {
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .board-item:hover {
+            background-color: var(--gray-light);
+        }
+        [data-theme="dark"] .board-item:hover {
+            background-color: var(--border);
+        }
+        .board-item.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        .board-icon {
+            width: 2rem;
+            height: 2rem;
+            border-radius: var(--radius);
+            background-color: var(--gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+        }
+        .board-item.active .board-icon {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        .board-info {
+            flex: 1;
+        }
+        .board-name {
+            font-weight: 600;
+            margin-bottom: 0.125rem;
+        }
+        .board-stats {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+        .board-item.active .board-stats {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        /* Content Area */
+        .content {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        [data-theme="dark"] .content {
+            background-color: var(--gray-light);
+        }
+        .content-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        [data-theme="dark"] .content-header {
+            border-color: var(--border);
+        }
+        .content-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .content-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+            transition: var(--transition);
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        .btn-secondary {
+            background-color: var(--gray-light);
+            color: var(--dark);
+        }
+        [data-theme="dark"] .btn-secondary {
+            background-color: var(--border);
+            color: var(--dark);
+        }
+        .btn-secondary:hover {
+            background-color: var(--border);
+        }
+        [data-theme="dark"] .btn-secondary:hover {
+            background-color: var(--gray);
+        }
+        .btn-sm {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+        }
+        
+        /* Thread Styles */
+        .threads-container {
+            padding: 1.5rem;
+        }
+        
+        .thread-filter {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+        
+        .filter-option {
+            padding: 0.5rem 1rem;
+            background-color: var(--gray-light);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        
+        [data-theme="dark"] .filter-option {
+            background-color: var(--border);
+        }
+        
+        .filter-option:hover {
+            background-color: var(--border);
+        }
+        
+        [data-theme="dark"] .filter-option:hover {
+            background-color: var(--gray);
+        }
+        
+        .filter-option.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .threads-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .thread-card {
+            background-color: var(--gray-light);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        [data-theme="dark"] .thread-card {
+            background-color: var(--border);
+        }
+        
+        .thread-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .thread-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .thread-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .thread-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+        
+        .thread-author {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .thread-avatar {
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .thread-stats {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .thread-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .thread-content {
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        
+        .thread-image {
+            max-width: 100%;
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+        }
+        
+        .thread-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .thread-tag {
+            padding: 0.25rem 0.75rem;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .thread-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .thread-action {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .thread-action:hover {
+            background-color: var(--border);
+        }
+        
+        [data-theme="dark"] .thread-action:hover {
+            background-color: var(--gray);
+        }
+        
+        .thread-action.active {
+            color: var(--primary);
+        }
+        
+        /* Thread Detail View */
+        .thread-detail {
+            padding: 1.5rem;
+        }
+        
+        .thread-detail-header {
+            margin-bottom: 2rem;
+        }
+        
+        .thread-detail-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .thread-detail-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .thread-detail-author {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .thread-detail-avatar {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .thread-detail-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .thread-detail-name {
+            font-weight: 600;
+        }
+        
+        .thread-detail-time {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+        
+        .thread-detail-content {
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .thread-detail-image {
+            max-width: 100%;
+            border-radius: var(--radius);
+            margin: 1.5rem 0;
+        }
+        
+        .comments-section {
+            margin-top: 2rem;
+        }
+        
+        .comments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .comments-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .comment {
+            display: flex;
+            gap: 1rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .comment:last-child {
+            border-bottom: none;
+        }
+        
+        .comment-avatar {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .comment-content {
+            flex: 1;
+        }
+        
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .comment-author {
+            font-weight: 600;
+        }
+        
+        .comment-time {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+        
+        .comment-text {
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+        }
+        
+        .comment-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .comment-action {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+            color: var(--gray);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .comment-action:hover {
+            color: var(--primary);
+        }
+        
+        .comment-action.active {
+            color: var(--primary);
+        }
+        
+        .comment-form {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        .comment-form-header {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .comment-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        [data-theme="dark"] .comment-input {
+            background-color: var(--border);
+            border-color: var(--gray);
+            color: var(--dark);
+        }
+        
+        .comment-form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+        
+        /* Create Thread Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+        
+        [data-theme="dark"] .modal-content {
+            background-color: var(--gray-light);
+        }
+        
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        [data-theme="dark"] .modal-header {
+            border-color: var(--border);
+        }
+        
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--gray);
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+        }
+        
+        [data-theme="dark"] .form-input, 
+        [data-theme="dark"] .form-textarea, 
+        [data-theme="dark"] .form-select {
+            background-color: var(--border);
+            border-color: var(--gray);
+            color: var(--dark);
+        }
+        
+        .form-textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+        
+        /* Chatrooms */
+        .chatrooms-container {
+            padding: 1.5rem;
+        }
+        .chatroom-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+        .chatroom-tab {
+            padding: 0.5rem 1rem;
+            background-color: var(--gray-light);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        [data-theme="dark"] .chatroom-tab {
+            background-color: var(--border);
+        }
+        .chatroom-tab:hover {
+            background-color: var(--border);
+        }
+        [data-theme="dark"] .chatroom-tab:hover {
+            background-color: var(--gray);
+        }
+        .chatroom-tab.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        .chatroom {
+            display: none;
+            flex-direction: column;
+            height: 500px;
+        }
+        .chatroom.active {
+            display: flex;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background-color: var(--gray-light);
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+        }
+        [data-theme="dark"] .chat-messages {
+            background-color: var(--border);
+        }
+        .chat-message {
+            margin-bottom: 1rem;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .chat-message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.25rem;
+        }
+        .chat-message-author {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .chat-message-time {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+        .chat-message-content {
+            background-color: white;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+        [data-theme="dark"] .chat-message-content {
+            background-color: var(--light);
+        }
+        .chat-input-container {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .chat-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+        }
+        [data-theme="dark"] .chat-input {
+            background-color: var(--border);
+            border-color: var(--gray);
+            color: var(--dark);
+        }
+        .chat-send {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            padding: 0 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .chat-send:hover {
+            background-color: var(--primary-dark);
+        }
+        /* Community Database */
+        .database-container {
+            padding: 1.5rem;
+        }
+        .database-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .database-category {
+            padding: 0.5rem 1rem;
+            background-color: var(--gray-light);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        [data-theme="dark"] .database-category {
+            background-color: var(--border);
+        }
+        .database-category:hover {
+            background-color: var(--border);
+        }
+        [data-theme="dark"] .database-category:hover {
+            background-color: var(--gray);
+        }
+        .database-category.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        .database-articles {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .database-article {
+            background-color: var(--gray-light);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: var(--transition);
+        }
+        [data-theme="dark"] .database-article {
+            background-color: var(--border);
+        }
+        .database-article:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        .article-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        .article-excerpt {
+            color: var(--gray);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+        .article-author {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .article-avatar {
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        /* Community Features */
+        .community-widget {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+        }
+        [data-theme="dark"] .community-widget {
+            background-color: var(--gray-light);
+        }
+        .widget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .widget-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+        .widget-action {
+            color: var(--primary);
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 1rem;
+        }
+        .achievement {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .achievement-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        .achievement-name {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .achievement-unlocked {
+            opacity: 0.3;
+        }
+        /* User Profiles */
+        .user-profile-card {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        [data-theme="dark"] .user-profile-card {
+            background-color: var(--gray-light);
+        }
+        .profile-avatar {
+            width: 5rem;
+            height: 5rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0 auto 1rem;
+        }
+        .profile-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .profile-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+        [data-theme="dark"] .profile-stats {
+            border-color: var(--border);
+        }
+        .profile-stat {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+        /* Friends List */
+        .friends-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .friend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background-color: var(--gray-light);
+            border-radius: var(--radius);
+            transition: var(--transition);
+        }
+        [data-theme="dark"] .friend-item {
+            background-color: var(--border);
+        }
+        .friend-item:hover {
+            background-color: var(--border);
+        }
+        [data-theme="dark"] .friend-item:hover {
+            background-color: var(--gray);
+        }
+        .friend-avatar {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        .friend-info {
+            flex: 1;
+        }
+        .friend-name {
+            font-weight: 500;
+            margin-bottom: 0.125rem;
+        }
+        .friend-status {
+            font-size: 0.75rem;
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .status-indicator {
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 50%;
+            background-color: var(--success);
+        }
+        .status-indicator.offline {
+            background-color: var(--gray);
+        }
+        /* Notifications */
+        .notification-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-width: 400px;
+        }
+        .notification {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 300px;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+        }
+        [data-theme="dark"] .notification {
+            background-color: var(--gray-light);
+        }
+        .notification.show {
+            transform: translateX(0);
+        }
+        .notification-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .notification-success .notification-icon {
+            background-color: var(--success);
+            color: white;
+        }
+        .notification-error .notification-icon {
+            background-color: var(--danger);
+            color: white;
+        }
+        .notification-info .notification-icon {
+            background-color: var(--primary);
+            color: white;
+        }
+        .notification-warning .notification-icon {
+            background-color: var(--warning);
+            color: white;
+        }
+        .notification-content {
+            flex: 1;
+        }
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .notification-message {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+        .notification-close {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 1.25rem;
+        }
+        /* Mobile Navigation */
+        .mobile-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            display: none;
+        }
+        .mobile-nav.active {
+            display: block;
+        }
+        .mobile-nav-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 80%;
+            max-width: 300px;
+            height: 100%;
+            background-color: white;
+            box-shadow: var(--shadow-lg);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        [data-theme="dark"] .mobile-nav-content {
+            background-color: var(--light);
+        }
+        .mobile-nav.active .mobile-nav-content {
+            transform: translateX(0);
+        }
+        .mobile-nav-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        [data-theme="dark"] .mobile-nav-header {
+            border-color: var(--border);
+        }
+        .mobile-nav-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--gray);
+            cursor: pointer;
+        }
+        .mobile-nav-menu {
+            padding: 1rem;
+        }
+        .mobile-nav-item {
+            display: block;
+            padding: 1rem;
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            border-radius: var(--radius);
+            transition: var(--transition);
+        }
+        [data-theme="dark"] .mobile-nav-item {
+            color: var(--dark);
+        }
+        .mobile-nav-item:hover {
+            background-color: var(--gray-light);
+        }
+        [data-theme="dark"] .mobile-nav-item:hover {
+            background-color: var(--border);
+        }
+        /* Utility Classes */
+        .text-center {
+            text-align: center;
+        }
+        .mt-1 { margin-top: 0.25rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-3 { margin-top: 1rem; }
+        .mt-4 { margin-top: 1.5rem; }
+        .mb-1 { margin-bottom: 0.25rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 1rem; }
+        .mb-4 { margin-bottom: 1.5rem; }
+        .hidden {
+            display: none !important;
+        }
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid var(--gray-light);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 2rem;
+            height: 2rem;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Page Transitions */
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .page.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        /* Responsive Improvements */
+        @media (max-width: 480px) {
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .content-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .btn {
+                flex: 1;
+                justify-content: center;
+            }
+            
+            .database-articles {
+                grid-template-columns: 1fr;
+            }
+            
+            .achievement-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        /* Wide Screen Optimizations */
+        @media (min-width: 1600px) {
+            .main-container {
+                grid-template-columns: 300px 1fr 350px;
+            }
+            
+            .database-articles {
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            }
+            
+            .chatroom {
+                height: 600px;
+            }
+        }
+        @media (min-width: 2000px) {
+            .main-container {
+                grid-template-columns: 350px 1fr 400px;
+            }
+            
+            .database-articles {
+                grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            }
+            
+            .chatroom {
+                height: 700px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="notification-container" id="notification-container"></div>
+    
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav" id="mobile-nav">
+        <div class="mobile-nav-content">
+            <div class="mobile-nav-header">
+                <h3>Menu</h3>
+                <button class="mobile-nav-close" id="mobile-nav-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mobile-nav-menu">
+                <a href="#" class="mobile-nav-item" data-page="home">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a href="#" class="mobile-nav-item" data-page="boards">
+                    <i class="fas fa-th-large"></i> Boards
+                </a>
+                <a href="#" class="mobile-nav-item" data-page="chatrooms">
+                    <i class="fas fa-comments"></i> Chatrooms
+                </a>
+                <a href="#" class="mobile-nav-item" data-page="database">
+                    <i class="fas fa-database"></i> Community DB
+                </a>
+                <a href="#" class="mobile-nav-item" data-page="events">
+                    <i class="fas fa-calendar-alt"></i> Events
+                </a>
+                <a href="#" class="mobile-nav-item" data-page="wiki">
+                    <i class="fas fa-book"></i> Wiki
+                </a>
+            </div>
+        </div>
+    </div>
+    <header>
+        <div class="header-content">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <button class="mobile-menu-btn" id="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo">
+                    <i class="fas fa-comments"></i>
+                    <h1>6chan</h1>
+                </div>
+            </div>
+            <nav class="header-nav">
+                <a href="#" class="nav-item" data-page="home">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a href="#" class="nav-item" data-page="boards">
+                    <i class="fas fa-th-large"></i> Boards
+                </a>
+                <a href="#" class="nav-item" data-page="chatrooms">
+                    <i class="fas fa-comments"></i> Chatrooms
+                </a>
+                <a href="#" class="nav-item" data-page="database">
+                    <i class="fas fa-database"></i> Community DB
+                </a>
+                <a href="#" class="nav-item" data-page="events">
+                    <i class="fas fa-calendar-alt"></i> Events
+                </a>
+                <a href="#" class="nav-item" data-page="wiki">
+                    <i class="fas fa-book"></i> Wiki
+                </a>
+                <div class="nav-item" id="notifications-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </div>
+                <div class="user-menu" id="user-menu">
+                    <div class="user-avatar">A</div>
+                    <span>Anonymous</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar sidebar-left">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Boards</h3>
+                <ul class="board-list">
+                    <li class="board-item active" data-board="random">
+                        <div class="board-icon">
+                            <i class="fas fa-random"></i>
+                        </div>
+                        <div class="board-info">
+                            <div class="board-name">/b/ Random</div>
+                            <div class="board-stats">1.2k threads</div>
+                        </div>
+                    </li>
+                    <li class="board-item" data-board="tech">
+                        <div class="board-icon">
+                            <i class="fas fa-microchip"></i>
+                        </div>
+                        <div class="board-info">
+                            <div class="board-name">/tech/ Technology</div>
+                            <div class="board-stats">856 threads</div>
+                        </div>
+                    </li>
+                    <li class="board-item" data-board="anime">
+                        <div class="board-icon">
+                            <i class="fas fa-tv"></i>
+                        </div>
+                        <div class="board-info">
+                            <div class="board-name">/a/ Anime</div>
+                            <div class="board-stats">642 threads</div>
+                        </div>
+                    </li>
+                    <li class="board-item" data-board="games">
+                        <div class="board-icon">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                        <div class="board-info">
+                            <div class="board-name">/v/ Games</div>
+                            <div class="board-stats">923 threads</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Your Profile</h3>
+                <div class="user-profile-card">
+                    <div class="profile-avatar">A</div>
+                    <div class="profile-name">Anonymous</div>
+                    <div class="profile-stats">
+                        <div class="profile-stat">
+                            <div class="stat-value">120</div>
+                            <div class="stat-label">Reputation</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="stat-value">24</div>
+                            <div class="stat-label">Threads</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="stat-value">156</div>
+                            <div class="stat-label">Replies</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Achievements</h3>
+                <div class="achievement-grid">
+                    <div class="achievement">
+                        <div class="achievement-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="achievement-name">First Post</div>
+                    </div>
+                    <div class="achievement">
+                        <div class="achievement-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="achievement-name">Trending</div>
+                    </div>
+                    <div class="achievement achievement-unlocked">
+                        <div class="achievement-icon">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <div class="achievement-name">Top Contributor</div>
+                    </div>
+                    <div class="achievement achievement-unlocked">
+                        <div class="achievement-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="achievement-name">Helpful</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Friends</h3>
+                <div class="friends-list">
+                    <div class="friend-item">
+                        <div class="friend-avatar">J</div>
+                        <div class="friend-info">
+                            <div class="friend-name">JohnDoe</div>
+                            <div class="friend-status">
+                                <div class="status-indicator"></div>
+                                Online
+                            </div>
+                        </div>
+                    </div>
+                    <div class="friend-item">
+                        <div class="friend-avatar">A</div>
+                        <div class="friend-info">
+                            <div class="friend-name">AnimeFan</div>
+                            <div class="friend-status">
+                                <div class="status-indicator"></div>
+                                Online
+                            </div>
+                        </div>
+                    </div>
+                    <div class="friend-item">
+                        <div class="friend-avatar">T</div>
+                        <div class="friend-info">
+                            <div class="friend-name">TechGuru</div>
+                            <div class="friend-status">
+                                <div class="status-indicator offline"></div>
+                                Offline
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        <!-- Main Content -->
+        <main class="content" id="main-content">
+            <!-- Home Page -->
+            <div id="home-page" class="page active">
+                <div class="content-header">
+                    <h2 class="content-title">Community Threads</h2>
+                    <div class="content-actions">
+                        <button class="btn btn-secondary" id="settings-btn">
+                            <i class="fas fa-cog"></i> Settings
+                        </button>
+                        <button class="btn btn-primary" id="create-thread-btn">
+                            <i class="fas fa-plus"></i> New Thread
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="threads-container">
+                    <div class="thread-filter">
+                        <div class="filter-option active" data-filter="all">All Threads</div>
+                        <div class="filter-option" data-filter="trending">Trending</div>
+                        <div class="filter-option" data-filter="recent">Recent</div>
+                        <div class="filter-option" data-filter="popular">Popular</div>
+                    </div>
+                    
+                    <div class="threads-list" id="threads-list">
+                        <!-- Threads will be dynamically added here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Thread Detail Page -->
+            <div id="thread-detail-page" class="page">
+                <div class="content-header">
+                    <h2 class="content-title" id="thread-detail-title">Thread Title</h2>
+                    <div class="content-actions">
+                        <button class="btn btn-secondary" id="back-to-threads">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <button class="btn btn-primary" id="share-thread">
+                            <i class="fas fa-share-alt"></i> Share
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="thread-detail" id="thread-detail">
+                    <!-- Thread detail will be dynamically added here -->
+                </div>
+            </div>
+            
+            <!-- Community Database Page -->
+            <div id="database-page" class="page">
+                <div class="content-header">
+                    <h2 class="content-title">Community Database</h2>
+                    <div class="content-actions">
+                        <button class="btn btn-primary" id="create-article-btn">
+                            <i class="fas fa-plus"></i> New Article
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="database-container">
+                    <div class="database-categories">
+                        <div class="database-category active" data-category="all">All</div>
+                        <div class="database-category" data-category="guides">Guides</div>
+                        <div class="database-category" data-category="tutorials">Tutorials</div>
+                        <div class="database-category" data-category="resources">Resources</div>
+                        <div class="database-category" data-category="faq">FAQ</div>
+                    </div>
+                    
+                    <div class="database-articles">
+                        <div class="database-article">
+                            <h3 class="article-title">Getting Started with 6chan</h3>
+                            <p class="article-excerpt">A comprehensive guide to navigating and using all the features of 6chan community platform...</p>
+                            <div class="article-meta">
+                                <div class="article-author">
+                                    <div class="article-avatar">J</div>
+                                    <span>JohnDoe</span>
+                                </div>
+                                <span>Updated 2 days ago</span>
+                            </div>
+                        </div>
+                        
+                        <div class="database-article">
+                            <h3 class="article-title">Community Guidelines</h3>
+                            <p class="article-excerpt">Learn about the rules and expectations for being a positive member of our community...</p>
+                            <div class="article-meta">
+                                <div class="article-author">
+                                    <div class="article-avatar">A</div>
+                                    <span>Admin</span>
+                                </div>
+                                <span>Updated 1 week ago</span>
+                            </div>
+                        </div>
+                        
+                        <div class="database-article">
+                            <h3 class="article-title">How to Earn Reputation</h3>
+                            <p class="article-excerpt">Discover the various ways you can build your reputation within the community...</p>
+                            <div class="article-meta">
+                                <div class="article-author">
+                                    <div class="article-avatar">T</div>
+                                    <span>TechGuru</span>
+                                </div>
+                                <span>Updated 3 days ago</span>
+                            </div>
+                        </div>
+                        
+                        <div class="database-article">
+                            <h3 class="article-title">Customizing Your Profile</h3>
+                            <p class="article-excerpt">Learn how to personalize your profile with avatars, banners, and more...</p>
+                            <div class="article-meta">
+                                <div class="article-author">
+                                    <div class="article-avatar">A</div>
+                                    <span>AnimeFan</span>
+                                </div>
+                                <span>Updated 5 days ago</span>
+                            </div>
+                        </div>
+                        
+                        <div class="database-article">
+                            <h3 class="article-title">Creating and Managing Events</h3>
+                            <p class="article-excerpt">A step-by-step guide to organizing community events and managing participants...</p>
+                            <div class="article-meta">
+                                <div class="article-author">
+                                    <div class="article-avatar">J</div>
+                                    <span>JohnDoe</span>
+                                </div>
+                                <span>Updated 1 day ago</span>
+                            </div>
+                        </div>
+                        
+                        <div class="database-article">
+                            <h3 class="article-title">Chatroom Etiquette</h3>
+                            <p class="article-excerpt">Best practices for participating in live chatrooms and maintaining positive conversations...</p>
+                            <div class="article-meta">
+                                <div class="article-author">
+                                    <div class="article-avatar">A</div>
+                                    <span>Admin</span>
+                                </div>
+                                <span>Updated 4 days ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chatrooms Page -->
+            <div id="chatrooms-page" class="page">
+                <div class="content-header">
+                    <h2 class="content-title">Live Chatrooms</h2>
+                    <div class="content-actions">
+                        <button class="btn btn-primary" id="create-chatroom-btn">
+                            <i class="fas fa-plus"></i> New Chatroom
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="chatrooms-container">
+                    <div class="chatroom-tabs">
+                        <div class="chatroom-tab active" data-room="general">General</div>
+                        <div class="chatroom-tab" data-room="gaming">Gaming</div>
+                        <div class="chatroom-tab" data-room="anime">Anime</div>
+                        <div class="chatroom-tab" data-room="tech">Tech</div>
+                    </div>
+                    
+                    <div class="chatroom active" id="chatroom-general">
+                        <div class="chat-messages" id="chat-messages-general">
+                            <div class="chat-message">
+                                <div class="chat-message-header">
+                                    <div class="chat-message-author">System</div>
+                                    <div class="chat-message-time">Just now</div>
+                                </div>
+                                <div class="chat-message-content">
+                                    Welcome to the General chatroom! Feel free to start a conversation.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-input-container">
+                            <input type="text" class="chat-input" id="chat-input-general" placeholder="Type a message...">
+                            <button class="chat-send" id="chat-send-general">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="chatroom" id="chatroom-gaming">
+                        <div class="chat-messages" id="chat-messages-gaming">
+                            <div class="chat-message">
+                                <div class="chat-message-header">
+                                    <div class="chat-message-author">System</div>
+                                    <div class="chat-message-time">Just now</div>
+                                </div>
+                                <div class="chat-message-content">
+                                    Welcome to the Gaming chatroom! Discuss your favorite games here.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-input-container">
+                            <input type="text" class="chat-input" id="chat-input-gaming" placeholder="Type a message...">
+                            <button class="chat-send" id="chat-send-gaming">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="chatroom" id="chatroom-anime">
+                        <div class="chat-messages" id="chat-messages-anime">
+                            <div class="chat-message">
+                                <div class="chat-message-header">
+                                    <div class="chat-message-author">System</div>
+                                    <div class="chat-message-time">Just now</div>
+                                </div>
+                                <div class="chat-message-content">
+                                    Welcome to the Anime chatroom! Share your thoughts on the latest episodes.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-input-container">
+                            <input type="text" class="chat-input" id="chat-input-anime" placeholder="Type a message...">
+                            <button class="chat-send" id="chat-send-anime">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="chatroom" id="chatroom-tech">
+                        <div class="chat-messages" id="chat-messages-tech">
+                            <div class="chat-message">
+                                <div class="chat-message-header">
+                                    <div class="chat-message-author">System</div>
+                                    <div class="chat-message-time">Just now</div>
+                                </div>
+                                <div class="chat-message-content">
+                                    Welcome to the Tech chatroom! Talk about the latest in technology.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-input-container">
+                            <input type="text" class="chat-input" id="chat-input-tech" placeholder="Type a message...">
+                            <button class="chat-send" id="chat-send-tech">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Placeholder for other pages -->
+            <div id="boards-page" class="page">
+                <div class="content-header">
+                    <h2 class="content-title">Boards</h2>
+                    <div class="content-actions">
+                        <button class="btn btn-primary" id="new-thread-btn">
+                            <i class="fas fa-plus"></i> New Thread
+                        </button>
+                    </div>
+                </div>
+                <div style="padding: 2rem; text-align: center;">
+                    <i class="fas fa-th-large" style="font-size: 4rem; color: var(--gray); margin-bottom: 1rem;"></i>
+                    <h3>Boards Page</h3>
+                    <p style="color: var(--gray);">Browse and create threads in various community boards.</p>
+                </div>
+            </div>
+            <div id="events-page" class="page">
+                <div class="content-header">
+                    <h2 class="content-title">Community Events</h2>
+                    <div class="content-actions">
+                        <button class="btn btn-primary" id="create-event-btn">
+                            <i class="fas fa-plus"></i> Create Event
+                        </button>
+                    </div>
+                </div>
+                <div style="padding: 2rem; text-align: center;">
+                    <i class="fas fa-calendar-alt" style="font-size: 4rem; color: var(--gray); margin-bottom: 1rem;"></i>
+                    <h3>Events Page</h3>
+                    <p style="color: var(--gray);">Discover and join upcoming community events.</p>
+                </div>
+            </div>
+            <div id="wiki-page" class="page">
+                <div class="content-header">
+                    <h2 class="content-title">Community Wiki</h2>
+                    <div class="content-actions">
+                        <button class="btn btn-primary" id="create-wiki-btn">
+                            <i class="fas fa-plus"></i> New Page
+                        </button>
+                    </div>
+                </div>
+                <div style="padding: 2rem; text-align: center;">
+                    <i class="fas fa-book" style="font-size: 4rem; color: var(--gray); margin-bottom: 1rem;"></i>
+                    <h3>Wiki Page</h3>
+                    <p style="color: var(--gray);">Community knowledge base and documentation.</p>
+                </div>
+            </div>
+        </main>
+        <!-- Right Sidebar -->
+        <aside class="sidebar sidebar-right">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Community Stats</h3>
+                <div class="community-widget">
+                    <div class="widget-header">
+                        <div class="widget-title">Activity</div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="text-center">
+                            <div style="font-size: 1.5rem; font-weight: 600; color: var(--primary);">15,432</div>
+                            <div style="font-size: 0.875rem; color: var(--gray);">Total Users</div>
+                        </div>
+                        <div class="text-center">
+                            <div style="font-size: 1.5rem; font-weight: 600; color: var(--primary);">3,621</div>
+                            <div style="font-size: 0.875rem; color: var(--gray);">Online Now</div>
+                        </div>
+                        <div class="text-center">
+                            <div style="font-size: 1.5rem; font-weight: 600; color: var(--primary);">8,456</div>
+                            <div style="font-size: 0.875rem; color: var(--gray);">Threads</div>
+                        </div>
+                        <div class="text-center">
+                            <div style="font-size: 1.5rem; font-weight: 600; color: var(--primary);">124,892</div>
+                            <div style="font-size: 0.875rem; color: var(--gray);">Posts</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Trending Topics</h3>
+                <div class="community-widget">
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 2rem; height: 2rem; background-color: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600;">1</div>
+                            <div>
+                                <div style="font-weight: 500;">#SummerGaming</div>
+                                <div style="font-size: 0.75rem; color: var(--gray);">2.3k posts</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 2rem; height: 2rem; background-color: var(--secondary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600;">2</div>
+                            <div>
+                                <div style="font-weight: 500;">#AnimeSeason</div>
+                                <div style="font-size: 0.75rem; color: var(--gray);">1.8k posts</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 2rem; height: 2rem; background-color: var(--accent); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600;">3</div>
+                            <div>
+                                <div style="font-weight: 500;">#TechNews</div>
+                                <div style="font-size: 0.75rem; color: var(--gray);">1.5k posts</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 2rem; height: 2rem; background-color: var(--warning); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600;">4</div>
+                            <div>
+                                <div style="font-weight: 500;">#CommunityHelp</div>
+                                <div style="font-size: 0.75rem; color: var(--gray);">982 posts</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Upcoming Events</h3>
+                <div class="community-widget">
+                    <div class="widget-header">
+                        <div class="widget-title">Events</div>
+                        <a href="#" class="widget-action">View All</a>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div style="padding: 1rem; background-color: var(--gray-light); border-radius: var(--radius);">
+                            <div style="font-weight: 600; margin-bottom: 0.25rem;">Game Night</div>
+                            <div style="font-size: 0.875rem; color: var(--gray); margin-bottom: 0.5rem;">Tonight, 8 PM</div>
+                            <button class="btn btn-primary btn-sm">Join</button>
+                        </div>
+                        <div style="padding: 1rem; background-color: var(--gray-light); border-radius: var(--radius);">
+                            <div style="font-weight: 600; margin-bottom: 0.25rem;">Anime Stream</div>
+                            <div style="font-size: 0.875rem; color: var(--gray); margin-bottom: 0.5rem;">Friday, 7 PM</div>
+                            <button class="btn btn-primary btn-sm">Join</button>
+                        </div>
+                        <div style="padding: 1rem; background-color: var(--gray-light); border-radius: var(--radius);">
+                            <div style="font-weight: 600; margin-bottom: 0.25rem;">Tech Talk</div>
+                            <div style="font-size: 0.875rem; color: var(--gray); margin-bottom: 0.5rem;">Saturday, 3 PM</div>
+                            <button class="btn btn-primary btn-sm">Join</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+    
+    <!-- Create Thread Modal -->
+    <div class="modal" id="create-thread-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Thread</h3>
+                <button class="modal-close" id="close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="create-thread-form">
+                    <div class="form-group">
+                        <label class="form-label" for="thread-title">Thread Title</label>
+                        <input type="text" class="form-input" id="thread-title" placeholder="Enter thread title" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="thread-board">Board</label>
+                        <select class="form-select" id="thread-board" required>
+                            <option value="random">/b/ Random</option>
+                            <option value="tech">/tech/ Technology</option>
+                            <option value="anime">/a/ Anime</option>
+                            <option value="games">/v/ Games</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="thread-content">Content</label>
+                        <textarea class="form-textarea" id="thread-content" placeholder="Write your thread content here..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="thread-tags">Tags (comma separated)</label>
+                        <input type="text" class="form-input" id="thread-tags" placeholder="e.g. gaming, discussion, help">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancel-thread">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create Thread</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Current state
+        let currentPage = 'home';
+        let currentChatroom = 'general';
+        let darkMode = false;
+        let chatMessages = {
+            general: [],
+            gaming: [],
+            anime: [],
+            tech: []
+        };
+        
+        // Sample threads data
+        const sampleThreads = [
+            {
+                id: 1,
+                title: "What's everyone playing this weekend?",
+                author: "GameMaster",
+                authorInitial: "G",
+                board: "games",
+                content: "I'm looking for some new game recommendations. What's everyone planning to play this weekend? I've been thinking about trying out the new RPG that just came out, but I'm not sure if it's worth the price tag.",
+                time: "2 hours ago",
+                replies: 24,
+                likes: 42,
+                views: 156,
+                tags: ["gaming", "discussion", "recommendations"],
+                liked: false
+            },
+            {
+                id: 2,
+                title: "Just finished watching the latest episode of my favorite anime",
+                author: "AnimeFan",
+                authorInitial: "A",
+                board: "anime",
+                content: "Wow, that ending was unexpected! I won't spoil it for anyone who hasn't seen it yet, but I'd love to hear your theories about what might happen next season.",
+                time: "5 hours ago",
+                replies: 18,
+                likes: 36,
+                views: 124,
+                tags: ["anime", "spoilers", "discussion"],
+                liked: true
+            },
+            {
+                id: 3,
+                title: "New smartphone announcement - thoughts?",
+                author: "TechGuru",
+                authorInitial: "T",
+                board: "tech",
+                content: "The latest flagship smartphone was announced today with some impressive specs. The camera looks particularly good this year. Is anyone planning to upgrade?",
+                image: "https://picsum.photos/seed/smartphone/600/400.jpg",
+                time: "1 day ago",
+                replies: 42,
+                likes: 78,
+                views: 312,
+                tags: ["tech", "smartphone", "discussion"],
+                liked: false
+            },
+            {
+                id: 4,
+                title: "Random thoughts about life",
+                author: "DeepThinker",
+                authorInitial: "D",
+                board: "random",
+                content: "Sometimes I wonder about the nature of consciousness and what it means to truly be self-aware. Are we just complex biological machines or is there something more to our existence?",
+                time: "1 day ago",
+                replies: 31,
+                likes: 45,
+                views: 187,
+                tags: ["philosophy", "random", "thoughts"],
+                liked: false
+            }
+        ];
+        
+        // Sample comments data
+        const sampleComments = {
+            1: [
+                {
+                    id: 1,
+                    author: "JohnDoe",
+                    authorInitial: "J",
+                    content: "I've been playing the new RPG and it's definitely worth it! The story is engaging and the gameplay mechanics are solid.",
+                    time: "1 hour ago",
+                    likes: 8,
+                    liked: false
+                },
+                {
+                    id: 2,
+                    author: "PlayerOne",
+                    authorInitial: "P",
+                    content: "If you're looking for something cheaper, I'd recommend checking out some of the indie games that came out recently. There are some real gems!",
+                    time: "45 minutes ago",
+                    likes: 5,
+                    liked: true
+                },
+                {
+                    id: 3,
+                    author: "GameMaster",
+                    authorInitial: "G",
+                    content: "Thanks for the recommendations! I think I'll try the RPG first and then check out some of the indie games you mentioned.",
+                    time: "30 minutes ago",
+                    likes: 3,
+                    liked: false
+                }
+            ],
+            2: [
+                {
+                    id: 4,
+                    author: "AnimeLover",
+                    authorInitial: "A",
+                    content: "I totally agree! That cliffhanger has me on the edge of my seat. I can't wait for the next season!",
+                    time: "4 hours ago",
+                    likes: 12,
+                    liked: true
+                },
+                {
+                    id: 5,
+                    author: "MangaReader",
+                    authorInitial: "M",
+                    content: "If you read the manga, you'll know what's likely to happen next. Let's just say things are about to get intense!",
+                    time: "3 hours ago",
+                    likes: 7,
+                    liked: false
+                }
+            ],
+            3: [
+                {
+                    id: 6,
+                    author: "TechEnthusiast",
+                    authorInitial: "T",
+                    content: "The camera specs look amazing, but I'm waiting for reviews before deciding. The price is pretty steep!",
+                    time: "22 hours ago",
+                    likes: 15,
+                    liked: true
+                },
+                {
+                    id: 7,
+                    author: "BudgetBuyer",
+                    authorInitial: "B",
+                    content: "I'll probably wait a few months for the price to drop. Last year's model is still pretty good and much cheaper now.",
+                    time: "20 hours ago",
+                    likes: 9,
+                    liked: false
+                }
+            ],
+            4: [
+                {
+                    id: 8,
+                    author: "Philosopher",
+                    authorInitial: "P",
+                    content: "This is a question that has puzzled humanity for centuries. I believe consciousness emerges from the complexity of our neural networks.",
+                    time: "23 hours ago",
+                    likes: 11,
+                    liked: true
+                },
+                {
+                    id: 9,
+                    author: "Skeptic",
+                    authorInitial: "S",
+                    content: "I think we're just biological machines with advanced self-preservation instincts. Consciousness is just an illusion created by our brains.",
+                    time: "21 hours ago",
+                    likes: 6,
+                    liked: false
+                }
+            ]
+        };
+        
+        // DOM elements
+        const mainContent = document.getElementById('main-content');
+        const notificationContainer = document.getElementById('notification-container');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileNav = document.getElementById('mobile-nav');
+        const mobileNavClose = document.getElementById('mobile-nav-close');
+        const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
+        const navItems = document.querySelectorAll('.nav-item');
+        const createThreadModal = document.getElementById('create-thread-modal');
+        const createThreadForm = document.getElementById('create-thread-form');
+        const threadsList = document.getElementById('threads-list');
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check for saved theme preference
+            if (localStorage.getItem('darkMode') === 'true') {
+                darkMode = true;
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Initialize chatrooms
+            initializeChatrooms();
+            
+            // Load threads
+            loadThreads();
+        });
+        
+        function setupEventListeners() {
+            // Navigation
+            navItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = item.dataset.page;
+                    navigateToPage(page);
+                });
+            });
+            
+            // Mobile navigation
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileNav.classList.add('active');
+            });
+            
+            mobileNavClose.addEventListener('click', () => {
+                mobileNav.classList.remove('active');
+            });
+            
+            mobileNavItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = item.dataset.page;
+                    navigateToPage(page);
+                    mobileNav.classList.remove('active');
+                });
+            });
+            
+            // Chatroom tabs
+            document.querySelectorAll('.chatroom-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const room = tab.dataset.room;
+                    switchChatroom(room);
+                });
+            });
+            
+            // Chatroom send buttons
+            ['general', 'gaming', 'anime', 'tech'].forEach(room => {
+                const input = document.getElementById(`chat-input-${room}`);
+                const sendBtn = document.getElementById(`chat-send-${room}`);
+                
+                sendBtn.addEventListener('click', () => {
+                    sendChatMessage(room, input.value);
+                    input.value = '';
+                });
+                
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        sendChatMessage(room, input.value);
+                        input.value = '';
+                    }
+                });
+            });
+            
+            // Thread filter options
+            document.querySelectorAll('.filter-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-option').forEach(o => o.classList.remove('active'));
+                    option.classList.add('active');
+                    // In a real app, this would filter the threads
+                    loadThreads();
+                });
+            });
+            
+            // Database categories
+            document.querySelectorAll('.database-category').forEach(category => {
+                category.addEventListener('click', () => {
+                    document.querySelectorAll('.database-category').forEach(c => c.classList.remove('active'));
+                    category.classList.add('active');
+                    // In a real app, this would filter the articles
+                });
+            });
+            
+            // Board items
+            document.querySelectorAll('.board-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    document.querySelectorAll('.board-item').forEach(b => b.classList.remove('active'));
+                    item.classList.add('active');
+                    // In a real app, this would navigate to the board
+                });
+            });
+            
+            // Create thread modal
+            document.getElementById('create-thread-btn').addEventListener('click', () => {
+                createThreadModal.classList.add('active');
+            });
+            
+            document.getElementById('close-modal').addEventListener('click', () => {
+                createThreadModal.classList.remove('active');
+            });
+            
+            document.getElementById('cancel-thread').addEventListener('click', () => {
+                createThreadModal.classList.remove('active');
+            });
+            
+            createThreadForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                createNewThread();
+            });
+            
+            // Back to threads button
+            document.getElementById('back-to-threads').addEventListener('click', () => {
+                navigateToPage('home');
+            });
+            
+            // Share thread button
+            document.getElementById('share-thread').addEventListener('click', () => {
+                showNotification('Thread link copied to clipboard!', 'success');
+            });
+            
+            // Action buttons
+            document.getElementById('settings-btn')?.addEventListener('click', () => {
+                showNotification('Settings panel would open here', 'info');
+            });
+            
+            document.getElementById('new-thread-btn')?.addEventListener('click', () => {
+                createThreadModal.classList.add('active');
+            });
+            
+            document.getElementById('create-article-btn')?.addEventListener('click', () => {
+                showNotification('Article creation form would open here', 'info');
+            });
+            
+            document.getElementById('create-chatroom-btn')?.addEventListener('click', () => {
+                showNotification('Chatroom creation form would open here', 'info');
+            });
+            
+            document.getElementById('create-event-btn')?.addEventListener('click', () => {
+                showNotification('Event creation form would open here', 'info');
+            });
+            
+            document.getElementById('create-wiki-btn')?.addEventListener('click', () => {
+                showNotification('Wiki page creation form would open here', 'info');
+            });
+            
+            // User menu
+            document.getElementById('user-menu')?.addEventListener('click', () => {
+                showNotification('User menu would open here', 'info');
+            });
+            
+            // Notifications
+            document.getElementById('notifications-btn')?.addEventListener('click', () => {
+                showNotification('You have 3 new notifications', 'info');
+            });
+        }
+        
+        function navigateToPage(page) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            
+            // Show selected page
+            const pageElement = document.getElementById(`${page}-page`);
+            if (pageElement) {
+                pageElement.classList.add('active');
+                currentPage = page;
+                
+                // Update active nav item
+                navItems.forEach(item => {
+                    if (item.dataset.page === page) {
+                        item.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                    } else {
+                        item.style.backgroundColor = 'transparent';
+                    }
+                });
+            }
+        }
+        
+        function loadThreads() {
+            threadsList.innerHTML = '';
+            
+            sampleThreads.forEach(thread => {
+                const threadCard = document.createElement('div');
+                threadCard.className = 'thread-card';
+                threadCard.dataset.threadId = thread.id;
+                
+                let tagsHTML = '';
+                thread.tags.forEach(tag => {
+                    tagsHTML += `<span class="thread-tag">${tag}</span>`;
+                });
+                
+                let imageHTML = '';
+                if (thread.image) {
+                    imageHTML = `<img src="${thread.image}" alt="Thread image" class="thread-image">`;
+                }
+                
+                threadCard.innerHTML = `
+                    <div class="thread-header">
+                        <div>
+                            <h3 class="thread-title">${thread.title}</h3>
+                            <div class="thread-meta">
+                                <div class="thread-author">
+                                    <div class="thread-avatar">${thread.authorInitial}</div>
+                                    <span>${thread.author}</span>
+                                </div>
+                                <span>${thread.time}</span>
+                            </div>
+                        </div>
+                        <div class="thread-stats">
+                            <div class="thread-stat">
+                                <i class="fas fa-eye"></i>
+                                <span>${thread.views}</span>
+                            </div>
+                            <div class="thread-stat">
+                                <i class="fas fa-comment"></i>
+                                <span>${thread.replies}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="thread-content">${thread.content}</div>
+                    ${imageHTML}
+                    <div class="thread-tags">${tagsHTML}</div>
+                    <div class="thread-actions">
+                        <div class="thread-action ${thread.liked ? 'active' : ''}" data-action="like" data-thread-id="${thread.id}">
+                            <i class="fas fa-heart"></i>
+                            <span>${thread.likes}</span>
+                        </div>
+                        <div class="thread-action" data-action="comment" data-thread-id="${thread.id}">
+                            <i class="fas fa-comment"></i>
+                            <span>Comment</span>
+                        </div>
+                        <div class="thread-action" data-action="share" data-thread-id="${thread.id}">
+                            <i class="fas fa-share"></i>
+                            <span>Share</span>
+                        </div>
+                    </div>
+                `;
+                
+                threadsList.appendChild(threadCard);
+                
+                // Add event listeners to thread actions
+                threadCard.addEventListener('click', (e) => {
+                    // Only navigate if the click is not on an action button
+                    if (!e.target.closest('.thread-action')) {
+                        viewThread(thread.id);
+                    }
+                });
+                
+                // Add event listeners to action buttons
+                const likeBtn = threadCard.querySelector('[data-action="like"]');
+                const commentBtn = threadCard.querySelector('[data-action="comment"]');
+                const shareBtn = threadCard.querySelector('[data-action="share"]');
+                
+                likeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleLike(thread.id);
+                });
+                
+                commentBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    viewThread(thread.id);
+                });
+                
+                shareBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showNotification('Thread link copied to clipboard!', 'success');
+                });
+            });
+        }
+        
+        function viewThread(threadId) {
+            const thread = sampleThreads.find(t => t.id === threadId);
+            if (!thread) return;
+            
+            // Update thread detail title
+            document.getElementById('thread-detail-title').textContent = thread.title;
+            
+            // Get thread detail container
+            const threadDetail = document.getElementById('thread-detail');
+            threadDetail.innerHTML = '';
+            
+            // Create thread detail header
+            const threadDetailHeader = document.createElement('div');
+            threadDetailHeader.className = 'thread-detail-header';
+            
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            threadDetailHeader.innerHTML = `
+                <div class="thread-detail-meta">
+                    <div class="thread-detail-author">
+                        <div class="thread-detail-avatar">${thread.authorInitial}</div>
+                        <div class="thread-detail-info">
+                            <div class="thread-detail-name">${thread.author}</div>
+                            <div class="thread-detail-time">${thread.time}</div>
+                        </div>
+                    </div>
+                    <div class="thread-stats">
+                        <div class="thread-stat">
+                            <i class="fas fa-eye"></i>
+                            <span>${thread.views}</span>
+                        </div>
+                        <div class="thread-stat">
+                            <i class="fas fa-comment"></i>
+                            <span>${thread.replies}</span>
+                        </div>
+                        <div class="thread-stat">
+                            <i class="fas fa-heart"></i>
+                            <span>${thread.likes}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            threadDetail.appendChild(threadDetailHeader);
+            
+            // Create thread detail content
+            const threadDetailContent = document.createElement('div');
+            threadDetailContent.className = 'thread-detail-content';
+            
+            let imageHTML = '';
+            if (thread.image) {
+                imageHTML = `<img src="${thread.image}" alt="Thread image" class="thread-detail-image">`;
+            }
+            
+            let tagsHTML = '';
+            thread.tags.forEach(tag => {
+                tagsHTML += `<span class="thread-tag">${tag}</span>`;
+            });
+            
+            threadDetailContent.innerHTML = `
+                ${thread.content}
+                ${imageHTML}
+                <div class="thread-tags">${tagsHTML}</div>
+            `;
+            
+            threadDetail.appendChild(threadDetailContent);
+            
+            // Create comments section
+            const commentsSection = document.createElement('div');
+            commentsSection.className = 'comments-section';
+            
+            const commentsHeader = document.createElement('div');
+            commentsHeader.className = 'comments-header';
+            commentsHeader.innerHTML = `
+                <h3 class="comments-title">Comments (${thread.replies})</h3>
+            `;
+            
+            commentsSection.appendChild(commentsHeader);
+            
+            // Create comments list
+            const commentsList = document.createElement('div');
+            commentsList.className = 'comments-list';
+            
+            // Get comments for this thread
+            const threadComments = sampleComments[threadId] || [];
+            
+            threadComments.forEach(comment => {
+                const commentEl = document.createElement('div');
+                commentEl.className = 'comment';
+                
+                commentEl.innerHTML = `
+                    <div class="comment-avatar">${comment.authorInitial}</div>
+                    <div class="comment-content">
+                        <div class="comment-header">
+                            <div class="comment-author">${comment.author}</div>
+                            <div class="comment-time">${comment.time}</div>
+                        </div>
+                        <div class="comment-text">${comment.content}</div>
+                        <div class="comment-actions">
+                            <div class="comment-action ${comment.liked ? 'active' : ''}" data-action="like" data-comment-id="${comment.id}">
+                                <i class="fas fa-heart"></i>
+                                <span>${comment.likes}</span>
+                            </div>
+                            <div class="comment-action" data-action="reply" data-comment-id="${comment.id}">
+                                <i class="fas fa-reply"></i>
+                                <span>Reply</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                commentsList.appendChild(commentEl);
+                
+                // Add event listeners to comment actions
+                const likeBtn = commentEl.querySelector('[data-action="like"]');
+                likeBtn.addEventListener('click', () => {
+                    toggleCommentLike(comment.id);
+                });
+            });
+            
+            commentsSection.appendChild(commentsList);
+            
+            // Create comment form
+            const commentForm = document.createElement('div');
+            commentForm.className = 'comment-form';
+            
+            commentForm.innerHTML = `
+                <h3 class="comment-form-header">Add a Comment</h3>
+                <textarea class="comment-input" id="comment-input" placeholder="Write your comment here..."></textarea>
+                <div class="comment-form-actions">
+                    <button class="btn btn-secondary" id="cancel-comment">Cancel</button>
+                    <button class="btn btn-primary" id="submit-comment">Post Comment</button>
+                </div>
+            `;
+            
+            commentsSection.appendChild(commentForm);
+            
+            // Add event listeners to comment form
+            document.getElementById('submit-comment').addEventListener('click', () => {
+                const commentInput = document.getElementById('comment-input');
+                if (commentInput.value.trim()) {
+                    addComment(threadId, commentInput.value);
+                    commentInput.value = '';
+                }
+            });
+            
+            document.getElementById('cancel-comment').addEventListener('click', () => {
+                document.getElementById('comment-input').value = '';
+            });
+            
+            threadDetail.appendChild(commentsSection);
+            
+            // Navigate to thread detail page
+            navigateToPage('thread-detail');
+        }
+        
+        function toggleLike(threadId) {
+            const thread = sampleThreads.find(t => t.id === threadId);
+            if (!thread) return;
+            
+            thread.liked = !thread.liked;
+            if (thread.liked) {
+                thread.likes++;
+            } else {
+                thread.likes--;
+            }
+            
+            // Update the UI
+            const likeBtn = document.querySelector(`[data-action="like"][data-thread-id="${threadId}"]`);
+            if (likeBtn) {
+                likeBtn.classList.toggle('active');
+                likeBtn.querySelector('span').textContent = thread.likes;
+            }
+            
+            // Show notification
+            if (thread.liked) {
+                showNotification('You liked this thread!', 'success');
+            } else {
+                showNotification('You unliked this thread!', 'info');
+            }
+        }
+        
+        function toggleCommentLike(commentId) {
+            // Find the comment in all threads
+            for (const threadId in sampleComments) {
+                const comments = sampleComments[threadId];
+                const comment = comments.find(c => c.id === commentId);
+                
+                if (comment) {
+                    comment.liked = !comment.liked;
+                    if (comment.liked) {
+                        comment.likes++;
+                    } else {
+                        comment.likes--;
+                    }
+                    
+                    // Update the UI
+                    const likeBtn = document.querySelector(`[data-action="like"][data-comment-id="${commentId}"]`);
+                    if (likeBtn) {
+                        likeBtn.classList.toggle('active');
+                        likeBtn.querySelector('span').textContent = comment.likes;
+                    }
+                    
+                    // Show notification
+                    if (comment.liked) {
+                        showNotification('You liked this comment!', 'success');
+                    } else {
+                        showNotification('You unliked this comment!', 'info');
+                    }
+                    
+                    break;
+                }
+            }
+        }
+        
+        function addComment(threadId, content) {
+            const thread = sampleThreads.find(t => t.id === threadId);
+            if (!thread) return;
+            
+            // Create new comment
+            const newComment = {
+                id: Date.now(),
+                author: "Anonymous",
+                authorInitial: "A",
+                content: content,
+                time: "Just now",
+                likes: 0,
+                liked: false
+            };
+            
+            // Add comment to thread
+            if (!sampleComments[threadId]) {
+                sampleComments[threadId] = [];
+            }
+            sampleComments[threadId].push(newComment);
+            
+            // Update thread reply count
+            thread.replies++;
+            
+            // Refresh thread view
+            viewThread(threadId);
+            
+            // Show notification
+            showNotification('Your comment has been posted!', 'success');
+        }
+        
+        function createNewThread() {
+            const title = document.getElementById('thread-title').value;
+            const board = document.getElementById('thread-board').value;
+            const content = document.getElementById('thread-content').value;
+            const tagsInput = document.getElementById('thread-tags').value;
+            
+            // Parse tags
+            const tags = tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag);
+            
+            // Create new thread
+            const newThread = {
+                id: Date.now(),
+                title: title,
+                author: "Anonymous",
+                authorInitial: "A",
+                board: board,
+                content: content,
+                time: "Just now",
+                replies: 0,
+                likes: 0,
+                views: 0,
+                tags: tags,
+                liked: false
+            };
+            
+            // Add to sample threads
+            sampleThreads.unshift(newThread);
+            
+            // Close modal
+            createThreadModal.classList.remove('active');
+            
+            // Reset form
+            createThreadForm.reset();
+            
+            // Reload threads
+            loadThreads();
+            
+            // Show notification
+            showNotification('Your thread has been created!', 'success');
+        }
+        
+        function initializeChatrooms() {
+            // Add some initial messages
+            addChatMessage('general', 'System', 'Welcome to the General chatroom! Feel free to start a conversation.');
+            addChatMessage('gaming', 'System', 'Welcome to the Gaming chatroom! Discuss your favorite games here.');
+            addChatMessage('anime', 'System', 'Welcome to the Anime chatroom! Share your thoughts on the latest episodes.');
+            addChatMessage('tech', 'System', 'Welcome to the Tech chatroom! Talk about the latest in technology.');
+            
+            // Simulate some user activity
+            setTimeout(() => {
+                addChatMessage('general', 'JohnDoe', 'Hey everyone! How\'s it going?');
+            }, 2000);
+            
+            setTimeout(() => {
+                addChatMessage('gaming', 'GameMaster', 'Anyone playing the new release tonight?');
+            }, 3000);
+            
+            setTimeout(() => {
+                addChatMessage('anime', 'AnimeFan', 'Just finished the latest episode of my favorite show!');
+            }, 4000);
+            
+            setTimeout(() => {
+                addChatMessage('tech', 'TechGuru', 'Did you see the new smartphone announcement?');
+            }, 5000);
+        }
+        
+        function switchChatroom(room) {
+            // Update active tab
+            document.querySelectorAll('.chatroom-tab').forEach(tab => {
+                if (tab.dataset.room === room) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            // Update active chatroom
+            document.querySelectorAll('.chatroom').forEach(chatroom => {
+                if (chatroom.id === `chatroom-${room}`) {
+                    chatroom.classList.add('active');
+                } else {
+                    chatroom.classList.remove('active');
+                }
+            });
+            
+            currentChatroom = room;
+        }
+        
+        function sendChatMessage(room, message) {
+            if (message.trim()) {
+                addChatMessage(room, 'Anonymous', message);
+                
+                // Simulate response after a delay
+                setTimeout(() => {
+                    const responses = [
+                        "That's interesting!",
+                        "I agree with you.",
+                        "Tell me more about that.",
+                        "Thanks for sharing!",
+                        "I never thought of it that way."
+                    ];
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    const users = ['JohnDoe', 'AnimeFan', 'TechGuru', 'GameMaster', 'NewUser'];
+                    const randomUser = users[Math.floor(Math.random() * users.length)];
+                    addChatMessage(room, randomUser, randomResponse);
+                }, 1000 + Math.random() * 3000);
+            }
+        }
+        
+        function addChatMessage(room, author, content) {
+            const messagesContainer = document.getElementById(`chat-messages-${room}`);
+            const messageEl = document.createElement('div');
+            messageEl.className = 'chat-message';
+            
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            messageEl.innerHTML = `
+                <div class="chat-message-header">
+                    <div class="chat-message-author">${author}</div>
+                    <div class="chat-message-time">${timeString}</div>
+                </div>
+                <div class="chat-message-content">${content}</div>
+            `;
+            
+            messagesContainer.appendChild(messageEl);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Store message
+            chatMessages[room].push({
+                author,
+                content,
+                timestamp: now
+            });
+        }
+        
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            
+            const icon = document.createElement('div');
+            icon.className = 'notification-icon';
+            
+            if (type === 'success') {
+                icon.innerHTML = '<i class="fas fa-check-circle"></i>';
+            } else if (type === 'error') {
+                icon.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+            } else if (type === 'info') {
+                icon.innerHTML = '<i class="fas fa-info-circle"></i>';
+            } else if (type === 'warning') {
+                icon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+            }
+            
+            const content = document.createElement('div');
+            content.className = 'notification-content';
+            
+            const title = document.createElement('div');
+            title.className = 'notification-title';
+            title.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+            
+            const messageEl = document.createElement('div');
+            messageEl.className = 'notification-message';
+            messageEl.textContent = message;
+            
+            content.appendChild(title);
+            content.appendChild(messageEl);
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'notification-close';
+            closeBtn.innerHTML = '&times;';
+            closeBtn.addEventListener('click', () => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            });
+            
+            notification.appendChild(icon);
+            notification.appendChild(content);
+            notification.appendChild(closeBtn);
+            
+            notificationContainer.appendChild(notification);
+            
+            // Trigger animation
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
