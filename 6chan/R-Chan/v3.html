@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R-Chan - Modern Anonymous Forum</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff4500;
+            --secondary-color: #3498db;
+            --background-color: #f5f5f5;
+            --card-background: #ffffff;
+            --text-color: #333333;
+            --border-color: #e0e0e0;
+            --upvote-color: #ff4500;
+            --downvote-color: #9494ff;
+            --hover-color: #f0f0f0;
+            --sidebar-width: 240px;
+            --header-height: 56px;
+        }
+
+        [data-theme="dark"] {
+            --background-color: #1a1a1a;
+            --card-background: #222222;
+            --text-color: #e0e0e0;
+            --border-color: #444444;
+            --hover-color: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background-color: var(--card-background);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-right: auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 8px;
+        }
+
+        .search-bar {
+            flex-grow: 1;
+            max-width: 500px;
+            margin: 0 16px;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 8px 16px 8px 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 8px;
+            margin: 0 4px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            background-color: var(--hover-color);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+        }
+
+        .btn-primary:hover {
+            background-color: #e03e00;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--card-background);
+            border-right: 1px solid var(--border-color);
+            padding: 16px 0;
+            margin-top: var(--header-height);
+            position: fixed;
+            height: calc(100vh - var(--header-height));
+            overflow-y: auto;
+        }
+
+        .board-list {
+            list-style: none;
+        }
+
+        .board-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        .board-item:hover {
+            background-color: var(--hover-color);
+        }
+
+        .board-item.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .board-item i {
+            margin-right: 12px;
+        }
+
+        .board-stats {
+            margin-left: auto;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .board-item.active .board-stats {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            margin-top: var(--header-height);
+            padding: 16px;
+            max-width: 1200px;
+            margin-right: auto;
+        }
+
+        .post-container {
+            background-color: var(--card-background);
+            border-radius: 4px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .post-header {
+            display: flex;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .post-voting {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 12px;
+        }
+
+        .vote-btn {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .vote-btn:hover {
+            color: var(--text-color);
+        }
+
+        .vote-btn.upvoted {
+            color: var(--upvote-color);
+        }
+
+        .vote-btn.downvoted {
+            color: var(--downvote-color);
+        }
+
+        .vote-count {
+            font-size: 14px;
+            font-weight: 500;
+            margin: 4px 0;
+        }
+
+        .post-info {
+            flex: 1;
+        }
+
+        .post-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            cursor: pointer;
+        }
+
+        .post-title:hover {
+            text-decoration: underline;
+        }
+
+        .post-meta {
+            font-size: 12px;
+            color: #999;
+            display: flex;
+            align-items: center;
+        }
+
+        .post-meta span {
+            margin-right: 12px;
+        }
+
+        .post-author {
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .post-tags {
+            display: flex;
+            margin-top: 4px;
+        }
+
+        .post-tag {
+            background-color: var(--hover-color);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 4px;
+        }
+
+        .post-content {
+            padding: 16px;
+        }
+
+        .post-image {
+            max-width: 100%;
+            border-radius: 4px;
+            margin: 12px 0;
+        }
+
+        .post-actions {
+            padding: 8px 16px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .action-buttons {
+            display: flex;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            padding: 4px 8px;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .action-btn:hover {
+            color: var(--text-color);
+        }
+
+        .post-stats {
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* Reply Styles */
+        .replies {
+            border-left: 1px solid var(--border-color);
+            margin-left: 40px;
+            padding-left: 16px;
+        }
+
+        .reply {
+            background-color: var(--hover-color);
+            border-radius: 4px;
+            margin: 8px 0;
+            padding: 12px;
+        }
+
+        .reply-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .reply-author {
+            font-weight: 500;
+            color: var(--secondary-color);
+        }
+
+        .reply-content {
+            font-size: 14px;
+        }
+
+        /* Create Post Form */
+        .create-post {
+            background-color: var(--card-background);
+            border-radius: 4px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .anonymous-toggle {
+            display: flex;
+            align-items: center;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            margin: 0 8px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Image Upload */
+        .image-upload {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed var(--border-color);
+            border-radius: 4px;
+            padding: 16px;
+            margin-top: 8px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .image-upload:hover {
+            border-color: var(--primary-color);
+        }
+
+        .image-upload i {
+            margin-right: 8px;
+            color: #999;
+        }
+
+        .uploaded-images {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .uploaded-image {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .uploaded-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-image {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 60px;
+            }
+
+            .board-item span {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 60px;
+            }
+
+            .search-bar {
+                display: none;
+            }
+
+            .post-voting {
+                margin-right: 8px;
+            }
+
+            .replies {
+                margin-left: 20px;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="material-icons">forum</i>
+                R-Chan
+            </div>
+            <div class="search-bar">
+                <i class="material-icons">search</i>
+                <input type="text" placeholder="Search boards, posts, and users...">
+            </div>
+            <div class="header-controls">
+                <button class="btn" id="notifications-btn">
+                    <i class="material-icons">notifications</i>
+                </button>
+                <button class="btn" id="messages-btn">
+                    <i class="material-icons">message</i>
+                </button>
+                <button class="btn" id="user-menu-btn">
+                    <i class="material-icons">account_circle</i>
+                </button>
+                <button class="btn btn-primary" id="create-post-btn">
+                    <i class="material-icons">add</i> Create Post
+                </button>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <ul class="board-list">
+                <li class="board-item active" data-board="random">
+                    <i class="material-icons">shuffle</i>
+                    <span>/random</span>
+                    <span class="board-stats">1.2k users</span>
+                </li>
+                <li class="board-item" data-board="technology">
+                    <i class="material-icons">computer</i>
+                    <span>/technology</span>
+                    <span class="board-stats">3.4k users</span>
+                </li>
+                <li class="board-item" data-board="gaming">
+                    <i class="material-icons">sports_esports</i>
+                    <span>/gaming</span>
+                    <span class="board-stats">2.1k users</span>
+                </li>
+                <li class="board-item" data-board="art">
+                    <i class="material-icons">palette</i>
+                    <span>/art</span>
+                    <span class="board-stats">890 users</span>
+                </li>
+                <li class="board-item" data-board="music">
+                    <i class="material-icons">music_note</i>
+                    <span>/music</span>
+                    <span class="board-stats">1.5k users</span>
+                </li>
+                <li class="board-item" data-board="science">
+                    <i class="material-icons">science</i>
+                    <span>/science</span>
+                    <span class="board-stats">1.1k users</span>
+                </li>
+                <li class="board-item" data-board="books">
+                    <i class="material-icons">menu_book</i>
+                    <span>/books</span>
+                    <span class="board-stats">760 users</span>
+                </li>
+                <li class="board-item" data-board="fitness">
+                    <i class="material-icons">fitness_center</i>
+                    <span>/fitness</span>
+                    <span class="board-stats">980 users</span>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Create Post Form -->
+            <div class="create-post" id="create-post-form" style="display: none;">
+                <h3>Create New Post</h3>
+                <form id="post-form">
+                    <div class="form-group">
+                        <label for="post-title">Title</label>
+                        <input type="text" id="post-title" placeholder="Enter post title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="post-content">Content</label>
+                        <textarea id="post-content" placeholder="Write your post content here..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="post-board">Board</label>
+                        <select id="post-board">
+                            <option value="random">/random</option>
+                            <option value="technology">/technology</option>
+                            <option value="gaming">/gaming</option>
+                            <option value="art">/art</option>
+                            <option value="music">/music</option>
+                            <option value="science">/science</option>
+                            <option value="books">/books</option>
+                            <option value="fitness">/fitness</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Upload Images</label>
+                        <div class="image-upload" id="image-upload">
+                            <i class="material-icons">add_photo_alternate</i>
+                            <span>Click to upload images</span>
+                            <input type="file" id="file-input" accept="image/*" multiple style="display: none;">
+                        </div>
+                        <div class="uploaded-images" id="uploaded-images"></div>
+                    </div>
+                    <div class="form-actions">
+                        <div class="anonymous-toggle">
+                            <span>Post Anonymously</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="anonymous-toggle" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Post</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Posts Container -->
+            <div id="posts-container">
+                <!-- Sample Posts -->
+                <div class="post-container">
+                    <div class="post-header">
+                        <div class="post-voting">
+                            <button class="vote-btn upvote-btn">
+                                <i class="material-icons">arrow_upward</i>
+                            </button>
+                            <div class="vote-count">42</div>
+                            <button class="vote-btn downvote-btn">
+                                <i class="material-icons">arrow_downward</i>
+                            </button>
+                        </div>
+                        <div class="post-info">
+                            <div class="post-title">Just discovered this amazing open-source project that could change how we think about web development</div>
+                            <div class="post-meta">
+                                <span class="post-author">Anonymous</span>
+                                <span>2 hours ago</span>
+                                <span>/technology</span>
+                            </div>
+                            <div class="post-tags">
+                                <span class="post-tag">webdev</span>
+                                <span class="post-tag">opensource</span>
+                                <span class="post-tag">javascript</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <p>Has anyone here heard about the new framework called VueXpress? It's a lightweight, component-based framework that combines the best of React and Angular. I've been playing with it for a week now and it's absolutely amazing!</p>
+                        <img src="https://picsum.photos/seed/webdev1/800/400.jpg" alt="Web development screenshot" class="post-image">
+                        <p>The learning curve is minimal, the documentation is comprehensive, and the performance is outstanding. It's perfect for both beginners and experienced developers.</p>
+                    </div>
+                    <div class="post-actions">
+                        <div class="action-buttons">
+                            <button class="action-btn">
+                                <i class="material-icons">chat_bubble_outline</i> Reply
+                            </button>
+                            <button class="action-btn">
+                                <i class="material-icons">share</i> Share
+                            </button>
+                            <button class="action-btn">
+                                <i class="material-icons">bookmark_border</i> Save
+                            </button>
+                        </div>
+                        <div class="post-stats">
+                            <span>234 comments</span> • <span>12 shares</span>
+                        </div>
+                    </div>
+                    <div class="replies">
+                        <div class="reply">
+                            <div class="reply-header">
+                                <span class="reply-author">Anonymous</span>
+                                <span>1 hour ago</span>
+                            </div>
+                            <div class="reply-content">
+                                Tried it yesterday! The documentation is indeed comprehensive. The component system is intuitive and the performance is noticeably better than what I was using before.
+                            </div>
+                        </div>
+                        <div class="reply">
+                            <div class="reply-header">
+                                <span class="reply-author">Anonymous</span>
+                                <span>45 minutes ago</span>
+                            </div>
+                            <div class="reply-content">
+                                I'm curious about the ecosystem. Are there many third-party libraries available for it?
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="post-container">
+                    <div class="post-header">
+                        <div class="post-voting">
+                            <button class="vote-btn upvote-btn">
+                                <i class="material-icons">arrow_upward</i>
+                            </button>
+                            <div class="vote-count">87</div>
+                            <button class="vote-btn downvote-btn">
+                                <i class="material-icons">arrow_downward</i>
+                            </button>
+                        </div>
+                        <div class="post-info">
+                            <div class="post-title">My first attempt at digital art. Any feedback would be appreciated!</div>
+                            <div class="post-meta">
+                                <span class="post-author">Anonymous</span>
+                                <span>5 hours ago</span>
+                                <span>/art</span>
+                            </div>
+                            <div class="post-tags">
+                                <span class="post-tag">digitalart</span>
+                                <span class="post-tag">beginner</span>
+                                <span class="post-tag">feedback</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <p>Just started exploring digital art about a month ago. This is my first serious piece. I'm using Krita and a Wacom tablet. Any tips or feedback would be greatly appreciated!</p>
+                        <img src="https://picsum.photos/seed/art1/800/600.jpg" alt="Digital art piece" class="post-image">
+                    </div>
+                    <div class="post-actions">
+                        <div class="action-buttons">
+                            <button class="action-btn">
+                                <i class="material-icons">chat_bubble_outline</i> Reply
+                            </button>
+                            <button class="action-btn">
+                                <i class="material-icons">share</i> Share
+                            </button>
+                            <button class="action-btn">
+                                <i class="material-icons">bookmark_border</i> Save
+                            </button>
+                        </div>
+                        <div class="post-stats">
+                            <span>156 comments</span> • <span>45 shares</span>
+                        </div>
+                    </div>
+                    <div class="replies">
+                        <div class="reply">
+                            <div class="reply-header">
+                                <span class="reply-author">Anonymous</span>
+                                <span>4 hours ago</span>
+                            </div>
+                            <div class="reply-content">
+                                This is amazing for a first piece! The color palette is cohesive and the composition is well-balanced. Keep it up!
+                            </div>
+                        </div>
+                        <div class="reply">
+                            <div class="reply-header">
+                                <span class="reply-author">Anonymous</span>
+                                <span>3 hours ago</span>
+                            </div>
+                            <div class="reply-content">
+                                The lighting effects are particularly good. Have you tried using layers more? It might help with the depth.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="post-container">
+                    <div class="post-header">
+                        <div class="post-voting">
+                            <button class="vote-btn upvote-btn">
+                                <i class="material-icons">arrow_upward</i>
+                            </button>
+                            <div class="vote-count">12</div>
+                            <button class="vote-btn downvote-btn">
+                                <i class="material-icons">arrow_downward</i>
+                            </button>
+                        </div>
+                        <div class="post-info">
+                            <div class="post-title">Found this rare vinyl at a thrift store today. Anyone recognize this album?</div>
+                            <div class="post-meta">
+                                <span class="post-author">Anonymous</span>
+                                <span>8 hours ago</span>
+                                <span>/music</span>
+                            </div>
+                            <div class="post-tags">
+                                <span class="post-tag">vinyl</span>
+                                <span class="post-tag">thriftfind</span>
+                                <span class="post-tag">music</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <p>Picked this up for just $5 at a local thrift store. The artwork is beautiful but I can't seem to find any information about who made it. Any ideas?</p>
+                        <img src="https://picsum.photos/seed/vinyl1/800/800.jpg" alt="Vinyl record" class="post-image">
+                    </div>
+                    <div class="post-actions">
+                        <div class="action-buttons">
+                            <button class="action-btn">
+                                <i class="material-icons">chat_bubble_outline</i> Reply
+                            </button>
+                            <button class="action-btn">
+                                <i class="material-icons">share</i> Share
+                            </button>
+                            <button class="action-btn">
+                                <i class="material-icons">bookmark_border</i> Save
+                            </button>
+                        </div>
+                        <div class="post-stats">
+                            <span>34 comments</span> • <span>8 shares</span>
+                        </div>
+                    </div>
+                    <div class="replies">
+                        <div class="reply">
+                            <div class="reply-header">
+                                <span class="reply-author">Anonymous</span>
+                                <span>7 hours ago</span>
+                            </div>
+                            <div class="reply-content">
+                                That's an amazing find! The style looks like it could be from the 70s. Have you tried checking Discogs?
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="loading" id="loading" style="display: none;">
+                <div class="spinner"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="theme-toggle">
+        <i class="material-icons" id="theme-icon">dark_mode</i>
+    </button>
+
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const html = document.documentElement;
+
+        // Check for saved theme preference or default to light mode
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        html.setAttribute('data-theme', currentTheme);
+        updateThemeIcon(currentTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const newTheme = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+
+        function updateThemeIcon(theme) {
+            themeIcon.textContent = theme === 'light' ? 'dark_mode' : 'light_mode';
+        }
+
+        // Board Selection
+        const boardItems = document.querySelectorAll('.board-item');
+        boardItems.forEach(item => {
+            item.addEventListener('click', () => {
+                boardItems.forEach(board => board.classList.remove('active'));
+                item.classList.add('active');
+                // In a real app, this would load posts for the selected board
+                console.log(`Loading posts for board: ${item.dataset.board}`);
+                loadPosts();
+            });
+        });
+
+        // Create Post Form
+        const createPostBtn = document.getElementById('create-post-btn');
+        const createPostForm = document.getElementById('create-post-form');
+        const postForm = document.getElementById('post-form');
+
+        createPostBtn.addEventListener('click', () => {
+            createPostForm.style.display = createPostForm.style.display === 'none' ? 'block' : 'none';
+        });
+
+        postForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('post-title').value;
+            const content = document.getElementById('post-content').value;
+            const board = document.getElementById('post-board').value;
+            const isAnonymous = document.getElementById('anonymous-toggle').checked;
+            
+            // In a real app, this would send the data to a server
+            console.log({
+                title,
+                content,
+                board,
+                isAnonymous,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Reset form and hide it
+            postForm.reset();
+            createPostForm.style.display = 'none';
+            
+            // Show success message
+            showNotification('Post created successfully!');
+        });
+
+        // Image Upload
+        const imageUpload = document.getElementById('image-upload');
+        const fileInput = document.getElementById('file-input');
+        const uploadedImages = document.getElementById('uploaded-images');
+
+        imageUpload.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const files = e.target.files;
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const imageContainer = document.createElement('div');
+                    imageContainer.className = 'uploaded-image';
+                    
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'remove-image';
+                    removeBtn.innerHTML = '<i class="material-icons">close</i>';
+                    
+                    removeBtn.addEventListener('click', () => {
+                        imageContainer.remove();
+                    });
+                    
+                    imageContainer.appendChild(img);
+                    imageContainer.appendChild(removeBtn);
+                    uploadedImages.appendChild(imageContainer);
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Voting System
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.vote-btn')) {
+                const voteBtn = e.target.closest('.vote-btn');
+                const voteContainer = voteBtn.closest('.post-voting');
+                const voteCount = voteContainer.querySelector('.vote-count');
+                let count = parseInt(voteCount.textContent);
+                
+                // Remove upvoted/downvoted classes from both buttons
+                voteContainer.querySelectorAll('.vote-btn').forEach(btn => {
+                    btn.classList.remove('upvoted', 'downvoted');
+                });
+                
+                if (voteBtn.classList.contains('upvote-btn')) {
+                    if (voteBtn.classList.contains('upvoted')) {
+                        voteBtn.classList.remove('upvoted');
+                        count--;
+                    } else {
+                        voteBtn.classList.add('upvoted');
+                        count++;
+                        
+                        // Remove downvote if it exists
+                        const downvoteBtn = voteContainer.querySelector('.downvote-btn');
+                        if (downvoteBtn.classList.contains('downvoted')) {
+                            downvoteBtn.classList.remove('downvoted');
+                            count++;
+                        }
+                    }
+                } else if (voteBtn.classList.contains('downvote-btn')) {
+                    if (voteBtn.classList.contains('downvoted')) {
+                        voteBtn.classList.remove('downvoted');
+                        count++;
+                    } else {
+                        voteBtn.classList.add('downvoted');
+                        count--;
+                        
+                        // Remove upvote if it exists
+                        const upvoteBtn = voteContainer.querySelector('.upvote-btn');
+                        if (upvoteBtn.classList.contains('upvoted')) {
+                            upvoteBtn.classList.remove('upvoted');
+                            count--;
+                        }
+                    }
+                }
+                
+                voteCount.textContent = count;
+            }
+        });
+
+        // Reply to Posts
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.action-btn') && e.target.closest('.action-btn').textContent.includes('Reply')) {
+                const postContainer = e.target.closest('.post-container');
+                const replyForm = document.createElement('div');
+                replyForm.className = 'create-post';
+                replyForm.style.marginTop = '16px';
+                
+                replyForm.innerHTML = `
+                    <form class="reply-form">
+                        <div class="form-group">
+                            <textarea placeholder="Write your reply..." required></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <div class="anonymous-toggle">
+                                <span>Post Anonymously</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Reply</button>
+                        </div>
+                    </form>
+                `;
+                
+                postContainer.appendChild(replyForm);
+                
+                const replyFormElement = replyForm.querySelector('.reply-form');
+                replyFormElement.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    const replyContent = replyFormElement.querySelector('textarea').value;
+                    const isAnonymous = replyFormElement.querySelector('input[type="checkbox"]').checked;
+                    
+                    // Create new reply element
+                    const newReply = document.createElement('div');
+                    newReply.className = 'reply';
+                    newReply.innerHTML = `
+                        <div class="reply-header">
+                            <span class="reply-author">${isAnonymous ? 'Anonymous' : 'You'}</span>
+                            <span>Just now</span>
+                        </div>
+                        <div class="reply-content">${replyContent}</div>
+                    `;
+                    
+                    // Add to replies section or create one if it doesn't exist
+                    let repliesSection = postContainer.querySelector('.replies');
+                    if (!repliesSection) {
+                        repliesSection = document.createElement('div');
+                        repliesSection.className = 'replies';
+                        postContainer.appendChild(repliesSection);
+                    }
+                    
+                    repliesSection.appendChild(newReply);
+                    
+                    // Remove reply form
+                    replyForm.remove();
+                    
+                    // Show success message
+                    showNotification('Reply posted successfully!');
+                });
+            }
+        });
+
+        // Load More Posts (simulated)
+        function loadPosts() {
+            const loading = document.getElementById('loading');
+            loading.style.display = 'flex';
+            
+            // Simulate loading delay
+            setTimeout(() => {
+                loading.style.display = 'none';
+                // In a real app, this would load more posts from the server
+                showNotification('More posts loaded!');
+            }, 1000);
+        }
+
+        // Notification System
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.position = 'fixed';
+            notification.style.bottom = '80px';
+            notification.style.right = '20px';
+            notification.style.backgroundColor = 'var(--primary-color)';
+            notification.style.color = 'white';
+            notification.style.padding = '12px 24px';
+            notification.style.borderRadius = '4px';
+            notification.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.2)';
+            notification.style.zIndex = '1001';
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Infinite Scroll
+        window.addEventListener('scroll', () => {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+                loadPosts();
+            }
+        });
+    </script>
+</body>
+</html>
