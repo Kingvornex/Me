@@ -1,0 +1,1985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="An expanded interactive visual novel set in a beautiful sakura-filled world with branching storylines and new characters." />
+<meta name="keywords" content="Visual Novel, Anime, Interactive Story, HTML5 Game, Sakura Dreams" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Sakura Dreams - Expanded Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Quicksand', 'Noto Sans JP', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .background-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: opacity 1s ease-in-out;
+            z-index: 1;
+        }
+        
+        .character-layer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 2;
+            pointer-events: none;
+        }
+        
+        .character {
+            position: relative;
+            margin: 0 20px;
+            transition: all 0.5s ease;
+            transform-origin: bottom center;
+            filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.7));
+        }
+        
+        .character img {
+            height: 80vh;
+            max-height: 600px;
+            object-fit: contain;
+            object-position: bottom center;
+        }
+        
+        .character.hidden {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        
+        .character.speaking {
+            animation: speaking 0.5s infinite alternate;
+        }
+        
+        @keyframes speaking {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.02); }
+        }
+        
+        .ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            pointer-events: none;
+        }
+        
+        .ui-layer > * {
+            pointer-events: auto;
+        }
+        
+        .top-ui {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .chapter-indicator {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            font-weight: 600;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .settings-btn {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .settings-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        
+        .dialogue-box {
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 80%;
+            align-self: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dialogue-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b6b, #ffa500, #ff6b6b);
+            background-size: 200% 100%;
+            animation: gradient 3s linear infinite;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+        
+        .speaker {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .speaker-name {
+            display: flex;
+            align-items: center;
+        }
+        
+        .speaker-name i {
+            margin-right: 10px;
+            color: #ff6b6b;
+        }
+        
+        .voice-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .voice-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .voice-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .voice-btn.active {
+            background: rgba(255, 107, 107, 0.5);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .dialogue-text {
+            font-size: 20px;
+            line-height: 1.6;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+        
+        .choices {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .choice-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .choice-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .choice-btn:hover::before {
+            left: 100%;
+        }
+        
+        .choice-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+        
+        .menu-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            transition: opacity 0.5s ease;
+        }
+        
+        .menu-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .game-title {
+            font-size: 60px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+            background: linear-gradient(90deg, #ff6b6b, #ffa500);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
+        }
+        
+        .game-subtitle {
+            font-size: 24px;
+            margin-bottom: 50px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 300px;
+        }
+        
+        .menu-btn {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+        
+        .settings-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            z-index: 30;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        .settings-panel.hidden {
+            opacity: 0;
+            transform: translate(-50%, -60%);
+            pointer-events: none;
+        }
+        
+        .settings-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            text-align: center;
+            color: #ff6b6b;
+        }
+        
+        .settings-group {
+            margin-bottom: 20px;
+        }
+        
+        .settings-label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .settings-select, .settings-range {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 16px;
+        }
+        
+        .settings-select option {
+            background: #333;
+            color: #fff;
+        }
+        
+        .settings-range-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .settings-range {
+            flex: 1;
+        }
+        
+        .settings-value {
+            min-width: 40px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .settings-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .settings-checkbox input {
+            width: 20px;
+            height: 20px;
+            accent-color: #ff6b6b;
+        }
+        
+        .close-settings {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .close-settings:hover {
+            background: rgba(255, 107, 107, 0.5);
+        }
+        
+        .loading-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        
+        .loading-title {
+            font-size: 40px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #ff6b6b, #ffa500);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .loading-progress {
+            width: 300px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .loading-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff6b6b, #ffa500);
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+        
+        .loading-text {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .character-emotion {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .fullscreen-toggle {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            z-index: 15;
+        }
+        
+        .fullscreen-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        
+        .feature-highlight {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 107, 107, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            z-index: 25;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            animation: fadeInOut 5s ease-in-out infinite;
+        }
+        
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        
+        .achievements-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 30;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        .achievements-panel.hidden {
+            opacity: 0;
+            transform: translate(-50%, -60%);
+            pointer-events: none;
+        }
+        
+        .achievements-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            text-align: center;
+            color: #ff6b6b;
+        }
+        
+        .achievement-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .achievement-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+        
+        .achievement-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .achievement-icon.unlocked {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+        }
+        
+        .achievement-info {
+            flex: 1;
+        }
+        
+        .achievement-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .achievement-description {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .achievement-status {
+            font-size: 14px;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .achievement-status.unlocked {
+            background: rgba(255, 107, 107, 0.3);
+            color: #ffa500;
+        }
+        
+        .close-achievements {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .close-achievements:hover {
+            background: rgba(255, 107, 107, 0.5);
+        }
+        
+        .emotion-selector {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .emotion-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+        }
+        
+        .emotion-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        
+        .emotion-btn.active {
+            background: rgba(255, 107, 107, 0.5);
+        }
+        
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 40px;
+            }
+            
+            .game-subtitle {
+                font-size: 18px;
+            }
+            
+            .dialogue-box {
+                max-width: 95%;
+                padding: 15px;
+            }
+            
+            .speaker {
+                font-size: 20px;
+            }
+            
+            .dialogue-text {
+                font-size: 16px;
+            }
+            
+            .choice-btn {
+                padding: 12px 20px;
+                font-size: 16px;
+            }
+            
+            .character img {
+                height: 60vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="loading-screen">
+            <h1 class="loading-title">Sakura Dreams</h1>
+            <div class="loading-progress">
+                <div id="loading-bar" class="loading-bar"></div>
+            </div>
+            <p class="loading-text">Loading assets...</p>
+        </div>
+        
+        <!-- Feature Highlight -->
+        <div class="feature-highlight">
+            <i class="fas fa-microphone mr-2"></i> Fully Interactive Anime Novel with AI Voice
+        </div>
+        
+        <!-- Menu Screen -->
+        <div id="menu-screen" class="menu-screen hidden">
+            <h1 class="game-title">Sakura Dreams</h1>
+            <p class="game-subtitle">Expanded Edition - An Interactive Anime Novel Experience</p>
+            <div class="menu-buttons">
+                <button class="menu-btn" onclick="startGame()">
+                    <i class="fas fa-play mr-2"></i> Start New Game
+                </button>
+                <button class="menu-btn" onclick="showAchievements()">
+                    <i class="fas fa-trophy mr-2"></i> Achievements
+                </button>
+                <button class="menu-btn" onclick="showCredits()">
+                    <i class="fas fa-info-circle mr-2"></i> Credits
+                </button>
+                <button class="menu-btn" onclick="exitGame()">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Exit
+                </button>
+            </div>
+        </div>
+        
+        <!-- Settings Panel -->
+        <div id="settings-panel" class="settings-panel hidden">
+            <button class="close-settings" onclick="toggleSettings()">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="settings-title">Game Settings</h2>
+            
+            <div class="settings-group">
+                <label class="settings-label">Text Speed</label>
+                <div class="settings-range-container">
+                    <input type="range" id="text-speed" min="1" max="10" value="5" class="settings-range">
+                    <span id="text-speed-value" class="settings-value">5</span>
+                </div>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Auto-Play Speed</label>
+                <div class="settings-range-container">
+                    <input type="range" id="auto-speed" min="1" max="10" value="5" class="settings-range">
+                    <span id="auto-speed-value" class="settings-value">5</span>
+                </div>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Voice Settings</label>
+                <select id="voice-select" class="settings-select">
+                    <option value="">Loading voices...</option>
+                </select>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Speech Rate</label>
+                <div class="settings-range-container">
+                    <input type="range" id="speech-rate" min="0.5" max="2" value="1" step="0.1" class="settings-range">
+                    <span id="rate-value" class="settings-value">1.0</span>
+                </div>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Speech Pitch</label>
+                <div class="settings-range-container">
+                    <input type="range" id="speech-pitch" min="0.5" max="2" value="1" step="0.1" class="settings-range">
+                    <span id="pitch-value" class="settings-value">1.0</span>
+                </div>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Volume</label>
+                <div class="settings-range-container">
+                    <input type="range" id="speech-volume" min="0" max="1" value="0.8" step="0.1" class="settings-range">
+                    <span id="volume-value" class="settings-value">0.8</span>
+                </div>
+            </div>
+            
+            <div class="settings-group">
+                <div class="settings-checkbox">
+                    <input type="checkbox" id="auto-speak" checked>
+                    <label for="auto-speak">Auto-speak dialogue</label>
+                </div>
+            </div>
+            
+            <div class="settings-group">
+                <div class="settings-checkbox">
+                    <input type="checkbox" id="auto-advance" checked>
+                    <label for="auto-advance">Auto-advance dialogue</label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Achievements Panel -->
+        <div id="achievements-panel" class="achievements-panel hidden">
+            <button class="close-achievements" onclick="toggleAchievements()">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="achievements-title">Achievements</h2>
+            <div id="achievements-list"></div>
+        </div>
+        
+        <!-- Game Content -->
+        <div id="background-layer" class="background-layer"></div>
+        <div id="character-layer" class="character-layer"></div>
+        
+        <div class="ui-layer">
+            <div class="top-ui">
+                <div id="chapter-indicator" class="chapter-indicator hidden">Chapter 1</div>
+                <button class="settings-btn" onclick="toggleSettings()">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+            
+            <div id="dialogue-box" class="dialogue-box hidden">
+                <div class="speaker">
+                    <div class="speaker-name">
+                        <i class="fas fa-user"></i>
+                        <span id="speaker-name">Character</span>
+                    </div>
+                    <div class="voice-controls">
+                        <button id="voice-btn" class="voice-btn" onclick="toggleSpeech()">
+                            <i class="fas fa-volume-up"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="dialogue-text" class="dialogue-text">Dialogue text will appear here...</div>
+                <div id="choices" class="choices"></div>
+            </div>
+        </div>
+        
+        <!-- Fullscreen Toggle -->
+        <button class="fullscreen-toggle" onclick="toggleFullscreen()">
+            <i class="fas fa-expand"></i>
+        </button>
+    </div>
+    <script>
+        // Game assets - High-quality anime images
+        const assets = {
+            backgrounds: {
+                school: 'https://sfile.chatglm.cn/images-ppt/ec0b4ebaab56.jpg',
+                sunset: 'https://sfile.chatglm.cn/images-ppt/43aaa4e4df47.jpg',
+                classroom: 'https://sfile.chatglm.cn/images-ppt/eab5d063248b.jpg',
+                park: 'https://sfile.chatglm.cn/images-ppt/a28e9ec61442.jpg',
+                city: 'https://sfile.chatglm.cn/images-ppt/399b59774319.jpg',
+                shrine: 'https://sfile.chatglm.cn/images-ppt/4f6c777d1035.png',
+                beach: 'https://sfile.chatglm.cn/images-ppt/56749287ee02.jpg',
+                rooftop: 'https://sfile.chatglm.cn/images-ppt/65d09bf594be.jpg',
+                // New backgrounds
+                nightGarden: 'https://sfile.chatglm.cn/images-ppt/c20b14d2fd0d.jpg',
+                library: 'https://sfile.chatglm.cn/images-ppt/95af9dc1de89.jpg',
+                trainStation: 'https://sfile.chatglm.cn/images-ppt/58885fad0269.jpg'
+            },
+            characters: {
+                // Yuki - Female protagonist
+                yuki: {
+                    normal: 'https://sfile.chatglm.cn/images-ppt/8d3a490e92d3.jpg',
+                    happy: 'https://sfile.chatglm.cn/images-ppt/427665d66c93.jpg',
+                    sad: 'https://sfile.chatglm.cn/images-ppt/2eeab087a2ae.jpeg',
+                    angry: 'https://sfile.chatglm.cn/images-ppt/c61afaa8fb23.jpg',
+                    surprised: 'https://sfile.chatglm.cn/images-ppt/30c775171766.jpg'
+                },
+                // Haru - Male protagonist
+                haru: {
+                    normal: 'https://sfile.chatglm.cn/images-ppt/a1cb910bf45d.jpg',
+                    happy: 'https://sfile.chatglm.cn/images-ppt/7c77f94824f8.png',
+                    sad: 'https://sfile.chatglm.cn/images-ppt/09c7091b8722.jpg',
+                    angry: 'https://sfile.chatglm.cn/images-ppt/6c05edf3f5be.jpg',
+                    surprised: 'https://sfile.chatglm.cn/images-ppt/d7d9564cc027.jpg'
+                },
+                // Sakura - Transfer student
+                sakura: {
+                    normal: 'https://sfile.chatglm.cn/images-ppt/90b9ad71958e.jpg',
+                    happy: 'https://sfile.chatglm.cn/images-ppt/b049e0fc88ec.jpg',
+                    sad: 'https://sfile.chatglm.cn/images-ppt/4bf5e4263ee9.png',
+                    angry: 'https://sfile.chatglm.cn/images-ppt/877318dfc4f7.jpg',
+                    surprised: 'https://sfile.chatglm.cn/images-ppt/336e887ddc15.jpg'
+                },
+                // Sensei - Teacher
+                sensei: {
+                    normal: 'https://sfile.chatglm.cn/images-ppt/4f013f4ca4e9.jpg',
+                    happy: 'https://sfile.chatglm.cn/images-ppt/7ba1db068c59.jpg',
+                    sad: 'https://sfile.chatglm.cn/images-ppt/7fe44840c10c.jpg',
+                    angry: 'https://sfile.chatglm.cn/images-ppt/e7b46bcb8d23.jpg',
+                    surprised: 'https://sfile.chatglm.cn/images-ppt/926940125368.jpg'
+                },
+                // Hana - New character (pink-haired girl)
+                hana: {
+                    normal: 'https://sfile.chatglm.cn/images-ppt/50dd23d231fe.webp',
+                    happy: 'https://sfile.chatglm.cn/images-ppt/dd13aa94068e.jpg',
+                    sad: 'https://sfile.chatglm.cn/images-ppt/8d3a490e92d3.jpg',
+                    angry: 'https://sfile.chatglm.cn/images-ppt/4e7547ab9b95.png',
+                    surprised: 'https://sfile.chatglm.cn/images-ppt/21931414ea02.png'
+                },
+                // Kenji - New character (silver-haired boy)
+                kenji: {
+                    normal: 'https://sfile.chatglm.cn/images-ppt/c4dcd046a5f6.jpg',
+                    happy: 'https://sfile.chatglm.cn/images-ppt/59a16e743288.jpg',
+                    sad: 'https://sfile.chatglm.cn/images-ppt/72eda7dc7dff.jpg',
+                    angry: 'https://sfile.chatglm.cn/images-ppt/6d9d3b44872b.jpg',
+                    surprised: 'https://sfile.chatglm.cn/images-ppt/eab423903a1a.jpg'
+                }
+            }
+        };
+        
+        // Voice acting system
+        let speechSynthesis = window.speechSynthesis;
+        let voices = [];
+        let currentUtterance = null;
+        let isSpeaking = false;
+        
+        // Voice settings
+        let voiceSettings = {
+            rate: 1.0,
+            pitch: 1.0,
+            volume: 0.8,
+            autoSpeak: true,
+            defaultVoice: null
+        };
+        
+        // Character voice mappings
+        const characterVoices = {
+            'Yuki': { rate: 1.1, pitch: 1.2 }, // Higher pitch for female character
+            'Haru': { rate: 0.9, pitch: 0.8 }, // Lower pitch for male character
+            'Sakura': { rate: 1.0, pitch: 1.3 }, // Even higher pitch for another female character
+            'Sensei': { rate: 0.8, pitch: 0.9 }, // Deeper voice for teacher
+            'Hana': { rate: 1.1, pitch: 1.25 }, // Similar to Yuki but slightly different
+            'Kenji': { rate: 0.85, pitch: 0.85 } // Lower pitch for mysterious character
+        };
+        
+        // Game settings
+        let gameSettings = {
+            textSpeed: 5,
+            autoSpeed: 5,
+            autoAdvance: true
+        };
+        
+        // Game state
+        let currentChapter = 0;
+        let playerChoices = [];
+        let gameStarted = false;
+        let unlockedAchievements = [];
+        
+        // Achievements data
+        const achievements = [
+            {
+                id: 'first_day',
+                name: 'First Day',
+                description: 'Complete your first day at Sakura Academy',
+                icon: 'fa-school',
+                unlocked: false
+            },
+            {
+                id: 'friendship',
+                name: 'Blossoming Friendship',
+                description: 'Form a strong bond with Sakura',
+                icon: 'fa-hands-helping',
+                unlocked: false
+            },
+            {
+                id: 'secret_power',
+                name: 'Hidden Power',
+                description: 'Discover your special ability',
+                icon: 'fa-magic',
+                unlocked: false
+            },
+            {
+                id: 'festival_winner',
+                name: 'Festival Champion',
+                description: 'Win the school festival competition',
+                icon: 'fa-trophy',
+                unlocked: false
+            },
+            {
+                id: 'true_ending',
+                name: 'Sakura Dreams',
+                description: 'Unlock the true ending',
+                icon: 'fa-star',
+                unlocked: false
+            },
+            {
+                id: 'all_endings',
+                name: 'Completionist',
+                description: 'Unlock all possible endings',
+                icon: 'fa-medal',
+                unlocked: false
+            },
+            // New achievements
+            {
+                id: 'midnight_confession',
+                name: 'Midnight Confession',
+                description: 'Confess your feelings under the cherry blossoms at night',
+                icon: 'fa-moon',
+                unlocked: false
+            },
+            {
+                id: 'ancient_knowledge',
+                name: 'Ancient Knowledge',
+                description: 'Uncover the secret in the library',
+                icon: 'fa-book',
+                unlocked: false
+            },
+            {
+                id: 'farewell_kiss',
+                name: 'Farewell Kiss',
+                description: 'Share a kiss at the train station',
+                icon: 'fa-train',
+                unlocked: false
+            },
+            {
+                id: 'new_friend',
+                name: 'Pink-Haired Friend',
+                description: 'Become friends with Hana',
+                icon: 'fa-user-friends',
+                unlocked: false
+            },
+            {
+                id: 'mystery_solved',
+                name: 'Mystery Solved',
+                description: 'Uncover Kenji\'s secret',
+                icon: 'fa-search',
+                unlocked: false
+            }
+        ];
+        
+        // Story chapters
+        const chapters = [
+            {
+                title: "Chapter 1: First Day at Sakura Academy",
+                background: assets.backgrounds.school,
+                characters: [
+                    { name: "Yuki", image: assets.characters.yuki.normal, emotion: "😊", position: "left" },
+                    { name: "Haru", image: assets.characters.haru.normal, emotion: "😐", position: "right" }
+                ],
+                dialogue: {
+                    speaker: "Yuki",
+                    text: "Wow, this is my first day at Sakura Academy! I'm so excited to meet new friends. The cherry blossoms are beautiful this time of year."
+                },
+                choices: [
+                    { text: "Approach the friendly-looking student", next: 1 },
+                    { text: "Explore the school grounds first", next: 2 }
+                ]
+            },
+            {
+                title: "Chapter 2: The Mysterious Transfer Student",
+                background: assets.backgrounds.classroom,
+                characters: [
+                    { name: "Yuki", image: assets.characters.yuki.normal, emotion: "😊", position: "left" },
+                    { name: "Sakura", image: assets.characters.sakura.normal, emotion: "😳", position: "center" },
+                    { name: "Haru", image: assets.characters.haru.normal, emotion: "🤔", position: "right" }
+                ],
+                dialogue: {
+                    speaker: "Sakura",
+                    text: "Hi everyone! I'm Sakura, the new transfer student. I just moved here from Kyoto. I hope we can all be friends!"
+                },
+                choices: [
+                    { text: "Welcome Sakura warmly", next: 3 },
+                    { text: "Be cautious and observe first", next: 4 }
+                ]
+            },
+            {
+                title: "Chapter 3: After School Secrets",
+                background: assets.backgrounds.sunset,
+                characters: [
+                    { name: "Yuki", image: assets.characters.yuki.normal, emotion: "😌", position: "left" },
+                    { name: "Haru", image: assets.characters.haru.normal, emotion: "😊", position: "right" }
+                ],
+                dialogue: {
+                    speaker: "Haru",
+                    text: "Yuki, there's something I need to tell you... I've been watching you, and I think you have a special power. The power to see the true nature of people's hearts."
+                },
+                choices: [
+                    { text: "Ask Haru to explain more", next: 5 },
+                    { text: "Deny having any special powers", next: 6 }
+                ]
+            },
+            {
+                title: "Chapter 4: The School Festival",
+                background: assets.backgrounds.park,
+                characters: [
+                    { name: "Yuki", image: assets.characters.yuki.happy, emotion: "🎉", position: "left" },
+                    { name: "Sakura", image: assets.characters.sakura.happy, emotion: "🎭", position: "center" },
+                    { name: "Sensei", image: assets.characters.sensei.normal, emotion: "😊", position: "right" }
+                ],
+                dialogue: {
+                    speaker: "Sensei",
+                    text: "Welcome to the annual Sakura Academy Festival! This year's theme is 'Dreams and Aspirations'. I expect all of you to participate and show your talents!"
+                },
+                choices: [
+                    { text: "Join the music performance", next: 7 },
+                    { text: "Help with the art exhibition", next: 8 }
+                ]
+            },
+            {
+                title: "Chapter 5: The Shrine Visit",
+                background: assets.backgrounds.shrine,
+                characters: [
+                    { name: "Yuki", image: assets.characters.yuki.normal, emotion: "🙏", position: "left" },
+                    { name: "Sakura", image: assets.characters.sakura.normal, emotion: "😌", position: "center" },
+                    { name: "Haru", image: assets.characters.haru.normal, emotion: "😐", position: "right" }
+                ],
+                dialogue: {
+                    speaker: "Sakura",
+                    text: "Let's visit the shrine together! They say if you make a wish here during cherry blossom season, it's guaranteed to come true!"
+                },
+                choices: [
+                    { text: "Make a wish for friendship", next: 9 },
+                    { text: "Make a wish for success", next: 10 }
+                ]
+            },
+            {
+                title: "Chapter 6: Beach Day",
+                background: assets.backgrounds.beach,
+                characters: [
+                    { name: "Yuki", image: assets.characters.yuki.happy, emotion: "🌊", position: "left" },
+                    { name: "Haru", image: assets.characters.haru.happy, emotion: "😄", position: "center" },
+                    { name: "Sakura", image: assets.characters.sakura.happy, emotion: "🏖️", position: "right" }
+                ],
+                dialogue: {
+                    speaker: "Haru",
+                    text: "The beach is so beautiful today! I'm glad we all came together. This is what true friendship feels like."
+                },
+                choices: [
+                    { text: "Enjoy the sunset together", next: 11 },
+                    { text: "Build a sandcastle", next: 12 }
+                ]
+            },
+            {
+                title: "Chapter 7: Rooftop Confession",
+                background: assets.backgrounds.rooftop,
+                characters: [
+                    { name: "Yuki", image: assets.characters.yuki.surprised, emotion: "😳", position: "left" },
+                    { name: "Haru", image: assets.characters.haru.normal, emotion: "😊", position: "right" }
+                ],
+                dialogue: {
+                    speaker: "Haru",
+                    text: "Yuki, there's something I've been wanting to tell you for a long time... I think I'm falling in love with you."
+                },
+                choices: [
+                    { text: "Confess your feelings too", next: 13 },
+                    { text: "Gently reject Haru", next: 14 }
+                ]
+            },
+            {
+                title: "Chapter 8: The Truth Revealed",
+                background: assets.backgrounds.classroom,
+                characters: [
+                    { name: "Yuki", image: assets.characters.yuki.angry, emotion: "😠", position: "left" },
+                    { name: "Sakura", image: assets.characters.sakura.sad, emotion: "😢", position: "center" },
+                    { name: "Sensei", image: assets.characters.sensei.normal, emotion: "😐", position: "right" }
+                ],
+                dialogue: {
+                    speaker: "Sakura",
+                    text: "I have to tell you the truth... I'm not really a transfer student. I was sent here to observe your powers, Yuki."
+                },
+                choices: [
+                    { text: "Forgive Sakura", next: 15 },
+                    { text: "Feel betrayed", next: 16 }
+                ]
+            },
+            {
+                title: "Chapter 9: The Final Challenge",
+                background: assets.backgrounds.city,
+                characters: [
+                    { name: "Yuki", image: assets.characters.yuki.normal, emotion: "🌟", position: "center" },
+                    { name: "Haru", image: assets.characters.haru.normal, emotion: "🌟", position: "left" },
+                    { name: "Sakura", image: assets.characters.sakura.normal, emotion: "🌟", position: "right" }
+                ],
+                dialogue: {
+                    speaker: "Yuki",
+                    text: "After everything we've been through, I've learned that true friendship is the greatest power of all. Together, we can overcome any challenge and make our dreams come true!"
+                },
+                choices: [
+                    { text: "Continue the adventure", next: 17 },
+                    { text: "Start a new journey", next: 18 }
+                ]
+            },
+            {
+                title: "Chapter 10: Dreams Come True",
+                background: assets.backgrounds.sunset,
+                characters: [
+                    { name: "Yuki", image: assets.characters.yuki.happy, emotion: "🌸", position: "center" },
+                    { name: "Haru", image: assets.characters.haru.happy, emotion: "🌸", position: "left" },
+                    { name: "Sakura", image: assets.characters.sakura.happy, emotion: "🌸", position: "right" }
+                ],
+                dialogue: {
+                    speaker: "Yuki",
+                    text: "Our dreams have finally come true! The cherry blossoms are in full bloom, symbolizing our blossoming friendship and the bright future ahead of us."
+                },
+                choices: [
+                    { text: "Continue to new adventures", next: 20 },
+                    { text: "Start New Game", next: 0 }
+                ]
+            },
+            // New chapters
+            {
+                title: "Chapter 11: The Pink-Haired Rival",
+                background: assets.backgrounds.school,
+                characters: [
+                    { name: "Yuki", image: assets.characters.yuki.normal, emotion: "😐", position: "left" },
+                    { name: "Hana", image: assets.characters.hana.normal, emotion: "😏", position: "right" },
+                    { name: "Haru", image: assets.characters.haru.normal, emotion: "😳", position: "center" }
+                ],
+                dialogue: {
+                    speaker: "Hana",
+                    text: "So you're Yuki? I've heard a lot about you. I'm Hana, the top student in our class. I heard you have some special abilities. Let's see if you're really as special as everyone says."
+                },
+                choices: [
+                    { text: "Challenge Hana to a competition", next: 21 },
+                    { text: "Try to befriend Hana", next: 22 }
+                ]
+            },
+            {
+                title: "Chapter 12: The Mysterious Scholar",
+                background: assets.backgrounds.library,
+                characters: [
+                    { name: "Yuki", image: assets.characters.yuki.normal, emotion: "🤔", position: "left" },
+                    { name: "Kenji", image: assets.characters.kenji.normal, emotion: "📚", position: "right" },
+                    { name: "Sakura", image: assets.characters.sakura.normal, emotion: "😮", position: "center" }
+                ],
+                dialogue: {
+                    speaker: "Kenji",
+                    text: "I've been researching the ancient legends of this academy. There are texts that speak of a power that awakens during cherry blossom season. A power that can see into people's hearts... just like yours, Yuki."
+                },
+                choices: [
+                    { text: "Ask Kenji about the legends", next: 23 },
+                    { text: "Be suspicious of Kenji", next: 24 }
+                ]
+            },
+            {
+                title: "Chapter 13: Midnight Cherry Blossoms",
+                background: assets.backgrounds.nightGarden,
+                characters: [
+                    { name: "Yuki", image: assets.characters.yuki.normal, emotion: "🌙", position: "center" },
+                    { name: "Haru", image: assets.characters.haru.normal, emotion: "😊", position: "left" },
+                    { name: "Sakura", image: assets.characters.sakura.normal, emotion: "😌", position: "right" }
+                ],
+                dialogue: {
+                    speaker: "Haru",
+                    text: "The cherry blossoms are even more beautiful at night, don't you think? There's something magical about this garden when it's illuminated by lanterns. It's the perfect place to share your true feelings."
+                },
+                choices: [
+                    { text: "Confess your feelings to Haru", next: 25 },
+                    { text: "Confess your feelings to Sakura", next: 26 },
+                    { text: "Keep your feelings to yourself", next: 27 }
+                ]
+            },
+            {
+                title: "Chapter 14: The Ancient Secret",
+                background: assets.backgrounds.library,
+                characters: [
+                    { name: "Yuki", image: assets.characters.yuki.surprised, emotion: "😲", position: "center" },
+                    { name: "Kenji", image: assets.characters.kenji.normal, emotion: "🔍", position: "left" },
+                    { name: "Hana", image: assets.characters.hana.surprised, emotion: "😮", position: "right" }
+                ],
+                dialogue: {
+                    speaker: "Kenji",
+                    text: "I've found it! The ancient text that explains everything. Your power is connected to the cherry blossoms, Yuki. It's a gift that has been passed down through generations in your family. But there's more... the power can be used for good or evil, depending on your choices."
+                },
+                choices: [
+                    { text: "Promise to use your power for good", next: 28 },
+                    { text: "Ask about the dark potential of your power", next: 29 }
+                ]
+            },
+            {
+                title: "Chapter 15: The Farewell",
+                background: assets.backgrounds.trainStation,
+                characters: [
+                    { name: "Yuki", image: assets.characters.yuki.normal, emotion: "😢", position: "center" },
+                    { name: "Haru", image: assets.characters.haru.normal, emotion: "😔", position: "left" },
+                    { name: "Sakura", image: assets.characters.sakura.normal, emotion: "😢", position: "right" }
+                ],
+                dialogue: {
+                    speaker: "Yuki",
+                    text: "The school year is ending, and we all have to go our separate ways. But I'll never forget the friendships we've made and the adventures we've shared. The cherry blossoms will always remind me of you."
+                },
+                choices: [
+                    { text: "Promise to stay in touch", next: 30 },
+                    { text: "Share a farewell kiss with your love", next: 31 },
+                    { text: "Vow to reunite next cherry blossom season", next: 32 }
+                ]
+            }
+        ];
+        
+        // Endings
+        const endings = {
+            17: {
+                title: "True Ending: Sakura Dreams",
+                description: "You've unlocked the true ending! Your friendship has overcome all obstacles, and your dreams have come true.",
+                achievement: 'true_ending'
+            },
+            18: {
+                title: "New Journey",
+                description: "You've decided to start a new journey, leaving your friends behind but carrying their memories with you.",
+                achievement: null
+            },
+            20: {
+                title: "Continued Adventures",
+                description: "Your story continues with new friends and new challenges. The cherry blossoms will always guide your path.",
+                achievement: null
+            },
+            // New endings
+            21: {
+                title: "Rival Turned Friend",
+                description: "Through competition, you and Hana developed a deep respect for each other and became close friends.",
+                achievement: 'new_friend'
+            },
+            22: {
+                title: "Unexpected Friendship",
+                description: "Your kindness won over Hana's competitive spirit, and you formed a strong friendship.",
+                achievement: 'new_friend'
+            },
+            23: {
+                title: "Ancient Wisdom",
+                description: "Kenji shared his knowledge with you, revealing the true nature of your powers and your destiny.",
+                achievement: 'ancient_knowledge'
+            },
+            24: {
+                title: "Mystery Solved",
+                description: "Your suspicions led you to uncover Kenji's secret past and his connection to your powers.",
+                achievement: 'mystery_solved'
+            },
+            25: {
+                title: "Love Under the Blossoms",
+                description: "You confessed your love to Haru under the midnight cherry blossoms, beginning a beautiful romance.",
+                achievement: 'midnight_confession'
+            },
+            26: {
+                title: "Blossoming Love",
+                description: "You confessed your love to Sakura under the midnight cherry blossoms, beginning a beautiful romance.",
+                achievement: 'midnight_confession'
+            },
+            27: {
+                title: "Silent Longing",
+                description: "You kept your feelings to yourself, cherishing your friendships from afar.",
+                achievement: null
+            },
+            28: {
+                title: "Path of Light",
+                description: "You chose to use your powers for good, becoming a guardian of peace and harmony.",
+                achievement: 'secret_power'
+            },
+            29: {
+                title: "Path of Knowledge",
+                description: "You sought to understand both sides of your power, preparing yourself for any challenge.",
+                achievement: 'secret_power'
+            },
+            30: {
+                title: "Friends Forever",
+                description: "You promised to stay in touch with your friends, ensuring your bonds would never break.",
+                achievement: null
+            },
+            31: {
+                title: "Farewell Kiss",
+                description: "You shared a passionate farewell kiss with your love, promising to reunite one day.",
+                achievement: 'farewell_kiss'
+            },
+            32: {
+                title: "Cherry Blossom Promise",
+                description: "You vowed to reunite with your friends next cherry blossom season, a promise you would keep.",
+                achievement: null
+            }
+        };
+        
+        // Initialize the game
+        function initGame() {
+            // Simulate loading assets
+            let loadingProgress = 0;
+            const loadingBar = document.getElementById('loading-bar');
+            const loadingScreen = document.getElementById('loading-screen');
+            const menuScreen = document.getElementById('menu-screen');
+            
+            const loadingInterval = setInterval(() => {
+                loadingProgress += 10;
+                loadingBar.style.width = loadingProgress + '%';
+                
+                if (loadingProgress >= 100) {
+                    clearInterval(loadingInterval);
+                    setTimeout(() => {
+                        loadingScreen.classList.add('hidden');
+                        menuScreen.classList.remove('hidden');
+                    }, 500);
+                }
+            }, 200);
+            
+            // Initialize voice system
+            initVoiceSystem();
+            
+            // Initialize settings
+            initSettings();
+            
+            // Load achievements from localStorage
+            loadAchievements();
+            
+            // Set up fullscreen toggle
+            document.addEventListener('fullscreenchange', updateFullscreenButton);
+        }
+        
+        // Initialize voice system
+        function initVoiceSystem() {
+            // Load available voices
+            function loadVoices() {
+                voices = speechSynthesis.getVoices();
+                const voiceSelect = document.getElementById('voice-select');
+                
+                // Clear existing options
+                voiceSelect.innerHTML = '';
+                
+                // Add default option
+                const defaultOption = document.createElement('option');
+                defaultOption.textContent = 'Default';
+                defaultOption.value = '';
+                voiceSelect.appendChild(defaultOption);
+                
+                // Add available voices
+                voices.forEach((voice, i) => {
+                    const option = document.createElement('option');
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    option.value = i;
+                    voiceSelect.appendChild(option);
+                });
+                
+                // Set default voice if available
+                if (voices.length > 0) {
+                    voiceSettings.defaultVoice = voices[0];
+                }
+            }
+            
+            // Load voices initially
+            loadVoices();
+            
+            // Chrome loads voices asynchronously
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = loadVoices;
+            }
+            
+            // Setup voice controls
+            document.getElementById('voice-select').addEventListener('change', function() {
+                const voiceIndex = this.value;
+                if (voiceIndex !== '') {
+                    voiceSettings.defaultVoice = voices[voiceIndex];
+                } else {
+                    voiceSettings.defaultVoice = voices.length > 0 ? voices[0] : null;
+                }
+            });
+            
+            document.getElementById('speech-rate').addEventListener('input', function() {
+                voiceSettings.rate = parseFloat(this.value);
+                document.getElementById('rate-value').textContent = this.value;
+            });
+            
+            document.getElementById('speech-pitch').addEventListener('input', function() {
+                voiceSettings.pitch = parseFloat(this.value);
+                document.getElementById('pitch-value').textContent = this.value;
+            });
+            
+            document.getElementById('speech-volume').addEventListener('input', function() {
+                voiceSettings.volume = parseFloat(this.value);
+                document.getElementById('volume-value').textContent = this.value;
+            });
+            
+            document.getElementById('auto-speak').addEventListener('change', function() {
+                voiceSettings.autoSpeak = this.checked;
+            });
+        }
+        
+        // Initialize settings
+        function initSettings() {
+            // Text speed
+            document.getElementById('text-speed').addEventListener('input', function() {
+                gameSettings.textSpeed = parseInt(this.value);
+                document.getElementById('text-speed-value').textContent = this.value;
+            });
+            
+            // Auto speed
+            document.getElementById('auto-speed').addEventListener('input', function() {
+                gameSettings.autoSpeed = parseInt(this.value);
+                document.getElementById('auto-speed-value').textContent = this.value;
+            });
+            
+            // Auto advance
+            document.getElementById('auto-advance').addEventListener('change', function() {
+                gameSettings.autoAdvance = this.checked;
+            });
+        }
+        
+        // Load achievements from localStorage
+        function loadAchievements() {
+            const savedAchievements = localStorage.getItem('sakuraDreamsAchievements');
+            if (savedAchievements) {
+                unlockedAchievements = JSON.parse(savedAchievements);
+                
+                // Update achievement status
+                unlockedAchievements.forEach(id => {
+                    const achievement = achievements.find(a => a.id === id);
+                    if (achievement) {
+                        achievement.unlocked = true;
+                    }
+                });
+            }
+        }
+        
+        // Save achievements to localStorage
+        function saveAchievements() {
+            localStorage.setItem('sakuraDreamsAchievements', JSON.stringify(unlockedAchievements));
+        }
+        
+        // Unlock achievement
+        function unlockAchievement(achievementId) {
+            if (!unlockedAchievements.includes(achievementId)) {
+                unlockedAchievements.push(achievementId);
+                
+                // Update achievement status
+                const achievement = achievements.find(a => a.id === achievementId);
+                if (achievement) {
+                    achievement.unlocked = true;
+                }
+                
+                // Save to localStorage
+                saveAchievements();
+                
+                // Show notification
+                showAchievementNotification(achievement);
+            }
+        }
+        
+        // Show achievement notification
+        function showAchievementNotification(achievement) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white p-4 rounded-lg shadow-lg z-50 flex items-center max-w-md';
+            notification.innerHTML = `
+                <div class="bg-white bg-opacity-20 rounded-full p-3 mr-3">
+                    <i class="fas ${achievement.icon} text-2xl"></i>
+                </div>
+                <div>
+                    <div class="font-bold text-lg">Achievement Unlocked!</div>
+                    <div>${achievement.name}</div>
+                </div>
+            `;
+            
+            // Add to body
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.classList.add('animate-pulse');
+            }, 100);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 500);
+            }, 5000);
+        }
+        
+        // Start the game
+        function startGame() {
+            gameStarted = true;
+            currentChapter = 0;
+            playerChoices = [];
+            
+            // Hide menu screen
+            document.getElementById('menu-screen').classList.add('hidden');
+            
+            // Show game UI
+            document.getElementById('chapter-indicator').classList.remove('hidden');
+            document.getElementById('dialogue-box').classList.remove('hidden');
+            
+            // Load first chapter
+            loadChapter(0);
+        }
+        
+        // Load a chapter
+        function loadChapter(chapterIndex) {
+            const chapter = chapters[chapterIndex];
+            
+            // Update chapter indicator
+            document.getElementById('chapter-indicator').textContent = chapter.title;
+            
+            // Load background
+            document.getElementById('background-layer').style.backgroundImage = `url(${chapter.background})`;
+            
+            // Load characters
+            const characterLayer = document.getElementById('character-layer');
+            characterLayer.innerHTML = '';
+            
+            chapter.characters.forEach(char => {
+                const characterDiv = document.createElement('div');
+                characterDiv.className = 'character';
+                
+                if (char.position === 'left') {
+                    characterDiv.style.marginRight = 'auto';
+                    characterDiv.style.marginLeft = '50px';
+                } else if (char.position === 'right') {
+                    characterDiv.style.marginLeft = 'auto';
+                    characterDiv.style.marginRight = '50px';
+                } else {
+                    characterDiv.style.margin = '0 auto';
+                }
+                
+                characterDiv.innerHTML = `
+                    <div style="position: relative;">
+                        <img src="${char.image}" alt="${char.name}">
+                        <div class="character-emotion">${char.emotion}</div>
+                    </div>
+                `;
+                
+                characterLayer.appendChild(characterDiv);
+            });
+            
+            // Load dialogue
+            document.getElementById('speaker-name').textContent = chapter.dialogue.speaker;
+            typeWriterEffect(chapter.dialogue.text, 'dialogue-text');
+            
+            // Load choices
+            const choicesDiv = document.getElementById('choices');
+            choicesDiv.innerHTML = '';
+            
+            chapter.choices.forEach((choice, index) => {
+                const choiceBtn = document.createElement('button');
+                choiceBtn.className = 'choice-btn';
+                choiceBtn.textContent = choice.text;
+                choiceBtn.onclick = () => makeChoice(choice.next);
+                choicesDiv.appendChild(choiceBtn);
+            });
+            
+            // Auto-speak dialogue if enabled
+            if (voiceSettings.autoSpeak) {
+                setTimeout(() => {
+                    speakText(chapter.dialogue.text, chapter.dialogue.speaker);
+                }, 1000);
+            }
+            
+            // Highlight speaking character
+            highlightSpeakingCharacter(chapter.dialogue.speaker);
+            
+            // Unlock first day achievement
+            if (chapterIndex === 0 && !unlockedAchievements.includes('first_day')) {
+                unlockAchievement('first_day');
+            }
+        }
+        
+        // Type writer effect for dialogue
+        function typeWriterEffect(text, elementId) {
+            const element = document.getElementById(elementId);
+            element.textContent = '';
+            let i = 0;
+            
+            const speed = 50 - (gameSettings.textSpeed * 4); // Convert text speed to typing speed
+            
+            function type() {
+                if (i < text.length) {
+                    element.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                } else if (gameSettings.autoAdvance) {
+                    // Auto-advance after a delay based on auto-speed setting
+                    const delay = 5000 - (gameSettings.autoSpeed * 400);
+                    setTimeout(() => {
+                        // This would normally advance to the next part of the dialogue
+                        // For now, we'll just keep the text on screen
+                    }, delay);
+                }
+            }
+            
+            type();
+        }
+        
+        // Highlight the speaking character
+        function highlightSpeakingCharacter(speakerName) {
+            const characters = document.querySelectorAll('.character');
+            
+            characters.forEach(char => {
+                const charName = char.querySelector('img').alt;
+                if (charName === speakerName) {
+                    char.classList.add('speaking');
+                } else {
+                    char.classList.remove('speaking');
+                }
+            });
+        }
+        
+        // Make a choice
+        function makeChoice(nextChapter) {
+            playerChoices.push(currentChapter);
+            currentChapter = nextChapter;
+            
+            // Check if this is an ending
+            if (endings[nextChapter]) {
+                showEnding(endings[nextChapter]);
+                
+                // Unlock achievement if available
+                if (endings[nextChapter].achievement) {
+                    unlockAchievement(endings[nextChapter].achievement);
+                }
+                
+                // Check if all endings are unlocked
+                checkAllEndings();
+            } else {
+                loadChapter(currentChapter);
+            }
+        }
+        
+        // Check if all endings are unlocked
+        function checkAllEndings() {
+            // This is a simplified check - in a real game, you'd track which endings the player has seen
+            const hasTrueEnding = unlockedAchievements.includes('true_ending');
+            const hasNewJourney = playerChoices.includes(18);
+            
+            if (hasTrueEnding && hasNewJourney && !unlockedAchievements.includes('all_endings')) {
+                unlockAchievement('all_endings');
+            }
+        }
+        
+        // Show ending
+        function showEnding(ending) {
+            const backgroundLayer = document.getElementById('background-layer');
+            const characterLayer = document.getElementById('character-layer');
+            const dialogueBox = document.getElementById('dialogue-box');
+            
+            // Load ending background
+            backgroundLayer.style.backgroundImage = `url(${assets.backgrounds.sunset})`;
+            
+            // Clear characters
+            characterLayer.innerHTML = '';
+            
+            // Show ending dialogue
+            document.getElementById('speaker-name').textContent = ending.title;
+            document.getElementById('dialogue-text').textContent = ending.description;
+            
+            // Show ending choices
+            const choicesDiv = document.getElementById('choices');
+            choicesDiv.innerHTML = `
+                <button class="choice-btn" onclick="startGame()">
+                    <i class="fas fa-redo mr-2"></i> Play Again
+                </button>
+                <button class="choice-btn" onclick="backToMenu()">
+                    <i class="fas fa-home mr-2"></i> Back to Menu
+                </button>
+            `;
+        }
+        
+        // Back to menu
+        function backToMenu() {
+            gameStarted = false;
+            
+            // Hide game UI
+            document.getElementById('chapter-indicator').classList.add('hidden');
+            document.getElementById('dialogue-box').classList.add('hidden');
+            
+            // Show menu screen
+            document.getElementById('menu-screen').classList.remove('hidden');
+        }
+        
+        // Show achievements
+        function showAchievements() {
+            const achievementsList = document.getElementById('achievements-list');
+            achievementsList.innerHTML = '';
+            
+            achievements.forEach(achievement => {
+                const achievementItem = document.createElement('div');
+                achievementItem.className = 'achievement-item';
+                
+                const achievementIcon = document.createElement('div');
+                achievementIcon.className = `achievement-icon ${achievement.unlocked ? 'unlocked' : ''}`;
+                achievementIcon.innerHTML = `<i class="fas ${achievement.icon}"></i>`;
+                
+                const achievementInfo = document.createElement('div');
+                achievementInfo.className = 'achievement-info';
+                achievementInfo.innerHTML = `
+                    <div class="achievement-name">${achievement.name}</div>
+                    <div class="achievement-description">${achievement.description}</div>
+                `;
+                
+                const achievementStatus = document.createElement('div');
+                achievementStatus.className = `achievement-status ${achievement.unlocked ? 'unlocked' : ''}`;
+                achievementStatus.textContent = achievement.unlocked ? 'Unlocked' : 'Locked';
+                
+                achievementItem.appendChild(achievementIcon);
+                achievementItem.appendChild(achievementInfo);
+                achievementItem.appendChild(achievementStatus);
+                
+                achievementsList.appendChild(achievementItem);
+            });
+            
+            // Show achievements panel
+            document.getElementById('achievements-panel').classList.remove('hidden');
+        }
+        
+        // Toggle achievements panel
+        function toggleAchievements() {
+            const achievementsPanel = document.getElementById('achievements-panel');
+            achievementsPanel.classList.toggle('hidden');
+        }
+        
+        // Show credits
+        function showCredits() {
+            const backgroundLayer = document.getElementById('background-layer');
+            const characterLayer = document.getElementById('character-layer');
+            const dialogueBox = document.getElementById('dialogue-box');
+            
+            // Load credits background
+            backgroundLayer.style.backgroundImage = `url(${assets.backgrounds.city})`;
+            
+            // Clear characters
+            characterLayer.innerHTML = '';
+            
+            // Show credits dialogue
+            document.getElementById('speaker-name').textContent = 'Credits';
+            document.getElementById('dialogue-text').textContent = 'Sakura Dreams - Expanded Edition\n\nCreated with HTML, CSS, and JavaScript\n\nVoice Acting: Web Speech API\n\nImages: High-quality anime artwork\n\nThank you for playing!';
+            
+            // Show credits choices
+            const choicesDiv = document.getElementById('choices');
+            choicesDiv.innerHTML = `
+                <button class="choice-btn" onclick="backToMenu()">
+                    <i class="fas fa-home mr-2"></i> Back to Menu
+                </button>
+            `;
+        }
+        
+        // Exit game
+        function exitGame() {
+            if (confirm('Are you sure you want to exit the game?')) {
+                // In a real game, this might close the application or window
+                // For this web version, we'll just go back to the menu
+                backToMenu();
+            }
+        }
+        
+        // Toggle settings panel
+        function toggleSettings() {
+            const settingsPanel = document.getElementById('settings-panel');
+            settingsPanel.classList.toggle('hidden');
+        }
+        
+        // Speak text with character voice
+        function speakText(text, character) {
+            if (!voiceSettings.autoSpeak || !speechSynthesis) {
+                return;
+            }
+            
+            // Cancel any ongoing speech
+            if (isSpeaking) {
+                speechSynthesis.cancel();
+            }
+            
+            // Create new utterance
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            
+            // Apply character-specific voice settings
+            if (character && characterVoices[character]) {
+                const charVoice = characterVoices[character];
+                currentUtterance.rate = voiceSettings.rate * charVoice.rate;
+                currentUtterance.pitch = voiceSettings.pitch * charVoice.pitch;
+            } else {
+                currentUtterance.rate = voiceSettings.rate;
+                currentUtterance.pitch = voiceSettings.pitch;
+            }
+            
+            currentUtterance.volume = voiceSettings.volume;
+            
+            // Set voice if selected
+            if (voiceSettings.defaultVoice) {
+                currentUtterance.voice = voiceSettings.defaultVoice;
+            }
+            
+            // Set up event handlers
+            currentUtterance.onstart = function() {
+                isSpeaking = true;
+                updateVoiceButton(true);
+            };
+            
+            currentUtterance.onend = function() {
+                isSpeaking = false;
+                updateVoiceButton(false);
+            };
+            
+            currentUtterance.onerror = function(event) {
+                console.error('Speech synthesis error:', event.error);
+                isSpeaking = false;
+                updateVoiceButton(false);
+            };
+            
+            // Speak the text
+            speechSynthesis.speak(currentUtterance);
+        }
+        
+        // Toggle speech
+        function toggleSpeech() {
+            const dialogueText = document.getElementById('dialogue-text').textContent;
+            const speakerName = document.getElementById('speaker-name').textContent;
+            
+            if (isSpeaking) {
+                speechSynthesis.cancel();
+                isSpeaking = false;
+                updateVoiceButton(false);
+            } else {
+                speakText(dialogueText, speakerName);
+            }
+        }
+        
+        // Update voice button state
+        function updateVoiceButton(speaking) {
+            const voiceBtn = document.getElementById('voice-btn');
+            if (speaking) {
+                voiceBtn.classList.add('active');
+            } else {
+                voiceBtn.classList.remove('active');
+            }
+        }
+        
+        // Toggle fullscreen
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        // Update fullscreen button icon
+        function updateFullscreenButton() {
+            const fullscreenBtn = document.querySelector('.fullscreen-toggle i');
+            if (document.fullscreenElement) {
+                fullscreenBtn.className = 'fas fa-compress';
+            } else {
+                fullscreenBtn.className = 'fas fa-expand';
+            }
+        }
+        
+        // Initialize the game when the page loads
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
